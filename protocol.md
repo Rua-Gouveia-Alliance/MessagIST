@@ -1,4 +1,7 @@
 # Protocol
+## Structure
+* 4 Vms: 1 Server, 2 Clients, 1 DB.
+
 ## Client
 ### Application Startup
 1. Establish TLS (Server Authentication) connection with the server.
@@ -21,7 +24,7 @@
 3. Receive the chat ID.
 
 ### Creating a chat (Second Half; Key Exchange)
-TODO: preciso expandir esta explicacao
+**TODO**: preciso expandir esta explicacao
 1. Compute the chat key by performing a key exchange protocol with the
    desired user.
 2. Store the chat key in persistent storage (?).
@@ -35,9 +38,10 @@ TODO: preciso expandir esta explicacao
 3. Protect the message.
 4. Create a `MESSAGE` request: Chat ID, protected message, session token.
 7. Send the request to the server through the secure TLS connection.
-**TODO**: 8. e 9. fazem sentido ou ha maneiras melhores?
 8. Receive the message global timestamp.
 9. Append to the chat accordingly.
+
+**TODO**: 8. e 9. fazem sentido ou ha maneiras melhores?
 
 ### Receiving a message
 1. Validate message.
@@ -56,7 +60,8 @@ TODO: preciso expandir esta explicacao
 * At application startup, the client will have all chat's empty (messages are
   not stored locally). As such, the answer to the first `KEEPALIVE` will contain
   all old messages.
-* TODO: Nao e mto bom se tiver mtas mensages, talvez seja melhor fazer uma
+
+**TODO**: Nao e mto bom se tiver mtas mensages, talvez seja melhor fazer uma
   especie de cache local onde se vao guardando chats e depois quando a aplicacao
   liga o estado esta mais atualizado (tipo whatsapp no pc).
 
@@ -97,5 +102,6 @@ TODO: preciso expandir esta explicacao
 2. Add nonce (timestamp works as nonce ?).
 3. Cipher with AES in CBC using the chat key.
 4. Use two different keys because its bad practice reusing keys.
-TODO: Temos uma diferente para sign e outra para cifrar, mas vamos estar a
+
+**TODO**: Temos uma diferente para sign e outra para cifrar, mas vamos estar a
 reutilizar estas duas ao longo do chat todo. É mau?
