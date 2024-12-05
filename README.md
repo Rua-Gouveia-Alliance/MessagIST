@@ -1,4 +1,4 @@
-# CXX NotIST / TicketIST / MotorIST / MessagIST Project Read Me
+# A61 MessagIST Project Read Me
 
 <!-- this is an instruction line; after you follow the instruction, delete the corresponding line. Do the same for all instruction lines! -->
 
@@ -10,13 +10,12 @@
 
 | Number | Name              | User                             | E-mail                              |
 | -------|-------------------|----------------------------------| ------------------------------------|
-| 11111  | Alice Network     | <https://github.com/AliceUser>   | <mailto:alice@tecnico.ulisboa.pt>   |
-| 22222  | Bob Computer      | <https://github.com/BobUser>     | <mailto:bob@tecnico.ulisboa.pt>     |
-| 33333  | Charlie Security  | <https://github.com/CharlieUser> | <mailto:charlie@tecnico.ulisboa.pt> |
+| 102611  | João Gouveia    | <https://github.com/AliceUser>   |   | joao.talone.gouveia@tecnico.ulisboa.pt
+| 102606  | Rodrigo Arêde      | <https://github.com/BobUser>     | rodrigo.arede@tecnico.ulisboa.pt      |
+| 102604  | Gonçalo Rua  | <https://github.com/CharlieUser> | <mailto:charlie@tecnico.ulisboa.pt> |
 
-*(fill table above with team member information)*  
 
-![Alice](img/alice.png) ![Bob](img/bob.png) ![Charlie](img/charlie.png)
+![Alice](img/alice.png) ![Rodrigo Arêde](img/arede.png) ![Charlie](img/charlie.png)
 
 *(add face photos with 150px height; faces should have similar size and framing)*
 
