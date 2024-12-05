@@ -8,9 +8,10 @@
 
 ### Account creation
 1. Create a username and a password.
-2. Create a `SIGNUP` request: Username, hash(password).
-3. Send the request to the server through the secure TLS connection.
-4. Receive the certificate and store it in persistent storage.
+2. Generate a public/private keypair from the username+password combination.
+3. Create a `SIGNUP` request: Username, hash(password), public key.
+4. Send the request to the server through the secure TLS connection.
+5. Receive the certificate and store it in persistent storage.
 
 ### Logging in
 1. Provide username and password.
@@ -28,9 +29,6 @@
 1. Compute the chat key by performing a key exchange protocol with the
    desired user.
 2. Store the chat key in persistent storage (?).
-3. Compute the signing key by performing a key exchange protocol with the
-   desired user.
-4. Store the signing key in persistent storage (?).
 
 ### Sending a message
 1. If a chat has not been yet created: create a chat.
@@ -96,12 +94,9 @@
 2. Answer with any pending messages.
 
 ## Protecting Messages
-1. Sign with HMAC using the signing key:
-     - CBC-MAC: Not adequate for messages of variable length.
-     - Keyed Hash: Vulnerable to extension attacks.
+1. Sign with DS using the private key:
 2. Add nonce (timestamp works as nonce ?).
 3. Cipher with AES in CBC using the chat key.
-4. Use two different keys because its bad practice reusing keys.
 
 **TODO**: Temos uma diferente para sign e outra para cifrar, mas vamos estar a
 reutilizar estas duas ao longo do chat todo. É mau?
