@@ -12,7 +12,22 @@
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <maven.compiler.release>17</maven.compiler.release>
+
+		<version.java>21</version.java>
+
+        <version.maven-clean-plugin>3.4.0</version.maven-clean-plugin>
+        <version.maven-resources-plugin>3.3.1</version.maven-resources-plugin>
+		<version.maven-compiler-plugin>3.13.0</version.maven-compiler-plugin>
+        <version.maven-jar-plugin>3.4.2</version.maven-jar-plugin>
+        <version.maven-install-plugin>3.1.2</version.maven-install-plugin>
+        <version.maven-deploy-plugin>3.1.2</version.maven-deploy-plugin>
+		<version.protobuf-maven-plugin>0.6.1</version.protobuf-maven-plugin>
+
+		<version.grpc>1.68.2</version.grpc>
+		<version.protoc>3.19.6</version.protoc>
+        <version.annotations-api>6.0.53</version.annotations-api>
     </properties>
 
     <dependencyManagement>
@@ -20,7 +35,7 @@
             <dependency>
             <groupId>io.grpc</groupId>
             <artifactId>grpc-bom</artifactId>
-            <version>1.68.2</version>
+            <version>${version.grpc}</version>
             <type>pom</type>
             <scope>import</scope>
             </dependency>
@@ -28,6 +43,7 @@
     </dependencyManagement>
 
     <dependencies>
+        <!-- gRPC dependencies, versions defined by the gRPC BoM -->
         <dependency>
             <groupId>io.grpc</groupId>
             <artifactId>grpc-protobuf</artifactId>
@@ -37,14 +53,14 @@
             <artifactId>grpc-stub</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.apache.tomcat</groupId>
-            <artifactId>annotations-api</artifactId>
-            <version>6.0.53</version>
-            <scope>provided</scope> <!-- not needed at runtime -->
-        </dependency>
-        <dependency>
             <groupId>io.grpc</groupId>
             <artifactId>grpc-netty-shaded</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.tomcat</groupId> <!-- necessary for Java 9+ -->
+            <artifactId>annotations-api</artifactId>
+            <version>${version.annotations-api}</version>
+            <scope>provided</scope> <!-- not needed at runtime -->
         </dependency>
     </dependencies>
 
@@ -53,36 +69,41 @@
             <plugins>
                 <plugin>
                     <artifactId>maven-clean-plugin</artifactId>
-                    <version>3.4.0</version>
+                    <version>${version.maven-clean-plugin}</version>
                 </plugin>
                 <plugin>
                     <artifactId>maven-resources-plugin</artifactId>
-                    <version>3.3.1</version>
+                    <version>${version.maven-resources-plugin}</version>
                 </plugin>
                 <plugin>
                     <artifactId>maven-compiler-plugin</artifactId>
-                    <version>3.13.0</version>
+                    <version>${version.maven-compiler-plugin}</version>
+                    <configuration>
+                        <source>${version.java}</source>
+                        <target>${version.java}</target>
+                    </configuration>
                 </plugin>
                 <plugin>
                     <artifactId>maven-jar-plugin</artifactId>
-                    <version>3.4.2</version>
+                    <version>${version.maven-jar-plugin}</version>
                 </plugin>
                 <plugin>
                     <artifactId>maven-install-plugin</artifactId>
-                    <version>3.1.2</version>
+                    <version>${version.maven-install-plugin}</version>
                 </plugin>
                 <plugin>
                     <artifactId>maven-deploy-plugin</artifactId>
-                    <version>3.1.2</version>
+                    <version>${version.maven-deploy-plugin}</version>
                 </plugin>
             </plugins>
         </pluginManagement>
     </build>
 
     <modules>
+        <module>util</module>
+        <module>contract</module>
         <module>server</module>
         <module>ca</module>
         <module>client</module>
-        <module>util</module>
     </modules>
 </project>
