@@ -1,0 +1,7 @@
+name: messagist
+channels:
+  - defaults
+dependencies:
+  - python=3.12
+  - grpcio=1.62.2
+  - grpcio-tools=1.62.2

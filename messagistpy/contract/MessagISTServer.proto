@@ -1,0 +1,56 @@
+//
+// Protocol buffers definition for the MessagIST Server
+//
+syntax = "proto3";
+package pt.tecnico.sirs.a61;
+
+enum Status {
+    STATUS_OK  = 0;
+    STATUS_NOK = 1;
+}
+
+message LoginRequest {
+    string username = 1;
+    string password = 2;
+}
+
+message LoginResponse {
+    Status status = 1;
+    string token  = 2;
+}
+
+message SignupRequest {
+    string username = 1;
+    string password = 2;
+}
+
+message SignupResponse {
+    Status status = 1;
+}
+
+message SendRequest {
+    string message = 1;
+    string user    = 2;
+    string partner = 3;
+}
+
+message SendResponse {
+    int32 timestamp = 1;
+}
+
+message ReceiveRequest {
+    int32 timestamp = 1;
+    string user     = 2;
+    string partner  = 3;
+}
+
+message ReceiveResponse {
+    string message = 1;
+}
+
+service MessagISTServer {
+    rpc send (SendRequest) returns (SendResponse);
+    rpc receive (ReceiveRequest) returns (ReceiveResponse);
+    // rpc signup (SignupRequest) returns (SignupResponse);
+    // rpc login (LoginRequest) returns (LoginResponse);
+}
