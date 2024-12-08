@@ -2,17 +2,15 @@ import threading
 
 
 class Chat:
-    def __init__(self, user, partner):
+    def __init__(self):
         self.messages = []
         self.bufferedMessages = []
         self.timestamp = 0
-        self.user = user
-        self.partner = partner
         self.lock = threading.Lock()
 
     def __str__(self):
         self.lock.acquire()
-        string = f"Chat members: {self.user}, {self.partner}"
+        string = ""
         for msg in self.messages:
             string += "\n" + msg
         self.lock.release()

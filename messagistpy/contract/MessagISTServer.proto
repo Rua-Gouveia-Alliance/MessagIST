@@ -4,9 +4,13 @@
 syntax = "proto3";
 package pt.tecnico.sirs.a61;
 
-enum Status {
-    STATUS_OK  = 0;
-    STATUS_NOK = 1;
+message SignupRequest {
+    string username = 1;
+    string password = 2;
+}
+
+message SignupResponse {
+    bool success = 1;
 }
 
 message LoginRequest {
@@ -15,23 +19,14 @@ message LoginRequest {
 }
 
 message LoginResponse {
-    Status status = 1;
-    string token  = 2;
-}
-
-message SignupRequest {
-    string username = 1;
-    string password = 2;
-}
-
-message SignupResponse {
-    Status status = 1;
+    bool success = 1;
+    string token = 2;
 }
 
 message SendRequest {
-    string message = 1;
-    string user    = 2;
-    string partner = 3;
+    string message  = 1;
+    string username = 2;
+    string partner  = 3;
 }
 
 message SendResponse {
@@ -40,7 +35,7 @@ message SendResponse {
 
 message ReceiveRequest {
     int32 timestamp = 1;
-    string user     = 2;
+    string username = 2;
     string partner  = 3;
 }
 
@@ -51,6 +46,6 @@ message ReceiveResponse {
 service MessagISTServer {
     rpc send (SendRequest) returns (SendResponse);
     rpc receive (ReceiveRequest) returns (ReceiveResponse);
-    // rpc signup (SignupRequest) returns (SignupResponse);
-    // rpc login (LoginRequest) returns (LoginResponse);
+    rpc signup (SignupRequest) returns (SignupResponse);
+    rpc login (LoginRequest) returns (LoginResponse);
 }

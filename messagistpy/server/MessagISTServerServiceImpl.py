@@ -5,20 +5,52 @@ sys.path.insert(1, "../contract/target/")
 import MessagISTServer_pb2_grpc as pb2_grpc
 import MessagISTServer_pb2 as pb2
 from ChatManager import ChatManager
+from SessionManager import SessionManager
+from UserManager import UserManager
 
 
 class MessagISTServerServiceImpl(pb2_grpc.MessagISTServerServicer):
     def __init__(self, *args, **kwargs):
+        self.userManager = UserManager()
         self.chatManager = ChatManager()
+        self.sessionManager = SessionManager()
+
+    def signup(self, request, context):
+        logging.debug("SIGNUP request received.")
+        logging.debug("Username: " + request.username)
+
+        username = request.username
+        password = request.password
+
+        response = pb2.SignupResponse()
+        response.success = self.userManager.newUser(username, password)
+        return response
+
+    def login(self, request, context):
+        logging.debug("LOGIN request received.")
+        logging.debug("Username: " + request.username)
+
+        username = request.username
+        password = request.password
+
+        response = pb2.LoginResponse()
+        if self.userManager.validUser(username, password):
+            response.token = self.sessionManager.startSession(username)
+            response.success = response.token != ""
+        else:
+            response.token = ""
+            response.success = False
+        return response
 
     def send(self, request, context):
         logging.debug("SEND request received.")
         logging.debug("Message: " + request.message)
-        user = request.user
+
+        username = request.username
         partner = request.partner
 
-        self.chatManager.startChat(user, partner)
-        ts = self.chatManager.sendMessage(user, partner, request.message)
+        self.chatManager.startChat(username, partner)
+        ts = self.chatManager.sendMessage(username, partner, request.message)
         response = pb2.SendResponse()
         response.timestamp = ts
         return response
@@ -27,10 +59,10 @@ class MessagISTServerServiceImpl(pb2_grpc.MessagISTServerServicer):
         logging.debug("RECEIVE request received.")
         logging.debug("Timestamp: " + str(request.timestamp))
 
-        user = request.user
+        username = request.username
         partner = request.partner
-
         ts = request.timestamp
+
         response = pb2.ReceiveResponse()
-        response.message = self.chatManager.getMessage(user, partner, ts)
+        response.message = self.chatManager.getMessage(username, partner, ts)
         return response

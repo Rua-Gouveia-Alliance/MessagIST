@@ -1,19 +1,21 @@
 import secrets
+from Session import Session
+
 
 class SessionManager:
     def __init__(self):
         self.sessions = {}
 
     def startSession(self, username):
-        if self.sessions[username] is not None:
+        if username in self.sessions:
             return ""
 
         token = secrets.token_urlsafe(64)
-        self.sessions[username] = token
+        self.sessions[username] = Session(token)
         return token
 
     def endSession(self, username):
-        if self.sessions[username] is None:
+        if username not in self.sessions:
             return False
 
         del self.sessions[username]
