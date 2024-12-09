@@ -1,0 +1,12 @@
+module ui
+Main Main.qml
+Chat pages/Chat.qml
+Login pages/Login.qml
+SignUp pages/SignUp.qml
+UserChats pages/UserChats.qml
+Form components/Form.qml
+Title components/Title.qml
+Subtitle components/Subtitle.qml
+ClickableText components/ClickableText.qml
+ChatPreview components/ChatPreview.qml
+Message components/Message.qml

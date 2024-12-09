@@ -10,6 +10,9 @@ class SessionManager:
         self.ctx = ctx
 
     def login(self, username, password):
+        if not username or not password:
+            return False
+
         self.ctx.logger.debug("Logging in user " + username)
 
         stub = pb2_grpc.MessagISTServerStub(self.ctx.channel)
@@ -24,8 +27,19 @@ class SessionManager:
         return response.success
 
     def signup(self, username, password):
+        if not username or not password:
+            return False
+
         self.ctx.logger.debug("Signing up user " + username)
         stub = pb2_grpc.MessagISTServerStub(self.ctx.channel)
         request = pb2.SignupRequest(username=username, password=password)
         response = stub.signup(request)
         return response.success
+
+    def logout(self):
+        if not self.ctx.activeSession:
+            return False
+
+        self.ctx.setUsername("")
+        self.ctx.setSessionToken("")
+        self.ctx.setActiveSession(False)

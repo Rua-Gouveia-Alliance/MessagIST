@@ -8,13 +8,13 @@ class Chat:
         self.timestamp = 0
         self.lock = threading.Lock()
 
-    def __str__(self):
+    def getMessages(self):
         self.lock.acquire()
-        string = ""
-        for msg in self.messages:
-            string += "\n" + msg
+        messages = []
+        for message in self.messages:
+            messages.append(message)
         self.lock.release()
-        return string
+        return messages
 
     def append(self, msg, ts):
         self.lock.acquire()

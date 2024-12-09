@@ -1,5 +1,5 @@
 import secrets
-from Session import Session
+from managers.Session import Session
 
 
 class SessionManager:

@@ -4,9 +4,9 @@ import logging
 sys.path.insert(1, "../contract/target/")
 import MessagISTServer_pb2_grpc as pb2_grpc
 import MessagISTServer_pb2 as pb2
-from ChatManager import ChatManager
-from SessionManager import SessionManager
-from UserManager import UserManager
+from managers.ChatManager import ChatManager
+from managers.SessionManager import SessionManager
+from managers.UserManager import UserManager
 
 
 class MessagISTServerServiceImpl(pb2_grpc.MessagISTServerServicer):

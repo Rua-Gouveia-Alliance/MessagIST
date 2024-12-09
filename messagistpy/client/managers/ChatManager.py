@@ -5,18 +5,18 @@ import time
 sys.path.insert(1, "../contract/target/")
 import MessagISTServer_pb2_grpc as pb2_grpc
 import MessagISTServer_pb2 as pb2
-from Chat import Chat
+from managers.Chat import Chat
 
 
 class ChatManager:
     def __init__(self, ctx):
         self.ctx = ctx
         self.chats = {}
+        self.update_interval = 2
+        self.stopped = True
         self.chat_update_thread = threading.Thread(
-            group=None,
-            target=self.updateLoop,
+            group=None, target=self.updateLoop, args=(lambda x: self.stopped,)
         )
-        self.chat_update_thread.start()
 
     def startChat(self, partner):
         self.ctx.logger.debug("Starting a new chat with " + partner)
@@ -71,7 +71,23 @@ class ChatManager:
                 self.ctx.logger.debug("Update succeded")
                 chat.append(message, timestamp)
 
-    def updateLoop(self):
-        while True:
+    def updateLoop(self, stop):
+        while not stop():
             self.updateState()
-            time.sleep(2)
+            time.sleep(self.update_interval)
+
+    def start(self):
+        self.stopped = False
+        if not self.chat_update_thread.is_alive():
+            self.chat_update_thread.start()
+
+    def logout(self):
+        if not self.ctx.activeSession:
+            return False
+
+        self.chats = {}
+        self.stopped = True
+        self.chat_update_thread.join()
+        self.chat_update_thread = threading.Thread(
+            group=None, target=self.updateLoop, args=(lambda x: self.stopped,)
+        )

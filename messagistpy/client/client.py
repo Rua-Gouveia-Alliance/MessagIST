@@ -1,68 +1,38 @@
+import sys
 import argparse
-from ChatManager import ChatManager
-from SessionManager import SessionManager
-from MessagISTContext import MessagISTContext
+from PySide6.QtGui import QGuiApplication
+from PySide6.QtQml import QQmlApplicationEngine
+from messagist.MessagIST import MessagIST
 
-
-def parse_args():
+if __name__ == "__main__":
     parser = argparse.ArgumentParser(
-        prog="MessagISTClient", description="Secure messaging service."
+        prog="MessagIST", description="Secure messaging application."
     )
     parser.add_argument(
         "-p",
         "--port",
-        required=True,
-        help="port where the server listens",
+        default=5001,
+        help="Show debug messages",
     )
     parser.add_argument(
-        "-debug",
+        "-d",
+        "--debug",
         action="store_true",
         default=False,
-        help="print debug messages",
+        help="Show debug messages",
     )
-    return parser.parse_args()
+    args = parser.parse_args()
 
+    app = QGuiApplication()
+    engine = QQmlApplicationEngine()
+    messagist = MessagIST(args.debug, args.port)
+    engine.rootContext().setContextProperty("messagist", messagist)
+    engine.addImportPath(sys.path[0])
+    engine.loadFromModule("ui", "Main")
 
-def main():
-    print("Starting client.")
-    args = parse_args()
-    ctx = MessagISTContext(args.debug, args.port)
+    if not engine.rootObjects():
+        sys.exit(-1)
 
-    print("1 - Sign Up")
-    print("2 - Login")
-    opt = input()
-    while opt != "1" and opt != "2":
-        opt = input()
-
-    sessionManager = SessionManager(ctx)
-    username = input("Username: ")
-    password = input("Password: ")
-    if opt == "1":
-        while not sessionManager.signup(username, password):
-            print("Signup failed.")
-            username = input("Username: ")
-            password = input("Password: ")
-
-    while not sessionManager.login(username, password):
-        print("Login failed.")
-        username = input("Username: ")
-        password = input("Password: ")
-
-    chatManager = ChatManager(ctx)
-    while True:
-        print("1 - Send Message")
-        print("2 - Read Chat")
-        opt = input()
-        while opt != "1" and opt != "2":
-            opt = input()
-
-        partner = input("Partner username: ")
-        if opt == "1":
-            msg = input("Message: ")
-            chatManager.sendMessage(msg, partner)
-        elif partner in chatManager.chats:
-            print(chatManager.chats[partner])
-
-
-if __name__ == "__main__":
-    main()
+    ex = app.exec()
+    del engine
+    sys.exit(ex)

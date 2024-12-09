@@ -5,3 +5,4 @@ dependencies:
   - python=3.12
   - grpcio=1.62.2
   - grpcio-tools=1.62.2
+  - pyside6=6.8.0
