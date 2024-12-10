@@ -20,7 +20,7 @@ Column {
     }
 
     Repeater {
-        model: messagist.showChatWith(partner)
+        model: messagist.chats[partner]
         Message {
             required property string modelData
             contents: modelData

@@ -37,7 +37,8 @@ Column {
     }
 
     Repeater {
-        model: messagist.showChats()
+        model: Object.keys(messagist.chats)
+
         ChatPreview {
             required property string modelData
             partner: modelData

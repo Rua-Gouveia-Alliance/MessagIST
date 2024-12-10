@@ -25,3 +25,6 @@ class MessagISTContext:
 
     def setChannel(self, channel):
         self.channel = channel
+
+    def setChatsChanged(self, signal):
+        self.chatsChanged = signal

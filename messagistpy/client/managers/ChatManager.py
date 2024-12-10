@@ -26,6 +26,7 @@ class ChatManager:
             return False
 
         self.chats[partner] = Chat()
+        self.ctx.chatsChanged.emit()
         self.ctx.logger.debug("Success")
         return True
 
@@ -41,6 +42,7 @@ class ChatManager:
         )
         response = stub.send(request)
         self.chats[partner].append(msg, response.timestamp)
+        self.ctx.chatsChanged.emit()
 
     def getMessage(self, partner, timestamp):
         self.ctx.logger.debug(
@@ -70,6 +72,7 @@ class ChatManager:
             if message != "":
                 self.ctx.logger.debug("Update succeded")
                 chat.append(message, timestamp)
+                self.ctx.chatsChanged.emit()
 
     def updateLoop(self, stop):
         while not stop():
