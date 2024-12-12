@@ -1,6 +1,4 @@
 import sys
-import threading
-import time
 
 sys.path.insert(1, "../contract/target/")
 import MessagISTServer_pb2_grpc as pb2_grpc
@@ -12,15 +10,12 @@ class ChatManager:
     def __init__(self, ctx):
         self.ctx = ctx
         self.chats = {}
-        self.update_interval = 2
-        self.stopped = True
-        self.chat_update_thread = threading.Thread(
-            group=None, target=self.updateLoop, args=(lambda x: self.stopped,)
-        )
 
     def startChat(self, partner):
         self.ctx.logger.debug("Starting a new chat with " + partner)
 
+        # TODO: Verificar se este partner efetivamente existe no server (i.e.
+        # estamos a tentar contactar uma conta que existe mm)
         if partner in self.chats:
             self.ctx.logger.debug("Failed")
             return False
@@ -38,59 +33,28 @@ class ChatManager:
 
         stub = pb2_grpc.MessagISTServerStub(self.ctx.channel)
         request = pb2.SendRequest(
-            message=msg, username=self.ctx.username, partner=partner
+            token=self.ctx.sessionToken, message=msg, partner=partner
         )
         response = stub.send(request)
         self.chats[partner].append(msg, response.timestamp)
         self.ctx.chatsChanged.emit()
 
-    def getMessage(self, partner, timestamp):
-        self.ctx.logger.debug(
-            "Checking if there is a message from "
-            + partner
-            + " at timestamp "
-            + str(timestamp)
-        )
-
-        if partner not in self.chats:
-            return ""
-
-        stub = pb2_grpc.MessagISTServerStub(self.ctx.channel)
-        request = pb2.ReceiveRequest(
-            timestamp=timestamp, username=self.ctx.username, partner=partner
-        )
-        response = stub.receive(request)
-        return response.message
-
-    def updateState(self):
-        self.ctx.logger.debug("Checking chats for updates")
-
-        for partner, chat in self.chats.items():
-            self.ctx.logger.debug("Trying to update chat with " + partner)
-            timestamp = chat.timestamp
-            message = self.getMessage(partner, timestamp)
-            if message != "":
-                self.ctx.logger.debug("Update succeded")
-                chat.append(message, timestamp)
-                self.ctx.chatsChanged.emit()
-
-    def updateLoop(self, stop):
-        while not stop():
-            self.updateState()
-            time.sleep(self.update_interval)
-
-    def start(self):
-        self.stopped = False
-        if not self.chat_update_thread.is_alive():
-            self.chat_update_thread.start()
-
     def logout(self):
+        self.ctx.logger.debug("Logging out chat manager")
         if not self.ctx.activeSession:
+            self.ctx.logger.debug("Logging out chat manager FAILED")
             return False
-
         self.chats = {}
-        self.stopped = True
-        self.chat_update_thread.join()
-        self.chat_update_thread = threading.Thread(
-            group=None, target=self.updateLoop, args=(lambda x: self.stopped,)
-        )
+
+    def updateState(self, partners, messages):
+        for i, message in enumerate(messages):
+            if messages[i] != "":
+                self.ctx.logger.debug("New message from: " + partners[i])
+                if partners[i] not in self.chats:
+                    self.ctx.logger.debug("Discovered new partner: " + partners[i])
+                    self.chats[partners[i]] = Chat()
+                self.chats[partners[i]].append(
+                    message, self.chats[partners[i]].timestamp
+                )
+
+        self.ctx.chatsChanged.emit()

@@ -9,6 +9,7 @@ from managers.SessionManager import SessionManager
 from managers.UserManager import UserManager
 
 
+# TODO: Configurar logger em condicoes
 class MessagISTServerServiceImpl(pb2_grpc.MessagISTServerServicer):
     def __init__(self, *args, **kwargs):
         self.userManager = UserManager()
@@ -21,48 +22,62 @@ class MessagISTServerServiceImpl(pb2_grpc.MessagISTServerServicer):
 
         username = request.username
         password = request.password
-
-        response = pb2.SignupResponse()
-        response.success = self.userManager.newUser(username, password)
-        return response
+        # TODO: Unnecessary once we have an actual database (i think)
+        success = self.userManager.newUser(username, password)
+        if success:
+            self.chatManager.initUser(username)
+        return pb2.SignupResponse(success=success)
 
     def login(self, request, context):
-        logging.debug("LOGIN request received.")
+        logging.debug("LOGIN request received")
         logging.debug("Username: " + request.username)
 
         username = request.username
         password = request.password
 
-        response = pb2.LoginResponse()
         if self.userManager.validUser(username, password):
-            response.token = self.sessionManager.startSession(username)
-            response.success = response.token != ""
-        else:
-            response.token = ""
-            response.success = False
-        return response
+            logging.debug("Valid user")
+            token = self.sessionManager.startSession(username)
+            logging.debug("LOGIN " + ("success" if token != "" else "FAILED"))
+            return pb2.LoginResponse(success=(token != ""), token=token)
+        logging.debug("LOGIN FAILED")
+        return pb2.LoginResponse(success=False, token="")
 
     def send(self, request, context):
-        logging.debug("SEND request received.")
+        logging.debug("SEND request received")
         logging.debug("Message: " + request.message)
 
-        username = request.username
-        partner = request.partner
+        username = self.sessionManager.getUser(request.token)
+        if username == "":
+            logging.debug("SEND FAILED")
+            return pb2.SendResponse(success=False, timestamp=-1)
 
+        partner = request.partner
         self.chatManager.startChat(username, partner)
         ts = self.chatManager.sendMessage(username, partner, request.message)
-        response = pb2.SendResponse()
-        response.timestamp = ts
-        return response
+        logging.debug("SEND " + ("success" if ts != -1 else "FAILED"))
+        return pb2.SendResponse(success=(ts != -1), timestamp=ts)
 
-    def receive(self, request, context):
-        logging.debug("RECEIVE request received.")
-        logging.debug("Timestamp: " + str(request.timestamp))
+    def keepAlive(self, request, context):
+        logging.debug("KEEPALIVE request received")
 
-        username = request.username
-        partner = request.partner
-        ts = request.timestamp
+        username = self.sessionManager.getUser(request.token)
+        if username == "":
+            logging.debug("KEEPALIVE FAILED")
+            return pb2.KeepAliveResponse(success=False, messages=[], partners=[])
 
-        response = pb2.ReceiveResponse()
-        response.message = self.chatManager.getMessage(username, partner, ts)
-        return response
+        partners = request.partners
+        timestamps = request.timestamps
+        allPartners = self.chatManager.getPartners(username)
+        for partner in allPartners:
+            if partner not in partners:
+                partners.append(partner)
+                timestamps.append(0)
+
+        messages = []
+        for i, partner in enumerate(partners):
+            messages.append(
+                self.chatManager.getMessage(username, partner, timestamps[i])
+            )
+        logging.debug("KEEPALIVE success")
+        return pb2.KeepAliveResponse(success=True, messages=messages, partners=partners)

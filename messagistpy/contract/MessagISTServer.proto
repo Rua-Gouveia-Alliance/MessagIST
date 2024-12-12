@@ -24,28 +24,32 @@ message LoginResponse {
 }
 
 message SendRequest {
-    string message  = 1;
-    string username = 2;
-    string partner  = 3;
+    string token    = 1;
+    string message  = 2;
+    string username = 3;
+    string partner  = 4;
 }
 
 message SendResponse {
-    int32 timestamp = 1;
+    bool success    = 1;
+    int32 timestamp = 2;
 }
 
-message ReceiveRequest {
-    int32 timestamp = 1;
-    string username = 2;
-    string partner  = 3;
+message KeepAliveRequest {
+    string token              = 2;
+    repeated string partners  = 3;
+    repeated int32 timestamps = 4;
 }
 
-message ReceiveResponse {
-    string message = 1;
+message KeepAliveResponse {
+    bool success             = 1;
+    repeated string partners = 2;
+    repeated string messages = 3;
 }
 
 service MessagISTServer {
     rpc send (SendRequest) returns (SendResponse);
-    rpc receive (ReceiveRequest) returns (ReceiveResponse);
+    rpc keepAlive (KeepAliveRequest) returns (KeepAliveResponse);
     rpc signup (SignupRequest) returns (SignupResponse);
     rpc login (LoginRequest) returns (LoginResponse);
 }
