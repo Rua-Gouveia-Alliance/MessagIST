@@ -45,6 +45,7 @@ class ChatManager:
             self.ctx.logger.debug("Logging out chat manager FAILED")
             return False
         self.chats = {}
+        return True
 
     def updateState(self, partners, messages):
         for i, message in enumerate(messages):

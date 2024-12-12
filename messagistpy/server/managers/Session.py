@@ -6,10 +6,8 @@ class Session:
     def __init__(self, manager, username):
         self.manager = manager
         self.token = secrets.token_urlsafe(64)
-        self.username = secrets.token_urlsafe(64)
-        self.logoutTimer = threading.Timer(
-            self.manager.LEASE_TIME, lambda: self.manager.endSession(self.username)
-        )
+        self.username = username
+        self.logoutTimer = threading.Timer(self.manager.LEASE_TIME, self.endSession)
         self.logoutTimer.start()
 
     def validate(self, token):
@@ -18,9 +16,8 @@ class Session:
     def renewLease(self):
         self.logoutTimer.cancel()
         self.logoutTimer.join()
-        self.logoutTimer = threading.Timer(
-            self.manager.LEASE_TIME, lambda: self.manager.endSession(self.username)
-        )
+        del self.logoutTimer
+        self.logoutTimer = threading.Timer(self.manager.LEASE_TIME, self.endSession)
         self.logoutTimer.start()
 
     def endSession(self):

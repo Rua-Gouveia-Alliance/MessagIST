@@ -5,7 +5,7 @@ from managers.Session import Session
 
 class SessionManager:
     def __init__(self):
-        self.LEASE_TIME = 5000  # 5000ms, 5s
+        self.LEASE_TIME = 5  # 5s
         self.sessions = {}
         self.lock = threading.Lock()
 
@@ -26,10 +26,10 @@ class SessionManager:
         status = False
         if username in self.sessions:
             del self.sessions[username]
+            logging.debug(username + "'s session expired")
             status = True
 
         self.lock.release()
-        logging.debug(username + "'s session expired")
         return status
 
     def validSession(self, username, token):
