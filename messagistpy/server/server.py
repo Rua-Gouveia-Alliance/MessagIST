@@ -36,9 +36,8 @@ def config_log(debug):
         logging.basicConfig(level=logging.CRITICAL)
 
     logger = logging.getLogger()
-    logger.handlers = []  # delete default handler
+    logger.handlers = []
 
-    # configure new handler with custom message format
     logger_handler = logging.StreamHandler()
     logger_handler.setFormatter(logging.Formatter("[%(levelname)s]: %(message)s"))
     logger.addHandler(logger_handler)
@@ -50,7 +49,10 @@ def main():
     port = args.port
     config_log(args.debug)
     try:
-        # set up server
+        # TODO: Aumentar thread pool para 10.
+        # So nao meto ja porque seria preciso meter locks no ChatManager e
+        # UserManager, que vao ser implementados de novo quando tivermos a DB
+        # ptt nao faz mto sentido perder temepo com isso agora.
         server = grpc.server(futures.ThreadPoolExecutor(max_workers=1))
         pb2_grpc.add_MessagISTServerServicer_to_server(
             MessagISTServerServiceImpl(), server

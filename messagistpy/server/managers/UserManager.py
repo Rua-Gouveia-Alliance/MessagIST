@@ -3,7 +3,7 @@ class UserManager:
         self.users = {}
 
     def newUser(self, username, password):
-        if username in self.users:
+        if username in self.users or username == "" or password == "":
             return False
 
         self.users[username] = password

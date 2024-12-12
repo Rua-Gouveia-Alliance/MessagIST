@@ -22,9 +22,9 @@ class MessagISTServerServiceImpl(pb2_grpc.MessagISTServerServicer):
 
         username = request.username
         password = request.password
-        # TODO: Unnecessary once we have an actual database (i think)
         success = self.userManager.newUser(username, password)
         if success:
+            # TODO: Unnecessary once we have an actual database (i think)
             self.chatManager.initUser(username)
         return pb2.SignupResponse(success=success)
 
@@ -62,7 +62,7 @@ class MessagISTServerServiceImpl(pb2_grpc.MessagISTServerServicer):
         logging.debug("KEEPALIVE request received")
 
         username = self.sessionManager.getUser(request.token)
-        if username == "":
+        if not self.sessionManager.renewLease(username):
             logging.debug("KEEPALIVE FAILED")
             return pb2.KeepAliveResponse(success=False, messages=[], partners=[])
 
