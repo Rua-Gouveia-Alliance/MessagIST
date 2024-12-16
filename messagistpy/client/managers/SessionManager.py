@@ -1,8 +1,7 @@
-import sys
-
-sys.path.insert(1, "../contract/target/")
+import MessagISTCrypto
 import MessagISTServer_pb2_grpc as pb2_grpc
 import MessagISTServer_pb2 as pb2
+
 
 # TODO catch _InactiveRpcError(state) e emitir logout signal
 class SessionManager:
@@ -21,11 +20,29 @@ class SessionManager:
         )
         return response.success, response.partners, response.messages
 
+    def getSalt(self, username):
+        if not username:
+            return ""
+
+        self.ctx.logger.debug("Sending GETSALT request")
+        stub = pb2_grpc.MessagISTServerStub(self.ctx.channel)
+        request = pb2.GetSaltRequest(username=username)
+        response = stub.getSalt(request)
+        if response.success:
+            self.ctx.logger.debug("Salt retrieved successfully")
+
+        return response.salt
+
     def login(self, username, password):
         if not username or not password:
             return False
 
+        salt = self.getSalt(username)
+        if salt == "":
+            return False
+
         self.ctx.logger.debug("Sending LOGIN request")
+        password = MessagISTCrypto.hidePassword(password, salt)
         stub = pb2_grpc.MessagISTServerStub(self.ctx.channel)
         request = pb2.LoginRequest(username=username, password=password)
         response = stub.login(request)
@@ -42,8 +59,10 @@ class SessionManager:
             return False
 
         self.ctx.logger.debug("Sending SIGNUP request")
+        salt = MessagISTCrypto.generateSalt(username)
+        password = MessagISTCrypto.hidePassword(password, salt)
         stub = pb2_grpc.MessagISTServerStub(self.ctx.channel)
-        request = pb2.SignupRequest(username=username, password=password)
+        request = pb2.SignupRequest(username=username, password=password, salt=salt)
         response = stub.signup(request)
         return response.success
 

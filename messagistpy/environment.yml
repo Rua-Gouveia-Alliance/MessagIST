@@ -7,3 +7,4 @@ dependencies:
   - grpcio=1.62.2
   - grpcio-tools=1.62.2
   - pyside6=6.8.0
+  - cryptography=44.0.0

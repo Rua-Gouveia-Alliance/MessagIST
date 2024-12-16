@@ -4,8 +4,7 @@ from managers.SessionManager import SessionManager
 from messagist.MessagISTContext import MessagISTContext
 
 
-# TODO: Forçar logout quando há erros. Arranjar maneira de ligar um signal de
-# logout ao qml, que faz voltar ao ecra inicial.
+# TODO: Forçar logout quando há erros.
 class MessagIST(QObject):
     chatsChanged = Signal()
     loggedOut = Signal()

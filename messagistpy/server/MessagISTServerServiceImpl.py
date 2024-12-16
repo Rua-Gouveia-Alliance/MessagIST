@@ -22,11 +22,24 @@ class MessagISTServerServiceImpl(pb2_grpc.MessagISTServerServicer):
 
         username = request.username
         password = request.password
-        success = self.userManager.newUser(username, password)
+        salt = request.salt
+        success = self.userManager.newUser(username, password, salt)
         if success:
             # TODO: Unnecessary once we have an actual database (i think)
             self.chatManager.initUser(username)
         return pb2.SignupResponse(success=success)
+
+    def getSalt(self, request, context):
+        logging.debug("GETSALT request received")
+        logging.debug("Username: " + request.username)
+
+        username = request.username
+        salt = self.userManager.getSalt(username)
+
+        if salt != "":
+            logging.debug("Found salt")
+
+        return pb2.GetSaltResponse(success=(salt != ""), salt=salt)
 
     def login(self, request, context):
         logging.debug("LOGIN request received")

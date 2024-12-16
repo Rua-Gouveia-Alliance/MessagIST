@@ -11,7 +11,9 @@ Window {
 
     Connections {
         target: messagist
-        onLoggedOut: stack.pop(null)
+        function onLoggedOut() {
+            stack.pop(null);
+        }
     }
 
     StackView {

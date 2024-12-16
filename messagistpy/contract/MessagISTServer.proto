@@ -6,16 +6,26 @@ package pt.tecnico.sirs.a61;
 
 message SignupRequest {
     string username = 1;
-    string password = 2;
+    bytes password  = 2;
+    bytes salt      = 3;
 }
 
 message SignupResponse {
     bool success = 1;
 }
 
+message GetSaltRequest {
+    string username = 1;
+}
+
+message GetSaltResponse {
+    bool success = 1;
+    bytes salt   = 2;
+}
+
 message LoginRequest {
     string username = 1;
-    string password = 2;
+    bytes password  = 2;
 }
 
 message LoginResponse {
@@ -48,8 +58,9 @@ message KeepAliveResponse {
 }
 
 service MessagISTServer {
+    rpc signup (SignupRequest) returns (SignupResponse);
+    rpc getSalt (GetSaltRequest) returns (GetSaltResponse);
+    rpc login (LoginRequest) returns (LoginResponse);
     rpc send (SendRequest) returns (SendResponse);
     rpc keepAlive (KeepAliveRequest) returns (KeepAliveResponse);
-    rpc signup (SignupRequest) returns (SignupResponse);
-    rpc login (LoginRequest) returns (LoginResponse);
 }

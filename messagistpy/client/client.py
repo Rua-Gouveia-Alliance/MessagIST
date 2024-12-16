@@ -1,8 +1,13 @@
 import sys
+
+sys.path.append("../util/")
+sys.path.append("../contract/target/")
+
 import argparse
 from PySide6.QtGui import QGuiApplication
 from PySide6.QtQml import QQmlApplicationEngine
 from messagist.MessagIST import MessagIST
+
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(
