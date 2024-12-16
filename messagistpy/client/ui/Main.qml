@@ -9,6 +9,11 @@ Window {
     visible: true
     visibility: Window.Maximized
 
+    Connections {
+        target: messagist
+        onLoggedOut: stack.pop(null)
+    }
+
     StackView {
         id: stack
         initialItem: Login {}

@@ -2,13 +2,13 @@ from PySide6.QtCore import QObject, Slot, Property, Signal, QTimer
 from managers.ChatManager import ChatManager
 from managers.SessionManager import SessionManager
 from messagist.MessagISTContext import MessagISTContext
-import time
 
 
 # TODO: Forçar logout quando há erros. Arranjar maneira de ligar um signal de
 # logout ao qml, que faz voltar ao ecra inicial.
 class MessagIST(QObject):
     chatsChanged = Signal()
+    loggedOut = Signal()
 
     def __init__(self, debug, port):
         QObject.__init__(self)
@@ -44,6 +44,8 @@ class MessagIST(QObject):
         self.ctx.logger.debug("Deleting session related timers")
         self.keepAliveTimer.deleteLater()
         self.logoutTimer.deleteLater()
+        self.ctx.logger.debug("Emiting loggedOut signal")
+        self.loggedOut.emit()
         return success
 
     @Slot(str, str)
