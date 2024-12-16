@@ -42,7 +42,7 @@ class SessionManager:
             return False
 
         self.ctx.logger.debug("Sending LOGIN request")
-        password = MessagISTCrypto.hidePassword(password, salt)
+        password = MessagISTCrypto.prepareServerStorage(password, salt)
         stub = pb2_grpc.MessagISTServerStub(self.ctx.channel)
         request = pb2.LoginRequest(username=username, password=password)
         response = stub.login(request)
@@ -60,7 +60,7 @@ class SessionManager:
 
         self.ctx.logger.debug("Sending SIGNUP request")
         salt = MessagISTCrypto.generateSalt(username)
-        password = MessagISTCrypto.hidePassword(password, salt)
+        password = MessagISTCrypto.prepareServerStorage(password, salt)
         stub = pb2_grpc.MessagISTServerStub(self.ctx.channel)
         request = pb2.SignupRequest(username=username, password=password, salt=salt)
         response = stub.signup(request)
