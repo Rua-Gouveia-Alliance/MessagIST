@@ -2,6 +2,7 @@ import os
 from cryptography.hazmat.primitives.kdf.argon2 import Argon2id
 from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
 from cryptography.hazmat.primitives import padding
+from cryptography.hazmat.primitives.asymmetric import ec
 
 
 def generateSalt(username):
@@ -67,6 +68,11 @@ def decodeFromWords(words):
                 index = "0" * (size - len(index)) + index
             number.append(index)
     return int("".join(number))
+
+
+def generateKeyPair():
+    key = ec.generate_private_key(ec.SECP256R1())
+    return key
 
 
 def protectKey(key, hiddenPassword):
