@@ -42,6 +42,33 @@ def prepareLocalStorage(password, salt):
     return kdf.derive(data)
 
 
+def encodeAsWords(key):
+    num = str(key.private_numbers().private_value)
+    numbers = [num[x : min(x + 5, len(num))] for x in range(0, len(num), 5)]
+    words = [len(num)]
+    with open("words.txt", "r") as f:
+        wordList = f.readlines()
+        for n in numbers:
+            words.append(wordList[int(n)][:-1])
+    return words
+
+
+def decodeFromWords(words):
+    number = []
+    size = int(words[0])
+    with open("words.txt", "r") as f:
+        wordList = f.readlines()
+        for word in words[1:]:
+            index = str(wordList.index(word + "\n"))
+            if size >= 5:
+                index = "0" * (5 - len(index)) + index
+                size -= 5
+            else:
+                index = "0" * (size - len(index)) + index
+            number.append(index)
+    return int("".join(number))
+
+
 def protectKey(key, hiddenPassword):
     padder = padding.PKCS7(128).padder()
     data = padder.update(key) + padder.finalize()
