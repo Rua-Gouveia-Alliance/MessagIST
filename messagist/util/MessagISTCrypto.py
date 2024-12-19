@@ -3,6 +3,7 @@ from cryptography.hazmat.primitives.kdf.argon2 import Argon2id
 from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
 from cryptography.hazmat.primitives import padding
 from cryptography.hazmat.primitives.asymmetric import ec
+from cryptography.hazmat.primitives import hashes
 
 
 def generateSalt(username):
@@ -12,19 +13,12 @@ def generateSalt(username):
 
 
 def prepareServerStorage(password, salt):
-    # Parameter reference: https://datatracker.ietf.org/doc/html/rfc9106#section-4
-    # Backend server authentication
     data = password.encode("utf-8")
-    kdf = Argon2id(
-        salt=salt,
-        length=32,
-        iterations=1,
-        lanes=8,
-        memory_cost=4194304,  # 4GiB
-        ad=None,
-        secret=None,
-    )
-    return kdf.derive(data)
+    data += salt  # TODO: Confirmar que é assim que se faz nos slides.
+
+    hasher = hashes.Hash(hashes.SHA256())
+    hasher.update(data)
+    return hasher.finalize()
 
 
 def prepareLocalStorage(password, salt):
