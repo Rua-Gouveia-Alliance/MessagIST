@@ -41,7 +41,7 @@ class ChatManager:
         if not self.ctx.activeSession:
             self.ctx.logger.debug("Logging out chat manager FAILED")
             return False
-        self.chats = {}
+        self.chats = {} #aqui porque é que os chats ficam vazios?
         return True
 
     def updateState(self, partners, messages):

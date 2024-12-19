@@ -23,7 +23,7 @@ class MessagISTServerServiceImpl(pb2_grpc.MessagISTServerServicer):
         username = request.username
         password = request.password
         salt = request.salt
-        success = self.userManager.newUser(username, password, salt)
+        success = self.userManager.newUser(username, password, salt) #basede dados
         if success:
             # TODO: Unnecessary once we have an actual database (i think)
             self.chatManager.initUser(username)

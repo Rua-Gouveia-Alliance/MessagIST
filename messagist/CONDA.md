@@ -29,3 +29,15 @@ Atualizar o ambiente:
 ```sh
 conda env update --file environment.yml
 ```
+
+cd /contract
+mkdir target
+cd ..
+./proto.sh
+
+server 
+python server.py -p 5001 -d
+
+client 
+
+python client.py -d

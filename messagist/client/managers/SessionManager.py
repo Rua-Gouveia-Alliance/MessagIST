@@ -2,6 +2,9 @@ import MessagISTCrypto
 import MessagISTServer_pb2_grpc as pb2_grpc
 import MessagISTServer_pb2 as pb2
 
+import re
+
+
 
 # TODO catch _InactiveRpcError(state) e emitir logout signal
 class SessionManager:
@@ -36,7 +39,6 @@ class SessionManager:
     def login(self, username, password):
         if not username or not password:
             return False
-
         salt = self.getSalt(username)
         if salt == "":
             return False
@@ -55,9 +57,11 @@ class SessionManager:
         return response.success
 
     def signup(self, username, password):
-        if not username or not password:
+        if not username :
             return False
-
+        if not self.checkPassword(password) : 
+            #avisar utilizador
+            return False
         self.ctx.logger.debug("Sending SIGNUP request")
         salt = MessagISTCrypto.generateSalt(username)
         password = MessagISTCrypto.prepareServerStorage(password, salt)
@@ -78,3 +82,10 @@ class SessionManager:
         self.ctx.setSessionToken("")
         self.ctx.setActiveSession(False)
         return True
+
+    def checkPassword(self, password):
+        has_uppercase = bool(re.search(r'[A-Z]', password))
+        has_symbol = bool(re.search(r'[!@#$%^&*(),.?":{}|<>]', password))
+        if password.len() < 12 and has_symbol and has_uppercase:
+            return True
+        return False
