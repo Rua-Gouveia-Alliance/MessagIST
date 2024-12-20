@@ -12,12 +12,19 @@ class UserManager:
             return False
         # if user_exists or username == "" or password == "":
         # return False
-        # INSERT NA TABELA O NOVO UTILIZADOR
         self.users[username] = (password, salt)
 
         return True
 
     def getSalt(self, username):
+        #query = "SELECT EXISTS(SELECT 1 FROM users WHERE username = ?)"
+        # cur.execute(query, (username,))
+        # row = cursor.fetchone()
+        #if row :
+            #salt = row[3] 
+            #return salt
+        #else : 
+        #   return "" #error 
         if username not in self.users:
             return ""
 
@@ -36,3 +43,10 @@ class UserManager:
         # else :
         # return False
         return self.users[username][0] == password
+
+    def existingUser(self, username):
+        # query = "SELECT EXISTS(SELECT 1 FROM users WHERE username = ?)"
+        # cur.execute(query, (username,))
+        # row = cursor.fetchone()
+        # return row
+        return username in self.users
