@@ -1,6 +1,7 @@
 import os
 from cryptography.exceptions import InvalidSignature
-from cryptography.hazmat.primitives.kdf.argon2 import Argon2id
+from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
+from cryptography.hazmat.primitives.kdf.scrypt import Scrypt
 from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
 from cryptography.hazmat.primitives import padding, hashes, serialization, hmac
 from cryptography.hazmat.primitives.asymmetric import ec
@@ -12,27 +13,26 @@ def generateSalt(username):
     return salt
 
 
-def prepareServerStorage(password, salt):
-    data = password.encode("ascii")
-    data += salt  # TODO: Confirmar que é assim que se faz nos slides.
-
-    hasher = hashes.Hash(hashes.SHA256())
-    hasher.update(data)
-    return hasher.finalize()
-
-
-def prepareLocalStorage(password, salt):
-    # Parameter reference: https://datatracker.ietf.org/doc/html/rfc9106#section-4
-    # Key derivation for hard-drive encryption
-    data = password.encode("ascii")
-    kdf = Argon2id(
+def prepareForStorage(password, salt):
+    # https://datatracker.ietf.org/doc/html/rfc7914.html#section-2
+    password = password.encode("ascii")
+    kdf = Scrypt(
         salt=salt,
+        length=32,
+        n=2**14,
+        r=8,
+        p=1,
+    )
+    return kdf.derive(password)
+
+
+def deriveKeysFromPassword(password, salt):
+    data = password.encode("ascii")
+    kdf = PBKDF2HMAC(
+        algorithm=hashes.SHA256(),
         length=64,
-        iterations=1,
-        lanes=4,
-        memory_cost=6291456,  # 6GiB
-        ad=None,
-        secret=None,
+        salt=salt,
+        iterations=480000,
     )
     key = kdf.derive(data)
     hmacKey = key[:32]
@@ -127,7 +127,7 @@ def loadKey(username, password):
         salt = f.readline()[:-1]
         iv = f.readline()[:-1]
 
-    encryptionKey, hmacKey = prepareLocalStorage(password, salt)
+    encryptionKey, hmacKey = deriveKeysFromPassword(password, salt)
     key = unprotectKey(serializedKey, encryptionKey, hmacKey, iv, signature)
     return key
 
@@ -138,7 +138,7 @@ def storeKey(username, password, key):
         os.mkdir(path)
 
     salt = generateSalt(username)
-    encryptionKey, hmacKey = prepareLocalStorage(password, salt)
+    encryptionKey, hmacKey = deriveKeysFromPassword(password, salt)
     iv, signature, serializedKey = protectKey(key, encryptionKey, hmacKey)
 
     with open(f"./keys/{username}.key", "wb") as f:
