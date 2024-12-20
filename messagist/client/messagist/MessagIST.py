@@ -20,7 +20,6 @@ class MessagIST(QObject):
     @Slot(str, str, result=bool)
     def signup(self, username, password):
         self.ctx.logger.debug("Signing up")
-    
         return self.sessionManager.signup(username, password)
 
     @Slot(str, str, result=bool)

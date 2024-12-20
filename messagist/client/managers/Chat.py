@@ -1,13 +1,32 @@
+import json
+from datetime import datetime, timezone
+
+
 class Chat:
-    def __init__(self):
+    def __init__(self, username, partner):
+        self.username = username
+        self.partner = partner
         self.messages = []
         self.bufferedMessages = []
         self.timestamp = 0
 
+    def createMessage(self, message):
+        message = {
+            "sender_istid": self.username,
+            "receiver_istid": self.partner,
+            "timestamp": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
+            "content": message,
+        }
+        message = json.dumps(message, indent=4)
+        print("Dumps:")
+        print(message)
+        # message = MessagISTCrypto.protect(message)
+        return message
+
     def getMessages(self):
         messages = []
         for message in self.messages:
-            messages.append(message)
+            messages.append(json.loads(message))
         return messages
 
     def append(self, msg, ts):

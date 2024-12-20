@@ -1,7 +1,7 @@
 import QtQuick
 
 Rectangle {
-    property alias contents: label.text
+    required property var messageObject
 
     id: message
     width: label.width + 50
@@ -14,6 +14,7 @@ Rectangle {
     Text {
         id: label
         font.pointSize: 12
+        text: messageObject['content']
         color: "white"
         anchors.centerIn: parent
     }

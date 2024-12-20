@@ -17,23 +17,24 @@ class ChatManager:
             self.ctx.logger.debug("Failed")
             return False
 
-        self.chats[partner] = Chat()
+        self.chats[partner] = Chat(self.ctx.username, partner)
         self.ctx.chatsChanged.emit()
         self.ctx.logger.debug("Success")
         return True
 
-    def sendMessage(self, msg, partner):
+    def sendMessage(self, message, partner):
         self.ctx.logger.debug("Sending a message to " + partner)
 
         if partner not in self.chats:
             self.startChat(partner)
 
+        message = self.chats[partner].createMessage(message)
         stub = pb2_grpc.MessagISTServerStub(self.ctx.channel)
         request = pb2.SendRequest(
-            token=self.ctx.sessionToken, message=msg, partner=partner
+            token=self.ctx.sessionToken, message=message, partner=partner
         )
         response = stub.send(request)
-        self.chats[partner].append(msg, response.timestamp)
+        self.chats[partner].append(message, response.timestamp)
         self.ctx.chatsChanged.emit()
 
     def logout(self):
@@ -41,7 +42,7 @@ class ChatManager:
         if not self.ctx.activeSession:
             self.ctx.logger.debug("Logging out chat manager FAILED")
             return False
-        self.chats = {} #aqui porque é que os chats ficam vazios?
+        self.chats = {}  # aqui porque é que os chats ficam vazios?
         return True
 
     def updateState(self, partners, messages):
@@ -50,7 +51,7 @@ class ChatManager:
                 self.ctx.logger.debug("New message from: " + partners[i])
                 if partners[i] not in self.chats:
                     self.ctx.logger.debug("Discovered new partner: " + partners[i])
-                    self.chats[partners[i]] = Chat()
+                    self.chats[partners[i]] = Chat(self.ctx.username, partners[i])
                 self.chats[partners[i]].append(
                     message, self.chats[partners[i]].timestamp
                 )

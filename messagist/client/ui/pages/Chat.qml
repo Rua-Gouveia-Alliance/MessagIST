@@ -22,8 +22,8 @@ Column {
     Repeater {
         model: messagist.chats[partner]
         Message {
-            required property string modelData
-            contents: modelData
+            required property var modelData
+            messageObject: modelData
             anchors.horizontalCenter: parent.horizontalCenter
         }
     }
@@ -41,7 +41,7 @@ Column {
             id: send
             text: "Send"
             font.pointSize: 12
-            onClicked: messagist.sendMessage(message.text, partner)
+            onClicked: messagist.sendMessage(message.text, partner);
         }
     }
 }

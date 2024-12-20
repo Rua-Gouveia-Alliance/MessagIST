@@ -23,7 +23,7 @@ class MessagISTServerServiceImpl(pb2_grpc.MessagISTServerServicer):
         username = request.username
         password = request.password
         salt = request.salt
-        success = self.userManager.newUser(username, password, salt) #basede dados
+        success = self.userManager.newUser(username, password, salt)  # basede dados
         if success:
             # TODO: Unnecessary once we have an actual database (i think)
             self.chatManager.initUser(username)
@@ -61,11 +61,11 @@ class MessagISTServerServiceImpl(pb2_grpc.MessagISTServerServicer):
         logging.debug("Message: " + request.message)
 
         username = self.sessionManager.getUser(request.token)
-        if username == "":
+        partner = request.partner
+        if username == "" or not self.userManager.existingUser(partner):
             logging.debug("SEND FAILED")
             return pb2.SendResponse(success=False, timestamp=-1)
 
-        partner = request.partner
         self.chatManager.startChat(username, partner)
         ts = self.chatManager.sendMessage(username, partner, request.message)
         logging.debug("SEND " + ("success" if ts != -1 else "FAILED"))
@@ -89,8 +89,11 @@ class MessagISTServerServiceImpl(pb2_grpc.MessagISTServerServicer):
 
         messages = []
         for i, partner in enumerate(partners):
-            messages.append(
-                self.chatManager.getMessage(username, partner, timestamps[i])
-            )
+            if self.userManager.existingUser(partner):
+                messages.append(
+                    self.chatManager.getMessage(username, partner, timestamps[i])
+                )
+            else:
+                messages.append("")
         logging.debug("KEEPALIVE success")
         return pb2.KeepAliveResponse(success=True, messages=messages, partners=partners)
