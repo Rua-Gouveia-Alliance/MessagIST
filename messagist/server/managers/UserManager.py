@@ -12,6 +12,7 @@ class UserManager:
             return False
         # if user_exists or username == "" or password == "":
         # return False
+        # INSERT NA TABELA O NOVO UTILIZADOR
         self.users[username] = (password, salt)
 
         return True
@@ -35,6 +36,3 @@ class UserManager:
         # else :
         # return False
         return self.users[username][0] == password
-
-    def existingUser(self, username):
-        return username in self.users
