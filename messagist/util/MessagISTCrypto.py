@@ -4,7 +4,7 @@ from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
 from cryptography.hazmat.primitives.kdf.scrypt import Scrypt
 from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
 from cryptography.hazmat.primitives import padding, hashes, serialization, hmac
-from cryptography.hazmat.primitives.asymmetric import rsa
+from cryptography.hazmat.primitives.asymmetric.ed25519 import Ed25519PrivateKey
 
 
 def generateSalt(username):
@@ -41,7 +41,7 @@ def deriveKeysFromPassword(password, salt):
 
 
 def encodeAsWords(key):
-    num = str(key.private_numbers().private_value)
+    num = str(int.from_bytes(key.private_bytes_raw(), "big"))
     numbers = [num[x : min(x + 5, len(num))] for x in range(0, len(num), 5)]
     words = [len(num)]
     with open("words.txt", "r") as f:
@@ -64,25 +64,18 @@ def decodeFromWords(words):
             else:
                 index = "0" * (size - len(index)) + index
             number.append(index)
-    privateValue = int("".join(number))
-    return ec.derive_private_key(privateValue, ec.SECP256R1())
+    privateBytesValue = int("".join(number))
+    privateBytes = privateBytesValue.to_bytes(32, "big")
+    return Ed25519PrivateKey.from_private_bytes(privateBytes)
 
 
 def generateKeyPair():
-    key = rsa.generate_private_key(
-        public_exponent=65537,
-        key_size=2048,
-    )
-    return key
+    return Ed25519PrivateKey.generate()
 
 
 def protectKey(key, encryptionKey, hmacKey):
     # Encrypt-then-MAC
-    serializedKey = key.private_bytes(
-        serialization.Encoding.PEM,
-        serialization.PrivateFormat.PKCS8,
-        serialization.NoEncryption(),
-    )
+    serializedKey = key.private_bytes_raw()
 
     padder = padding.PKCS7(128).padder()
     data = padder.update(serializedKey) + padder.finalize()
@@ -115,8 +108,7 @@ def unprotectKey(serializedKey, encryptionKey, hmacKey, iv, signature):
     unpadder = padding.PKCS7(128).unpadder()
     data = unpadder.update(data) + unpadder.finalize()
 
-    key = serialization.load_pem_private_key(data, password=None)
-    return key
+    return Ed25519PrivateKey.from_private_bytes(data)
 
 
 def loadKey(username, password):
