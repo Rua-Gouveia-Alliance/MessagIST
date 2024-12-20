@@ -47,6 +47,7 @@ def main():
     print("Starting server.")
     args = parse_args()
     port = args.port
+    #Provavelmente passar o path das cenas no comando 
     config_log(args.debug)
     try:
         # TODO: Aumentar thread pool para 10.
@@ -57,7 +58,23 @@ def main():
         pb2_grpc.add_MessagISTServerServicer_to_server(
             MessagISTServerServiceImpl(), server
         )
-        server.add_insecure_port("localhost:" + str(port))
+        
+        #GRPS WITH TLS
+        server_key_path = "keys/server.key"
+        server_cert_path = "keys/server.crt"
+        
+
+        server_cert = open(server_cert_path, "rb").read()
+        server_key = open(server_key_path, "rb").read()
+        server_credentials = grpc.ssl_server_credentials([(server_key, server_cert)])
+
+        
+        server.add_secure_port("localhost:" + str(port), server_credentials)
+
+        
+
+
+        #server.add_insecure_port(":" + str(port))
         logging.debug("Listening on port " + str(port))
 
         # start server and wait for termination
