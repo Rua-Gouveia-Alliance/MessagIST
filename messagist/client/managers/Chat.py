@@ -18,8 +18,6 @@ class Chat:
             "content": message,
         }
         message = json.dumps(message, indent=4)
-        print("Dumps:")
-        print(message)
         # message = MessagISTCrypto.protect(message)
         return message
 
