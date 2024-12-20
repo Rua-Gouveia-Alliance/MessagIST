@@ -4,7 +4,7 @@ from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
 from cryptography.hazmat.primitives.kdf.scrypt import Scrypt
 from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
 from cryptography.hazmat.primitives import padding, hashes, serialization, hmac
-from cryptography.hazmat.primitives.asymmetric import ec
+from cryptography.hazmat.primitives.asymmetric import rsa
 
 
 def generateSalt(username):
@@ -69,7 +69,10 @@ def decodeFromWords(words):
 
 
 def generateKeyPair():
-    key = ec.generate_private_key(ec.SECP256R1())
+    key = rsa.generate_private_key(
+        public_exponent=65537,
+        key_size=2048,
+    )
     return key
 
 
@@ -117,15 +120,30 @@ def unprotectKey(serializedKey, encryptionKey, hmacKey, iv, signature):
 
 
 def loadKey(username, password):
-    path = os.path.abspath(f"./keys/{username}.key")
+    path = os.path.abspath(f"./keys/{username}/private.key")
     if not os.path.exists(path):
         return None
 
-    with open(f"./keys/{username}.key", "rb") as f:
-        serializedKey = f.readline()[:-1]
-        signature = f.readline()[:-1]
-        salt = f.readline()[:-1]
-        iv = f.readline()[:-1]
+    path = os.path.abspath(f"./keys/{username}/private.sig")
+    if not os.path.exists(path):
+        return None
+
+    path = os.path.abspath(f"./keys/{username}/private.salt")
+    if not os.path.exists(path):
+        return None
+
+    path = os.path.abspath(f"./keys/{username}/private.iv")
+    if not os.path.exists(path):
+        return None
+
+    with open(f"./keys/{username}/private.key", "rb") as f:
+        serializedKey = f.read()
+    with open(f"./keys/{username}/private.sig", "rb") as f:
+        signature = f.read()
+    with open(f"./keys/{username}/private.salt", "rb") as f:
+        salt = f.read()
+    with open(f"./keys/{username}/private.iv", "rb") as f:
+        iv = f.read()
 
     encryptionKey, hmacKey = deriveKeysFromPassword(password, salt)
     key = unprotectKey(serializedKey, encryptionKey, hmacKey, iv, signature)
@@ -137,14 +155,21 @@ def storeKey(username, password, key):
     if not os.path.exists(path):
         os.mkdir(path)
 
+    path = os.path.abspath(f"./keys/{username}")
+    if not os.path.exists(path):
+        os.mkdir(path)
+
     salt = generateSalt(username)
     encryptionKey, hmacKey = deriveKeysFromPassword(password, salt)
     iv, signature, serializedKey = protectKey(key, encryptionKey, hmacKey)
 
-    with open(f"./keys/{username}.key", "wb") as f:
-        f.write(serializedKey + b"\n")
-        f.write(signature + b"\n")
-        f.write(salt + b"\n")
-        f.write(iv + b"\n")
+    with open(f"./keys/{username}/private.key", "wb") as f:
+        f.write(serializedKey)
+    with open(f"./keys/{username}/private.sig", "wb") as f:
+        f.write(signature)
+    with open(f"./keys/{username}/private.salt", "wb") as f:
+        f.write(salt)
+    with open(f"./keys/{username}/private.iv", "wb") as f:
+        f.write(iv)
 
     return True
