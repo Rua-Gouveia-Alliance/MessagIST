@@ -1,10 +1,33 @@
 import os
+import base64
 from cryptography.exceptions import InvalidSignature
 from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
 from cryptography.hazmat.primitives.kdf.scrypt import Scrypt
 from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
 from cryptography.hazmat.primitives import padding, hashes, hmac
 from cryptography.hazmat.primitives.asymmetric.ed25519 import Ed25519PrivateKey
+
+
+def protect(privateIdentityKey, sessionKey, message):
+    message = message.encode("ascii")
+    signature = privateIdentityKey.sign(message)
+    message = base64.b64encode(message).decode("ascii") + "\n"
+    message += base64.b64encode(signature).decode("ascii")
+    # message = sessionKey.encrypt(message)
+    return message
+
+
+def unprotect(publicIdentityKey, sessionKey, message):
+    # message = sessionKey.decrypt(message)
+    message = message.splitlines()
+    signature = base64.b64decode(message[1].encode("ascii"))
+    message = base64.b64decode(message[0].encode("ascii"))
+
+    try:
+        publicIdentityKey.verify(signature, message)
+    except InvalidSignature:
+        return None
+    return message.decode("ascii")
 
 
 def generateSalt(username):
@@ -70,6 +93,7 @@ def decodeFromWords(words):
 
 
 def generateKeyPair():
+    ## https://safecurves.cr.yp.to/
     return Ed25519PrivateKey.generate()
 
 
@@ -112,30 +136,16 @@ def unprotectKey(serializedKey, encryptionKey, hmacKey, iv, signature):
 
 
 def loadKey(username, password):
-    path = os.path.abspath(f"./keys/{username}/private.key")
+    path = os.path.abspath(f"./keys/{username}.key")
     if not os.path.exists(path):
         return None
 
-    path = os.path.abspath(f"./keys/{username}/private.sig")
-    if not os.path.exists(path):
-        return None
-
-    path = os.path.abspath(f"./keys/{username}/private.salt")
-    if not os.path.exists(path):
-        return None
-
-    path = os.path.abspath(f"./keys/{username}/private.iv")
-    if not os.path.exists(path):
-        return None
-
-    with open(f"./keys/{username}/private.key", "rb") as f:
-        serializedKey = f.read()
-    with open(f"./keys/{username}/private.sig", "rb") as f:
-        signature = f.read()
-    with open(f"./keys/{username}/private.salt", "rb") as f:
-        salt = f.read()
-    with open(f"./keys/{username}/private.iv", "rb") as f:
-        iv = f.read()
+    with open(f"./keys/{username}.key", "r") as f:
+        key = f.readlines()
+        serializedKey = base64.b64decode(key[0].encode("ascii"))
+        signature = base64.b64decode(key[1].encode("ascii"))
+        salt = base64.b64decode(key[2].encode("ascii"))
+        iv = base64.b64decode(key[3].encode("ascii"))
 
     encryptionKey, hmacKey = deriveKeysFromPassword(password, salt)
     key = unprotectKey(serializedKey, encryptionKey, hmacKey, iv, signature)
@@ -147,21 +157,18 @@ def storeKey(username, password, key):
     if not os.path.exists(path):
         os.mkdir(path)
 
-    path = os.path.abspath(f"./keys/{username}")
-    if not os.path.exists(path):
-        os.mkdir(path)
-
     salt = generateSalt(username)
     encryptionKey, hmacKey = deriveKeysFromPassword(password, salt)
     iv, signature, serializedKey = protectKey(key, encryptionKey, hmacKey)
 
-    with open(f"./keys/{username}/private.key", "wb") as f:
+    with open(f"./keys/{username}.key", "w") as f:
+        serializedKey = base64.b64encode(serializedKey).decode("ascii") + "\n"
         f.write(serializedKey)
-    with open(f"./keys/{username}/private.sig", "wb") as f:
+        signature = base64.b64encode(signature).decode("ascii") + "\n"
         f.write(signature)
-    with open(f"./keys/{username}/private.salt", "wb") as f:
+        salt = base64.b64encode(salt).decode("ascii") + "\n"
         f.write(salt)
-    with open(f"./keys/{username}/private.iv", "wb") as f:
+        iv = base64.b64encode(iv).decode("ascii") + "\n"
         f.write(iv)
 
     return True
