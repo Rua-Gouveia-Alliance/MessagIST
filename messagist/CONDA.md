@@ -2,7 +2,7 @@
 ## Criar o environment
 Depois de clonar o repositório é preciso criar o conda environment:
 ```sh
-cd messagistpy
+cd messagist
 conda env create --file environment.yml
 ```
 
@@ -41,3 +41,6 @@ python server.py -p 5001 -d
 client 
 
 python client.py -d
+
+CONNECT TO DB LOCALLY
+psql -h localhost -U postgres -d test
