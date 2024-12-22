@@ -1,9 +1,13 @@
 import argparse
 import sys
 import logging
+import os
 from concurrent import futures
 
 from MessagISTServerServiceImpl import MessagISTServerServiceImpl
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
+from database.DatabaseClass import DatabaseClass
 
 sys.path.insert(1, "../contract/target/")
 import grpc
@@ -54,11 +58,20 @@ def main():
         # So nao meto ja porque seria preciso meter locks no ChatManager e
         # UserManager, que vao ser implementados de novo quando tivermos a DB
         # ptt nao faz mto sentido perder temepo com isso agora.
-        server = grpc.server(futures.ThreadPoolExecutor(max_workers=1))
-        pb2_grpc.add_MessagISTServerServicer_to_server(
-            MessagISTServerServiceImpl(), server
-        )
+
+
+        ##Initialize DB
+        DB = DatabaseClass(dbname="test", user="postgres", password="sirs")
         
+        DB.connect()
+
+        DB.execute_script('../database/database.sql')
+
+
+        server = grpc.server(futures.ThreadPoolExecutor(max_workers=1))
+        pb2_grpc.add_MessagISTServerServicer_to_server(MessagISTServerServiceImpl(DB), server)
+        
+        """
         #GRPS WITH TLS
         server_key_path = "keys/server.key"
         server_cert_path = "keys/server.crt"
@@ -70,21 +83,25 @@ def main():
 
         
         server.add_secure_port("localhost:" + str(port), server_credentials)
+        """
+       #server.add_insecure_port(":" + str(port))
+        server.add_insecure_port("localhost:5001")
 
-        
 
-
-        #server.add_insecure_port(":" + str(port))
         logging.debug("Listening on port " + str(port))
 
         # start server and wait for termination
         server.start()
+    
+
         server.wait_for_termination()
 
     except KeyboardInterrupt:
         print("Stopping server.")
         exit(0)
 
+    finally:
+        DB.close()
 
 if __name__ == "__main__":
     main()

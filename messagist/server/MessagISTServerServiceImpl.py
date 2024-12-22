@@ -11,8 +11,8 @@ from managers.UserManager import UserManager
 
 # TODO: Configurar logger em condicoes
 class MessagISTServerServiceImpl(pb2_grpc.MessagISTServerServicer):
-    def __init__(self, *args, **kwargs):
-        self.userManager = UserManager()
+    def __init__(self, db,  *args, **kwargs):
+        self.userManager = UserManager(db)
         self.chatManager = ChatManager()
         self.sessionManager = SessionManager()
 
