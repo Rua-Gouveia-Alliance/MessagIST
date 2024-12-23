@@ -62,7 +62,7 @@ class SessionManager:
             # TODO: Avisar utilizador
             return False
         self.ctx.logger.debug("Sending SIGNUP request")
-        salt = MessagISTCrypto.generateSalt(username)
+        salt = MessagISTCrypto.getSalt(username)
         password = MessagISTCrypto.prepareForStorage(password, salt)
         stub = pb2_grpc.MessagISTServerStub(self.ctx.channel)
         request = pb2.SignupRequest(username=username, password=password, salt=salt)
