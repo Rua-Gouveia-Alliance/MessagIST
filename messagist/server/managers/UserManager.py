@@ -35,7 +35,7 @@ class UserManager:
         if result:
             return result[0][0].tobytes()
         else:
-            return ""
+            return b""
         # if username not in self.users:
         # return ""
 

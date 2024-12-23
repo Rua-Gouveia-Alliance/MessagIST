@@ -39,7 +39,7 @@ class MessagISTServerServiceImpl(pb2_grpc.MessagISTServerServicer):
         if salt != "":
             logging.debug("Found salt")
 
-        return pb2.GetSaltResponse(success=(salt != ""), salt=salt)
+        return pb2.GetSaltResponse(success=(salt != b""), salt=salt)
 
     def login(self, request, context):
         logging.debug("LOGIN request received")
