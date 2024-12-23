@@ -1,6 +1,7 @@
 import os
 import base64
 import argparse
+import pickle
 from cryptography.exceptions import InvalidSignature
 from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
 from cryptography.hazmat.primitives.kdf.scrypt import Scrypt
@@ -139,12 +140,10 @@ def generateIdentityKey():
     return Ed25519PrivateKey.generate()
 
 
-def protectKey(key, encryptionKey, hmacKey, username):
+def protectLocalData(data, encryptionKey, hmacKey, username):
     # Encrypt-then-MAC
-    serializedKey = key.private_bytes_raw()
-
     padder = padding.PKCS7(128).padder()
-    data = padder.update(serializedKey) + padder.finalize()
+    data = padder.update(data) + padder.finalize()
 
     iv = getIV()
     cipher = Cipher(algorithms.AES256(encryptionKey), modes.CBC(iv))
@@ -158,9 +157,9 @@ def protectKey(key, encryptionKey, hmacKey, username):
     return iv, signature, data
 
 
-def unprotectKey(serializedKey, encryptionKey, hmacKey, iv, signature):
+def unprotectLocalData(data, encryptionKey, hmacKey, iv, signature):
     signer = hmac.HMAC(hmacKey, hashes.SHA256())
-    signer.update(serializedKey)
+    signer.update(data)
 
     try:
         signer.verify(signature)
@@ -169,12 +168,12 @@ def unprotectKey(serializedKey, encryptionKey, hmacKey, iv, signature):
 
     cipher = Cipher(algorithms.AES256(encryptionKey), modes.CBC(iv))
     decryptor = cipher.decryptor()
-    data = decryptor.update(serializedKey) + decryptor.finalize()
+    data = decryptor.update(data) + decryptor.finalize()
 
     unpadder = padding.PKCS7(128).unpadder()
     data = unpadder.update(data) + unpadder.finalize()
 
-    return Ed25519PrivateKey.from_private_bytes(data)
+    return data
 
 
 def loadKey(username, password):
@@ -190,8 +189,12 @@ def loadKey(username, password):
         iv = base64.b64decode(key[3].encode("ascii"))
 
     encryptionKey, hmacKey = deriveKeysFromPassword(password, salt)
-    key = unprotectKey(serializedKey, encryptionKey, hmacKey, iv, signature)
-    return key
+    key = unprotectLocalData(serializedKey, encryptionKey, hmacKey, iv, signature)
+
+    # Unprotect failed
+    if key is None:
+        return {}
+    return Ed25519PrivateKey.from_private_bytes(key)
 
 
 def storeKey(username, password, key):
@@ -201,11 +204,75 @@ def storeKey(username, password, key):
 
     salt = getSalt(username)
     encryptionKey, hmacKey = deriveKeysFromPassword(password, salt)
-    iv, signature, serializedKey = protectKey(key, encryptionKey, hmacKey, username)
+    iv, signature, serializedKey = protectLocalData(
+        key.private_bytes_raw(), encryptionKey, hmacKey, username
+    )
 
     with open(f"./keys/{username}.key", "w") as f:
         serializedKey = base64.b64encode(serializedKey).decode("ascii") + "\n"
         f.write(serializedKey)
+        signature = base64.b64encode(signature).decode("ascii") + "\n"
+        f.write(signature)
+        salt = base64.b64encode(salt).decode("ascii") + "\n"
+        f.write(salt)
+        iv = base64.b64encode(iv).decode("ascii") + "\n"
+        f.write(iv)
+
+    return True
+
+
+def encodeContacts(contacts):
+    serializedContacts = {}
+    for partner, identityKey in contacts.items():
+        serializedContacts[partner] = identityKey.public_bytes_raw()
+    return pickle.dumps(serializedContacts)
+
+
+def decodeContacts(serializedContacts):
+    contacts = pickle.loads(serializedContacts)
+    for partner, identityKey in contacts.items():
+        contacts[partner] = Ed25519PublicKey.from_public_bytes(identityKey)
+    return contacts
+
+
+def loadContacts(username, password):
+    path = os.path.abspath(f"./contacts/{username}.contacts")
+    if not os.path.exists(path):
+        return {}
+
+    with open(f"./contacts/{username}.contacts", "r") as f:
+        contacts = f.readlines()
+        serializedContacts = base64.b64decode(contacts[0].encode("ascii"))
+        signature = base64.b64decode(contacts[1].encode("ascii"))
+        salt = base64.b64decode(contacts[2].encode("ascii"))
+        iv = base64.b64decode(contacts[3].encode("ascii"))
+
+    encryptionKey, hmacKey = deriveKeysFromPassword(password, salt)
+    serializedContacts = unprotectLocalData(
+        serializedContacts, encryptionKey, hmacKey, iv, signature
+    )
+
+    # Unprotect failed
+    if serializedContacts is None:
+        return {}
+    return decodeContacts(serializedContacts)
+
+
+def storeContacts(username, password, contacts):
+    path = os.path.abspath("./contacts")
+    if not os.path.exists(path):
+        os.mkdir(path)
+
+    salt = getSalt(username)
+    encryptionKey, hmacKey = deriveKeysFromPassword(password, salt)
+    contacts = encodeContacts(contacts)
+    iv, signature, contacts = protectLocalData(
+        contacts, encryptionKey, hmacKey, username
+    )
+
+    with open(f"./contacts/{username}.contacts", "w") as f:
+        contacts = base64.b64encode(contacts).decode("ascii") + "\n"
+        f.write(contacts)
         signature = base64.b64encode(signature).decode("ascii") + "\n"
         f.write(signature)
         salt = base64.b64encode(salt).decode("ascii") + "\n"
