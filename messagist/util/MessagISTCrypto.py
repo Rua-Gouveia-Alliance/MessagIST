@@ -241,6 +241,7 @@ def protectCLI(args):
     message = protect(identityKey, sessionKey, message)
     with open(os.path.abspath(f"{args.outputFile}"), "w") as f:
         f.write(message)
+    print("Encrypted message written to " + os.path.abspath(f"{args.outputFile}"))
 
 
 def unprotectCLI(args):
@@ -256,6 +257,7 @@ def unprotectCLI(args):
     message = unprotect(identityKey, sessionKey, message)
     with open(os.path.abspath(f"{args.outputFile}"), "w") as f:
         f.write(message)
+    print("Decrypted message written to " + os.path.abspath(f"{args.outputFile}"))
 
 
 def generateIdentityKeyCLI(args):
@@ -263,18 +265,18 @@ def generateIdentityKeyCLI(args):
 
     with open(os.path.abspath(os.path.abspath(f"{args.privateOutputFile}")), "w") as f:
         f.write(base64.b64encode(key.private_bytes_raw()).decode("ascii"))
-    print("Private key written to " + os.path.abspath(f"{args.privateOutputFile}.priv"))
+    print("Private key written to " + os.path.abspath(f"{args.privateOutputFile}"))
 
     with open(os.path.abspath(os.path.abspath(f"{args.publicOutputFile}")), "w") as f:
         f.write(base64.b64encode(key.public_key().public_bytes_raw()).decode("ascii"))
-    print("Public key written to " + os.path.abspath(f"{args.publicOutputFile}.pub"))
+    print("Public key written to " + os.path.abspath(f"{args.publicOutputFile}"))
 
 
 def generateSessionKeyCLI(args):
     salt = getSalt()
     key = computeSessionKey(args.passphrase, salt)
 
-    with open(os.path.abspath(os.path.abspath(f"{args.outputFile}.priv")), "w") as f:
+    with open(os.path.abspath(os.path.abspath(f"{args.outputFile}")), "w") as f:
         f.write(base64.b64encode(key).decode("ascii"))
     print("Session key written to " + os.path.abspath(f"{args.outputFile}"))
 
@@ -288,52 +290,36 @@ if __name__ == "__main__":
     )
 
     protectParser = subparsers.add_parser("protect", help="Encrypt and sign a file.")
+    protectParser.add_argument("inputFile", help="File to protect.")
     protectParser.add_argument(
-        "input-file", help="File to protect.", dest="inputFile", required=True
-    )
-    protectParser.add_argument(
-        "identity-key",
+        "identityKey",
         help="File containing the private key used to sign the data.",
-        dest="identityKey",
-        required=True,
     )
     protectParser.add_argument(
-        "session-key",
+        "sessionKey",
         help="File containing the key used to encrypt the data.",
-        dest="sessionKey",
-        required=True,
     )
     protectParser.add_argument(
-        "output-file",
+        "outputFile",
         help="File to where the protected file is written.",
-        dest="outputFile",
-        required=True,
     )
     protectParser.set_defaults(func=protectCLI)
 
     unprotectParser = subparsers.add_parser(
         "unprotect", help="Decrypt and verify the integrity of a file."
     )
+    unprotectParser.add_argument("inputFile", help="File to unprotect.")
     unprotectParser.add_argument(
-        "input-file", help="File to unprotect.", dest="inputFile", required=True
-    )
-    unprotectParser.add_argument(
-        "identity-key",
+        "identityKey",
         help="File containing the public key used to verify the data.",
-        dest="identityKey",
-        required=True,
     )
     unprotectParser.add_argument(
-        "session-key",
+        "sessionKey",
         help="File containing the key used to decrypt the data.",
-        dest="sessionKey",
-        required=True,
     )
     unprotectParser.add_argument(
-        "output-file",
+        "outputFile",
         help="File to where the unprotected file is written.",
-        dest="outputFile",
-        required=True,
     )
     unprotectParser.set_defaults(func=unprotectCLI)
 
@@ -342,16 +328,12 @@ if __name__ == "__main__":
         help="Generate a key pair that can be used to sign and verify data.",
     )
     generateIdentityKeyParser.add_argument(
-        "private-key-output-file",
+        "privateOutputFile",
         help="File to where the private key is written.",
-        dest="privateOutputFile",
-        required=True,
     )
     generateIdentityKeyParser.add_argument(
-        "public-key-output-file",
+        "publicOutputFile",
         help="File to where the public key is written.",
-        dest="publicOutputFile",
-        required=True,
     )
     generateIdentityKeyParser.set_defaults(func=generateIdentityKeyCLI)
 
@@ -360,12 +342,13 @@ if __name__ == "__main__":
         help="Generate a symmetric key that can be used to encrypt and decrypt data.",
     )
     generateSessionKeyParser.add_argument(
-        "passphrase", help="The passphrase used to generate this key.", required=True
+        "passphrase", help="The passphrase used to generate this key."
     )
-    generateIdentityKeyParser.add_argument(
-        "output-file",
+    generateSessionKeyParser.add_argument(
+        "outputFile",
         help="File to where the key is written.",
-        dest="outputFile",
-        required=True,
     )
     generateSessionKeyParser.set_defaults(func=generateSessionKeyCLI)
+
+    args = parser.parse_args()
+    args.func(args)
