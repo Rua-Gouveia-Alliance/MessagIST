@@ -25,6 +25,9 @@ class MessagIST(QObject):
     @Slot(str, str, result=bool)
     def login(self, username, password):
         self.ctx.logger.debug("Logging in")
+        if self.ctx.activeSession:
+            return False
+
         success = self.sessionManager.login(username, password)
         if success:
             self.ctx.logger.debug("Starting session related timers")
@@ -37,6 +40,9 @@ class MessagIST(QObject):
     @Slot(result=bool)
     def logout(self):
         self.ctx.logger.debug("Logging out")
+        if not self.ctx.activeSession:
+            return False
+
         success = self.chatManager.logout() and self.sessionManager.logout()
         self.ctx.logger.debug("Logout " + ("successful" if success else "FAILED"))
         # TODO: Close app if logout not successful?
@@ -44,6 +50,7 @@ class MessagIST(QObject):
         self.keepAliveTimer.deleteLater()
         self.logoutTimer.deleteLater()
         self.ctx.logger.debug("Emiting loggedOut signal")
+        self.ctx.setActiveSession(False)
         self.loggedOut.emit()
         return success
 
