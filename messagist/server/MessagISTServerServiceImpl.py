@@ -13,7 +13,7 @@ from managers.UserManager import UserManager
 class MessagISTServerServiceImpl(pb2_grpc.MessagISTServerServicer):
     def __init__(self, db, *args, **kwargs):
         self.userManager = UserManager(db)
-        self.chatManager = ChatManager()
+        self.chatManager = ChatManager(db)
         self.sessionManager = SessionManager()
 
     def signup(self, request, context):
