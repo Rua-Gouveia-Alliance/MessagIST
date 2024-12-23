@@ -2,25 +2,28 @@ class UserManager:
     def __init__(self, db):
         self.users = {}
         self.db = db
+
     def newUser(self, username, password, salt):
         # is this in database
 
         query = "SELECT COUNT(1) FROM users WHERE username = %s"
 
-        result = self.db.fetch_one(query,(username,))
+        result = self.db.fetch_one(query, (username,))
         print(result)
         print(result[0][0])
 
         # cur.execute(query, (username,))
         # user_exists = cursor.fetchone()[0]
-        #if username in self.users or username == "" or password == "":
-            #return False
+        # if username in self.users or username == "" or password == "":
+        # return False
 
         if result[0][0] > 0 or username == "" or password == "":
             return False
-        #self.users[username] = (password, salt)
+        # self.users[username] = (password, salt)
 
-        insert_query = "INSERT INTO users (username, password_hash, salt) VALUES (%s, %s, %s)"
+        insert_query = (
+            "INSERT INTO users (username, password_hash, salt) VALUES (%s, %s, %s)"
+        )
         self.db.execute_query(insert_query, (username, password, salt))
         print("TESTE")
 
@@ -33,10 +36,10 @@ class UserManager:
             return result[0][0].tobytes()
         else:
             return ""
-        #if username not in self.users:
-            #return ""
+        # if username not in self.users:
+        # return ""
 
-        #return self.users[username][1]
+        # return self.users[username][1]
 
     def validUser(self, username, password):
         query = "SELECT password_hash FROM users WHERE username = %s"
@@ -47,11 +50,10 @@ class UserManager:
             print(password)
             return result[0][0].tobytes() == password
         return False
-        #if username not in self.users:
-            #return False
-       
-       
-        #return self.users[username][0] == password
+        # if username not in self.users:
+        # return False
+
+        # return self.users[username][0] == password
 
     def existingUser(self, username):
         # Check if the user exists in the database
