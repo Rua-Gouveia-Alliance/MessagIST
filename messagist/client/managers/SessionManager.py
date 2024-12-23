@@ -51,8 +51,9 @@ class SessionManager:
             self.ctx.logger.debug("Login successful")
             self.ctx.setUsername(username)
             self.ctx.setSessionToken(response.token)
-            self.ctx.setActiveSession(True)
             self.ctx.setIdentityKey(MessagISTCrypto.loadKey(username, password))
+            self.ctx.setContacts(MessagISTCrypto.loadContacts(username, password))
+            self.ctx.setActiveSession(True)
 
         return response.success
 
@@ -70,9 +71,8 @@ class SessionManager:
         response = stub.signup(request)
         if response.success:
             identityKey = MessagISTCrypto.generateIdentityKey()
-            KEY_SERVER_REQUEST.registerIdentityKey(
-                username, identityKey.public_key().public_bytes_raw()
-            )
+            publicKeyBytes = identityKey.public_key().public_bytes_raw()
+            KEY_SERVER_REQUEST.registerIdentityKey(username, publicKeyBytes)
             MessagISTCrypto.storeKey(username, password, identityKey)
         return response.success
 
@@ -85,6 +85,8 @@ class SessionManager:
 
         self.ctx.setUsername("")
         self.ctx.setSessionToken("")
+        self.ctx.setIdentityKey(None)
+        self.ctx.setContacts(None)
         self.ctx.setActiveSession(False)
         return True
 

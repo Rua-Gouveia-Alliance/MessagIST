@@ -31,5 +31,8 @@ class MessagISTContext:
     def setIdentityKey(self, identityKey):
         self.identityKey = identityKey
 
+    def setContacts(self, contacts):
+        self.contacts = contacts
+
     def setChatsChanged(self, signal):
         self.chatsChanged = signal
