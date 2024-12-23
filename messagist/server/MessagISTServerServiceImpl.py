@@ -36,7 +36,7 @@ class MessagISTServerServiceImpl(pb2_grpc.MessagISTServerServicer):
         username = request.username
         salt = self.userManager.getSalt(username)
 
-        if salt != "":
+        if salt != b"":
             logging.debug("Found salt")
 
         return pb2.GetSaltResponse(success=(salt != b""), salt=salt)
