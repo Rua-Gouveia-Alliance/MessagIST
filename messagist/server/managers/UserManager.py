@@ -15,7 +15,14 @@ class UserManager:
         insert_query = (
             "INSERT INTO users (username, password_hash, salt) VALUES (%s, %s, %s)"
         )
-        self.db.execute_query(insert_query, (username, password, salt,))
+        self.db.execute_query(
+            insert_query,
+            (
+                username,
+                password,
+                salt,
+            ),
+        )
 
         return True
 
@@ -34,7 +41,6 @@ class UserManager:
         if result:
             return result[0].tobytes() == password
         return False
-
 
     def existingUser(self, username):
         # Check if the user exists in the database

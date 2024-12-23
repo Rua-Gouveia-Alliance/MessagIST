@@ -72,21 +72,18 @@ def main():
             MessagISTServerServiceImpl(DB), server
         )
 
-        
-        #GRPS WITH TLS
+        # GRPS WITH TLS
         server_key_path = "keys/server.key"
         server_cert_path = "keys/server.crt"
-
 
         server_cert = open(server_cert_path, "rb").read()
         server_key = open(server_key_path, "rb").read()
         server_credentials = grpc.ssl_server_credentials([(server_key, server_cert)])
 
-
         server.add_secure_port("localhost:" + str(port), server_credentials)
-        
-        #server.add_insecure_port(":" + str(port))
-        #server.add_insecure_port("localhost:5001")
+
+        # server.add_insecure_port(":" + str(port))
+        # server.add_insecure_port("localhost:5001")
 
         logging.debug("Listening on port " + str(port))
 
