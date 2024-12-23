@@ -8,3 +8,20 @@ CREATE TABLE IF NOT EXISTS users (
  -- Automatically set creation time
 );
 
+CREATE TABLE IF NOT EXISTS chat (
+    chat_id SERIAL PRIMARY KEY,
+    user_1 INT,
+    user_2 INT,
+    FOREIGN KEY (user_1) REFERENCES users(id), 
+    FOREIGN KEY (user_2) REFERENCES users(id),
+    CONSTRAINT unique_chat UNIQUE (user_1, user_2), -- Ensure user_1 and user_2 combination is unique
+    CONSTRAINT check_user_order CHECK (user_1 < user_2)
+);
+
+CREATE TABLE IF NOT EXISTS messages (
+    message_id SERIAL PRIMARY KEY,        -- Unique message identifier
+    chat_id INT,                          -- Reference to the chat this message belongs to
+    message_text TEXT NOT NULL,            -- The actual message content
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP, -- When the message was sent
+    FOREIGN KEY (chat_id) REFERENCES chat(chat_id) ON DELETE CASCADE -- Link to the chat table
+);
