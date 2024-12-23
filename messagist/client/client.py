@@ -17,7 +17,7 @@ if __name__ == "__main__":
         "-p",
         "--port",
         default=5001,
-        help="Show debug messages",
+        help="MessagISTServer port",
     )
     parser.add_argument(
         "-d",
