@@ -50,7 +50,6 @@ class MessagIST(QObject):
         self.keepAliveTimer.deleteLater()
         self.logoutTimer.deleteLater()
         self.ctx.logger.debug("Emiting loggedOut signal")
-        self.ctx.setActiveSession(False)
         self.loggedOut.emit()
         return success
 

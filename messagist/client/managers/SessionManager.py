@@ -52,6 +52,7 @@ class SessionManager:
             self.ctx.setUsername(username)
             self.ctx.setSessionToken(response.token)
             self.ctx.setActiveSession(True)
+            self.ctx.setIdentityKey(MessagISTCrypto.loadKey(username, password))
 
         return response.success
 
@@ -67,12 +68,17 @@ class SessionManager:
         stub = pb2_grpc.MessagISTServerStub(self.ctx.channel)
         request = pb2.SignupRequest(username=username, password=password, salt=salt)
         response = stub.signup(request)
+        if response.success:
+            identityKey = MessagISTCrypto.generateIdentityKey()
+            KEY_SERVER_REQUEST.registerIdentityKey(
+                username, identityKey.public_key().public_bytes_raw()
+            )
+            MessagISTCrypto.storeKey(username, password, identityKey)
         return response.success
 
     def logout(self):
-        self.ctx.logger.debug(
-            "Sending LOGOUT request (not really sending anything but will be implemented in the future (???))"
-        )
+        # TODO: Send logout request?
+        self.ctx.logger.debug("Sending LOGOUT request (not really sending)")
         if not self.ctx.activeSession:
             self.ctx.logger.debug("LOGOUT request FAILED")
             return False
