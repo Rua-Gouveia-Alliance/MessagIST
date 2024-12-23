@@ -1,7 +1,7 @@
 import json
 import MessagISTCrypto
-import MessagISTServer_pb2_grpc as pb2_grpc
-import MessagISTServer_pb2 as pb2
+import MessagISTServer_pb2_grpc
+import MessagISTServer_pb2
 from datetime import datetime, timezone
 
 
@@ -23,58 +23,63 @@ class Chat:
         # by changing the timestamp, the most it can do is cause the message to
         # be dropped (basically the same as not sending it, achieves nothing).
         self.nonce = [0, 0]
+        self.pending = True
 
-        # partnerIdentityKey = Request partner's identityKey from the keyServer
-        # self.partnerIdentityKey = partnerIdentityKey
+        if partner not in self.ctx.contacts:
+            partnerIdentityKey = KEY_SERVER_REQUEST.getIdentityKey(partner)
+            self.ctx.contacts[partner] = partnerIdentityKey
 
-    def setSecret(self, secret):
-        self.secret = secret
-        # self.DHValue = Calculate DH value
-        # send DHValue to keyServer
+        self.partnerIdentityKey = self.ctx.contacts[partner]
+
+    def setPassphrase(self, passphrase):
+        salt = MessagISTCrypto.getSalt(self.ctx.username + self.partner)
+        salt = KEY_SERVER_REQUEST.trySetSalt(salt)
+
+        self.sessionKey = MessagISTCrypto.computeSessionKey(passphrase, salt)
+        self.pending = False
+        self.pendingMessages.sort(key=lambda x: x[1])
 
     def getMessages(self):
-        messages = []
+        messages = [self.pending]
         for message in self.messages:
             messages.append(message)
         return messages
 
-    def send(self, message, partner):
+    def send(self, message):
         # Sanity check, this should never be called before setting the secret.
-        # if self.secret is None:
-        #    return False
-        #
-        # if self.pending and not self._tryGetPartnerDHValue():
-        #     return False
+        if self.pending:
+            return False
 
         message = self._createMessage(message)
-        stub = pb2_grpc.MessagISTServerStub(self.ctx.channel)
-        request = pb2.SendRequest(
-            token=self.ctx.sessionToken, message=message, partner=partner
+        stub = MessagISTServer_pb2_grpc.MessagISTServerStub(self.ctx.channel)
+        request = MessagISTServer_pb2.SendRequest(
+            token=self.ctx.sessionToken, message=message, partner=self.partner
         )
         response = stub.send(request)
         self.append(message, response.timestamp)
         return True
 
     def append(self, message, ts):
-        # Sanity check, can't receive messages if we haven't set the secret and
-        # uploaded our dh value to the server.
-        # if self.secret is None:
-        #    return
-        #
-        # if self.pending and not self._tryGetPartnerDHValue():
-        #     return
+        # Haven't set the passphrase/sessionKey yet
+        if self.pending:
+            self.pendingMessages.append((message, ts))
+            return
 
-        # message = MessagISTCrypto.unprotect(self.partnerIdentityKey, self.sessionKey, message)
-        # sentMessage = False
-        # if message is None:  # Unprotect failed with partner's key
-        # # Check if we sent the message
-        #     message = MessagISTCrypto.unprotect(self.ctx.identityKey.public_key(), self.sessionKey, message)
-        #     sentMessage = True
-        #
-        # if message is None:  # Unprotect also failed with our key
-        #     self.ctx.logger.debug("Decryption failed")
-        #     self.ctx.logger.debug("Dropped message")
-        #     return # Drop message
+        message = MessagISTCrypto.unprotect(
+            self.partnerIdentityKey, self.sessionKey, message
+        )
+        sentMessage = False
+        if message is None:  # Unprotect failed with partner's key
+            # Check if we sent the message
+            message = MessagISTCrypto.unprotect(
+                self.ctx.identityKey.public_key(), self.sessionKey, message
+            )
+            sentMessage = True
+
+        if message is None:  # Unprotect also failed with our key
+            self.ctx.logger.debug("Decryption failed")
+            self.ctx.logger.debug("Dropped message")
+            return  # Drop message
 
         message = json.loads(message)
         if not sentMessage:
@@ -122,13 +127,7 @@ class Chat:
             "content": message,
         }
         message = json.dumps(message, indent=4)
-        # message = MessagISTCrypto.protect(self.ctx.identityKey, self.sessionKey, message)
+        message = MessagISTCrypto.protect(
+            self.ctx.identityKey, self.sessionKey, message
+        )
         return message
-
-    # def _tryGetPartnerDHValue():
-    #     partnerDHValue = Request partner's DHValue for this conversation from the keyServer
-    #     if partnerDHValue.success:
-    #         self.sessionKey = self._computeSessionKey(partnerDHValue)
-    #         self.pending = False
-    #         return True
-    #     return False

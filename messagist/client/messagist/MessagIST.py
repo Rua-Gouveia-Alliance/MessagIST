@@ -52,6 +52,11 @@ class MessagIST(QObject):
         self.ctx.logger.debug("Sending a message to " + partner)
         return self.chatManager.sendMessage(msg, partner)
 
+    @Slot(str)
+    def setChatPassphrase(self, partner, passphrase):
+        self.ctx.logger.debug("Setting the passphrase to the chat with " + partner)
+        return self.chatManager.setChatPassphrase(partner, passphrase)
+
     @Slot()
     def keepAlive(self):
         self.ctx.logger.debug("Perfoming KeepAlive")

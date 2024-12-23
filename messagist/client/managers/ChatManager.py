@@ -28,7 +28,16 @@ class ChatManager:
         if partner not in self.chats:
             self.startChat(partner)
 
-        self.chats[partner].send(message, partner)
+        self.chats[partner].send(message)
+        self.ctx.chatsChanged.emit()
+
+    def setChatPassphrase(self, partner, passphrase):
+        self.ctx.logger.debug("Setting the passphrase for the chat with " + partner)
+
+        if partner not in self.chats:
+            self.startChat(partner)
+
+        self.chats[partner].setPassphrase(passphrase)
         self.ctx.chatsChanged.emit()
 
     def logout(self):
