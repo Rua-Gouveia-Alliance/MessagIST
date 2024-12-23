@@ -1,6 +1,5 @@
 class UserManager:
     def __init__(self, db):
-        self.users = {}
         self.db = db
 
     def newUser(self, username, password, salt):
@@ -9,8 +8,6 @@ class UserManager:
         query = "SELECT COUNT(1) FROM users WHERE username = %s"
 
         result = self.db.fetch_one(query, (username,))
-        print(result)
-        print(result[0][0])
 
         # cur.execute(query, (username,))
         # user_exists = cursor.fetchone()[0]
@@ -24,7 +21,7 @@ class UserManager:
         insert_query = (
             "INSERT INTO users (username, password_hash, salt) VALUES (%s, %s, %s)"
         )
-        self.db.execute_query(insert_query, (username, password, salt))
+        self.db.execute_query(insert_query, (username, password, salt,))
         print("TESTE")
 
         return True
