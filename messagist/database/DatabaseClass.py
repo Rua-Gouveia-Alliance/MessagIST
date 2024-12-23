@@ -92,7 +92,7 @@ class DatabaseClass:
             raise Exception("Not connected to the database.")
         try:
             self.cursor.execute(query, params)
-            return self.cursor.fetchall()
+            return self.cursor.fetchone()
         except Exception as e:
             print(f"Error fetching data: {e}")
             return []
