@@ -74,9 +74,8 @@ class DatabaseClass:
             print(f"SQL script '{script_path}' executed successfully.")
         except Exception as e:
             print(f"Error executing script '{script_path}': {e}")
+
     def execute_query(self, query, params=None):
-
-
         """Execute a single query."""
         if not self.connection:
             raise Exception("Not connected to the database.")

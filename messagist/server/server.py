@@ -65,7 +65,7 @@ def main():
 
         DB.connect()
 
-        DB.execute_script("../database/database.sql")
+        DB.execute_script("../database/serverschema.sql")
 
         server = grpc.server(futures.ThreadPoolExecutor(max_workers=1))
         pb2_grpc.add_MessagISTServerServicer_to_server(
