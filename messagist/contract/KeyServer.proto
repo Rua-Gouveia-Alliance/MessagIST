@@ -1,0 +1,28 @@
+//
+// Protocol buffers definition for the KeyServer
+//
+syntax = "proto3";
+package pt.tecnico.sirs.a61;
+
+message GetClientKURequest {
+    string username = 1;
+}
+
+message GetClientKUResponse {
+    string ku = 1;
+}
+
+message VerifyChatSaltRequest {
+    string username = 1;
+    string partner = 2;
+    bytes salt = 3;
+}
+
+message VerifyChatSaltResponse {
+    bytes salt = 1;
+}
+
+service KeyServer {
+    rpc getClientKU (GetClientKURequest) returns (GetClientKUResponse);
+    rpc verifyChatSalt (VerifyChatSaltRequest) returns (VerifyChatSaltResponse);
+}
