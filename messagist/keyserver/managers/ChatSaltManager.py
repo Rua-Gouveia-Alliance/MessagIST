@@ -14,7 +14,7 @@ class ChatSaltManager:
         return result[0]
 
     def registerSalt(self, username, partner, salt):
-        query = """INSERT INTO chat_salts(user_1, user_2, salt)
+        query = """INSERT INTO chat_salts (user_1, user_2, salt)
         VALUES (%s, %s, %s)"""
 
         params = (
