@@ -4,7 +4,8 @@ import ui
 
 Column {
     id: loginPage
-    spacing: 200
+    spacing: 30
+    anchors.centerIn: parent // Center the entire column
 
     Title {
         text: "MessagIST - Secure Messaging App"
@@ -15,13 +16,36 @@ Column {
         anchors.horizontalCenter: parent.horizontalCenter
     }
 
-    Form {
-        text: "Login"
-        formAction: (username, password) => messagist.login(username, password) && stack.push("UserChats.qml")
+    Column {
+        spacing: 10
         anchors.horizontalCenter: parent.horizontalCenter
+
+        Form {
+            text: "Login"
+            // Function to handle login
+            formAction: (username, password) => {
+                const result = messagist.login(username, password);
+                if (result.success) {
+                    stack.push("UserChats.qml");
+                } else {
+                    errorMessage.text = result.error;
+                    errorMessage.visible = true;
+                }
+            }
+        }
+
+        Text {
+            id: errorMessage
+            visible: false
+            color: "red"
+            font.pixelSize: 14
+            text: "" // The error message will be set dynamically
+            anchors.horizontalCenter: parent.horizontalCenter
+        }
     }
+
     ClickableText {
-        text: "Don\'t have an account? Sign up instead."
+        text: "Don't have an account? Sign up instead."
         action: () => stack.push("SignUp.qml")
         anchors.horizontalCenter: parent.horizontalCenter
     }

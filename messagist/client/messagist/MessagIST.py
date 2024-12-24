@@ -17,25 +17,26 @@ class MessagIST(QObject):
         self.sessionManager = SessionManager(self.ctx)
         self.chatManager = ChatManager(self.ctx)
 
-    @Slot(str, str, result=bool)
+    @Slot(str, str, result = "QVariant")
     def signup(self, username, password):
         self.ctx.logger.debug("Signing up")
-        return self.sessionManager.signup(username, password)
+        result = self.sessionManager.signup(username, password)
+        return result
 
-    @Slot(str, str, result=bool)
+    @Slot(str, str, result = "QVariant")
     def login(self, username, password):
         self.ctx.logger.debug("Logging in")
         if self.ctx.activeSession:
-            return False
+            return {"success": False, "error": "Session already active"}
 
-        success = self.sessionManager.login(username, password)
-        if success:
+        result = self.sessionManager.login(username, password)
+        if result["success"]:
             self.ctx.logger.debug("Starting session related timers")
             self.logoutTimer = QTimer(parent=self, singleShot=True, timeout=self.logout)
             self.keepAliveTimer = QTimer(parent=self, timeout=self.keepAlive)
             self.logoutTimer.start(self.LEASE_TIME)
             self.keepAliveTimer.start(self.LEASE_TIME / 2)
-        return success
+        return result
 
     @Slot(result=bool)
     def logout(self):

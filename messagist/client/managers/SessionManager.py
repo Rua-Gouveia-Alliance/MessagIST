@@ -37,10 +37,10 @@ class SessionManager:
 
     def login(self, username, password):
         if not username or not password:
-            return False
+            return {"success": False, "error": "Username or password cannot be empty"}
         salt = self.getSalt(username)
         if salt == "":
-            return False
+            return {"success": False, "error": "User does not exist"}
 
         self.ctx.logger.debug("Sending LOGIN request")
         password = MessagISTCrypto.prepareForStorage(password, salt)
@@ -54,15 +54,17 @@ class SessionManager:
             self.ctx.setIdentityKey(MessagISTCrypto.loadKey(username, password))
             self.ctx.setContacts(MessagISTCrypto.loadContacts(username, password))
             self.ctx.setActiveSession(True)
+            return {"success": True}
+        return {"success": False, "error": "Invalid username or password"}
 
-        return response.success
+        #return response.success
 
     def signup(self, username, password):
         if not username:
-            return False
+            return {"success": False, "error": "Username cannot be empty"}
         if not self.checkPassword(password):
             # TODO: Avisar utilizador
-            return False
+            return {"success": False, "error": "Password needs to have at least 1 digit, 1 symbol and more than 11 letters"}
         self.ctx.logger.debug("Sending SIGNUP request")
         salt = MessagISTCrypto.getSalt(username)
         password = MessagISTCrypto.prepareForStorage(password, salt)
@@ -74,7 +76,10 @@ class SessionManager:
             publicKeyBytes = identityKey.public_key().public_bytes_raw()
             KEY_SERVER_REQUEST.registerIdentityKey(username, publicKeyBytes)
             MessagISTCrypto.storeKey(username, password, identityKey)
-        return response.success
+            return {"success": True}
+
+        return {"success": False, "error": "Invalid username or password"}
+
 
     def logout(self):
         # TODO: Send logout request?

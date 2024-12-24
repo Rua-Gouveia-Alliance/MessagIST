@@ -8,7 +8,7 @@ class ChatManager:
         self.ctx = ctx
         self.chats = {}
 
-    def estartChat(self, partner):
+    def startChat(self, partner):
         self.ctx.logger.debug("Starting a new chat with " + partner)
 
         # TODO: Verificar se este partner efetivamente existe no server (i.e.
