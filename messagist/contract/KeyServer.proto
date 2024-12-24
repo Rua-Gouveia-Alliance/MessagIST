@@ -4,25 +4,35 @@
 syntax = "proto3";
 package pt.tecnico.sirs.a61;
 
-message GetClientKURequest {
+message RegisterIdentityKeyRequest {
+    string username = 1;
+    bytes identity_key = 2;
+}
+
+message RegisterIdentityKeyResponse {
+    bool success = 1;
+}
+
+message GetIdentityKeyRequest {
     string username = 1;
 }
 
-message GetClientKUResponse {
-    string ku = 1;
+message GetIdentityKeyResponse {
+    bytes identity_key = 1;
 }
 
-message VerifyChatSaltRequest {
+message TrySetSaltRequest {
     string username = 1;
     string partner = 2;
     bytes salt = 3;
 }
 
-message VerifyChatSaltResponse {
+message TrySetSaltResponse {
     bytes salt = 1;
 }
 
 service KeyServer {
-    rpc getClientKU (GetClientKURequest) returns (GetClientKUResponse);
-    rpc verifyChatSalt (VerifyChatSaltRequest) returns (VerifyChatSaltResponse);
+    rpc registerIdentityKey (RegisterIdentityKeyRequest) returns (RegisterIdentityKeyResponse);
+    rpc getIdentityKey (GetIdentityKeyRequest) returns (GetIdentityKeyResponse);
+    rpc trySetSalt (TrySetSaltRequest) returns (TrySetSaltResponse);
 }
