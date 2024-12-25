@@ -1,21 +1,15 @@
 # A61 MessagIST Project Read Me
 
-<!-- this is an instruction line; after you follow the instruction, delete the corresponding line. Do the same for all instruction lines! -->
-
-*(replace CXX above with group identifier, for example, A07 ou T22)*
-
-*(keep only your scenario name and delete the other names)*
-
 ## Team
 
-| Number | Name              | User                             | E-mail                              |
-| -------|-------------------|----------------------------------| ------------------------------------|
-| 102611  | João Gouveia    | <https://github.com/AliceUser>   |   | joao.talone.gouveia@tecnico.ulisboa.pt
-| 102606  | Rodrigo Arêde      | <https://github.com/BobUser>     | rodrigo.arede@tecnico.ulisboa.pt      |
-| 102604  | Gonçalo Rua  | <https://github.com/CharlieUser> | <mailto:charlie@tecnico.ulisboa.pt> |
+| Number  | Name              | User                              | E-mail                                          |
+| --------|-------------------|-----------------------------------| ------------------------------------------------|
+| 102611  | João Gouveia      | <https://github.com/joaotgouveia> | <mailto:joao.talone.gouveia@tecnico.ulisboa.pt> |
+| 102606  | Rodrigo Arêde     | <https://github.com/rodasarede>   | <mailto:rodrigo.arede@tecnico.ulisboa.pt>       |
+| 102604  | Gonçalo Rua       | <https://github.com/goncrust>     | <mailto:goncalonrua@tecnico.ulisboa.pt>         |
 
 
-![Alice](img/alice.png) ![Rodrigo Arêde](img/arede.png) ![Charlie](img/charlie.png)
+![João Gouveia](img/joao.png) ![Rodrigo Arêde](img/arede.png) ![Gonçalo Rua](img/goncalo.png)
 
 *(add face photos with 150px height; faces should have similar size and framing)*
 
