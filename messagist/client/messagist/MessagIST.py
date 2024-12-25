@@ -9,21 +9,21 @@ class MessagIST(QObject):
     chatsChanged = Signal()
     loggedOut = Signal()
 
-    def __init__(self, debug, port):
+    def __init__(self, debug, port, ksport):
         QObject.__init__(self)
         self.LEASE_TIME = 5000  # 5000ms, 5s
-        self.ctx = MessagISTContext(debug, port)
+        self.ctx = MessagISTContext(debug, port, ksport)
         self.ctx.setChatsChanged(self.chatsChanged)
         self.sessionManager = SessionManager(self.ctx)
         self.chatManager = ChatManager(self.ctx)
 
-    @Slot(str, str, result = "QVariant")
+    @Slot(str, str, result="QVariant")
     def signup(self, username, password):
         self.ctx.logger.debug("Signing up")
         result = self.sessionManager.signup(username, password)
         return result
 
-    @Slot(str, str, result = "QVariant")
+    @Slot(str, str, result="QVariant")
     def login(self, username, password):
         self.ctx.logger.debug("Logging in")
         if self.ctx.activeSession:
