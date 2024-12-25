@@ -3,7 +3,7 @@ import logging
 
 
 class MessagISTContext:
-    def __init__(self, debug, port):
+    def __init__(self, debug, port, ksport):
         logging.basicConfig(level=(logging.DEBUG if debug else logging.CRITICAL))
         logger_handler = logging.StreamHandler()
         logger_handler.setFormatter(logging.Formatter("[%(levelname)s]: %(message)s"))
@@ -12,15 +12,23 @@ class MessagISTContext:
         self.logger.handlers = []
         self.logger.addHandler(logger_handler)
 
-        self.activeSession = False ##adicionei esta linha não sei se é suposto
+        self.activeSession = False  ##adicionei esta linha não sei se é suposto
 
         server_cert = "../server/keys/server.crt"
         with open(server_cert, "rb") as cert_file:
             trusted_certs = cert_file.read()
         credentials = grpc.ssl_channel_credentials(root_certificates=trusted_certs)
         self.channel = grpc.secure_channel("localhost:" + str(port), credentials)
-        
-        # self.channel = grpc.secure_channel("localhost:" + str(port),grpc.ssl_channel_credentials())
+
+        ks_cert = "../keyserver/keys/server.crt"
+        with open(ks_cert, "rb") as cert_file:
+            ks_trusted_certs = cert_file.read()
+        ks_credentials = grpc.ssl_channel_credentials(
+            root_certificates=ks_trusted_certs
+        )
+        self.ks_channel = grpc.secure_channel(
+            "localhost:" + str(ksport), ks_credentials
+        )
 
     def setUsername(self, username):
         self.username = username
