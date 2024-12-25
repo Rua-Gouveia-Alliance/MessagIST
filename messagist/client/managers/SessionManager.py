@@ -1,6 +1,8 @@
 import MessagISTCrypto
 import MessagISTServer_pb2_grpc as pb2_grpc
 import MessagISTServer_pb2 as pb2
+import KeyServer_pb2_grpc as ks_pb2_grpc
+import KeyServer_pb2 as ks_pb2
 
 import re
 
@@ -57,29 +59,44 @@ class SessionManager:
             return {"success": True}
         return {"success": False, "error": "Invalid username or password"}
 
-        #return response.success
+        # return response.success
 
     def signup(self, username, password):
         if not username:
             return {"success": False, "error": "Username cannot be empty"}
         if not self.checkPassword(password):
             # TODO: Avisar utilizador
-            return {"success": False, "error": "Password needs to have at least 1 digit, 1 symbol and more than 11 letters"}
+            return {
+                "success": False,
+                "error": "Password needs to have at least 1 digit, 1 symbol and more than 11 letters",
+            }
+
         self.ctx.logger.debug("Sending SIGNUP request")
+
         salt = MessagISTCrypto.getSalt(username)
         password = MessagISTCrypto.prepareForStorage(password, salt)
+
         stub = pb2_grpc.MessagISTServerStub(self.ctx.channel)
         request = pb2.SignupRequest(username=username, password=password, salt=salt)
         response = stub.signup(request)
+
         if response.success:
             identityKey = MessagISTCrypto.generateIdentityKey()
             publicKeyBytes = identityKey.public_key().public_bytes_raw()
-            KEY_SERVER_REQUEST.registerIdentityKey(username, publicKeyBytes)
+
+            ks_stub = ks_pb2_grpc.KeyServerStub(self.ctx.ks_channel)
+            ks_request = ks_pb2.RegisterIdentityKeyRequest(
+                username=username, identity_key=publicKeyBytes
+            )
+            ks_response = ks_stub.registerIdentityKey(ks_request)
+
+            if not ks_response.success:
+                return {"success": False, "error": "Error registing identity key"}
+
             MessagISTCrypto.storeKey(username, password, identityKey)
             return {"success": True}
 
         return {"success": False, "error": "Invalid username or password"}
-
 
     def logout(self):
         # TODO: Send logout request?

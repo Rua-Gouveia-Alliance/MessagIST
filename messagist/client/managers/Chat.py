@@ -2,6 +2,8 @@ import json
 import MessagISTCrypto
 import MessagISTServer_pb2_grpc
 import MessagISTServer_pb2
+import KeyServer_pb2_grpc as ks_pb2_grpc
+import KeyServer_pb2 as ks_pb2
 from datetime import datetime, timezone
 
 
@@ -26,14 +28,24 @@ class Chat:
         self.pending = True
 
         if partner not in self.ctx.contacts:
-            partnerIdentityKey = KEY_SERVER_REQUEST.getIdentityKey(partner)
-            self.ctx.contacts[partner] = partnerIdentityKey
+            ks_stub = ks_pb2_grpc.KeyServerStub(self.ctx.ks_channel)
+            ks_request = ks_pb2.GetIdentityKeyRequest(username=partner)
+            ks_response = ks_stub.getIdentityKey(ks_request)
+
+            # TODO: what if identity key doesnt exist (ks_response.identity_key == "")
+            self.ctx.contacts[partner] = ks_response.identity_key
 
         self.partnerIdentityKey = self.ctx.contacts[partner]
 
     def setPassphrase(self, passphrase):
         salt = MessagISTCrypto.getSalt(self.ctx.username + self.partner)
-        salt = KEY_SERVER_REQUEST.trySetSalt(salt)
+
+        ks_stub = ks_pb2_grpc.KeyServerStub(self.ctx.ks_channel)
+        ks_request = ks_pb2.TrySetSaltRequest(
+            username=self.ctx.username, partner=self.partner, salt=salt
+        )
+        ks_response = ks_stub.trySetSalt(ks_request)
+        salt = ks_response.salt
 
         self.sessionKey = MessagISTCrypto.computeSessionKey(passphrase, salt)
         self.pending = False
