@@ -3,7 +3,12 @@ class IdentityKeyManager:
         self.db = db
 
     def registerKey(self, username, key):
-        if self.getKey(username) == "":
+        previous_key = self.getKey(username)
+        if previous_key == key:
+            # same key already registered
+            return True
+        elif previous_key != "":
+            # different key already registered
             return False
 
         query = """INSERT INTO identity_keys (username, identity_key)
