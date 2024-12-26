@@ -5,9 +5,11 @@ import os
 from concurrent import futures
 
 from KeyServerServiceImpl import KeyServerServiceImpl
-from database.DatabaseClass import DatabaseClass
 
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
+from database.DatabaseClass import DatabaseClass
+
 sys.path.insert(1, "../contract/target/")
 import grpc
 import KeyServer_pb2_grpc as pb2_grpc
@@ -55,6 +57,7 @@ def main():
     config_log(args.debug)
     try:
         # Initialize DB
+        #TODO: mudar para env. variables
         DB = DatabaseClass(dbname="test", user="postgres", password="sirs")
 
         DB.connect()
@@ -65,8 +68,8 @@ def main():
         pb2_grpc.add_KeyServerServicer_to_server(KeyServerServiceImpl(DB), server)
 
         # GRPS WITH TLS
-        server_key_path = "keys/server.key"
-        server_cert_path = "keys/server.crt"
+        server_key_path = "keys/keyServer.key"
+        server_cert_path = "keys/keyServer.crt"
 
         server_cert = open(server_cert_path, "rb").read()
         server_key = open(server_key_path, "rb").read()

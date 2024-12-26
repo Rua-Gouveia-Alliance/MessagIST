@@ -20,7 +20,7 @@ class MessagISTContext:
         credentials = grpc.ssl_channel_credentials(root_certificates=trusted_certs)
         self.channel = grpc.secure_channel("localhost:" + str(port), credentials)
 
-        ks_cert = "../keyserver/keys/server.crt"
+        ks_cert = "../keyserver/keys/keyServer.crt"
         with open(ks_cert, "rb") as cert_file:
             ks_trusted_certs = cert_file.read()
         ks_credentials = grpc.ssl_channel_credentials(

@@ -24,7 +24,7 @@ class DatabaseClass:
                 password=self.password,
                 host=self.host,
                 port=self.port,
-                sslmode = self.sslmode
+                #sslmode = self.sslmode
             )
             temp_connection.autocommit = True  # Enable autocommit for creating databases
             temp_cursor = temp_connection.cursor()

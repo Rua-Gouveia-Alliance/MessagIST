@@ -35,12 +35,15 @@ mkdir target
 cd ..
 ./proto.sh
 
-server 
+server:
 python server.py -p 5001 -d
 
-client 
-
+client:
 python client.py -d
+
+keyserver:
+python keyserver.py -p 5002 -d
+
 
 CONNECT TO DB LOCALLY
 psql -h localhost -U postgres -d test

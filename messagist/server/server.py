@@ -70,9 +70,9 @@ def main():
         EXPORT ...
         """
         load_dotenv()
-        print("DB_NAME:", os.getenv("DB_NAME"))
+        """print("DB_NAME:", os.getenv("DB_NAME"))
         print("DB_USER:", os.getenv("DB_USER"))
-        print("DB_PASSWORD:", os.getenv("DB_PASSWORD"))
+        print("DB_PASSWORD:", os.getenv("DB_PASSWORD"))"""
 
         """if not all([db_name, db_user, db_password]):
             raise ValueError("One or more environment variables are missing.")"""

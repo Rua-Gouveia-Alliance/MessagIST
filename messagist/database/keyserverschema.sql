@@ -10,6 +10,6 @@ CREATE TABLE IF NOT EXISTS chat_salts (
     user_1 VARCHAR(255) NOT NULL,
     user_2 VARCHAR(255) NOT NULL,
     salt BYTEA NOT NULL,
-    CONSTRAINT unique_chat UNIQUE (user_1, user_2), -- Ensure user_1 and user_2 combination is unique
+    CONSTRAINT unique_chat_2 UNIQUE (user_1, user_2), -- Ensure user_1 and user_2 combination is unique
     CONSTRAINT check_user_order CHECK (user_1 < user_2) -- Ensure user_1 is lexicographically less than user_2
 );
