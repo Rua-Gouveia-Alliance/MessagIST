@@ -5,7 +5,6 @@ import ui
 Column {
     id: loginPage
     spacing: 30
-    anchors.centerIn: parent // Center the entire column
 
     Title {
         text: "MessagIST - Secure Messaging App"
@@ -22,7 +21,6 @@ Column {
 
         Form {
             text: "Login"
-            // Function to handle login
             formAction: (username, password) => {
                 const result = messagist.login(username, password);
                 if (result.success) {

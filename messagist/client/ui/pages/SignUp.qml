@@ -2,12 +2,9 @@ import QtQuick
 import QtQuick.Controls
 import ui
 
-
-
 Column {
     id: signupPage
     spacing: 30
-    anchors.centerIn: parent // Center the entire column
 
     Title {
         text: "MessagIST - Secure Messaging App"
@@ -22,19 +19,19 @@ Column {
         spacing: 10
         anchors.horizontalCenter: parent.horizontalCenter
 
-    Form {
-        text: "Sign Up"
-        // Function to handle login
-        formAction: (username, password) => {
-            const result = messagist.signup(username, password);
-            if (result.success) {
-                 stack.pop()
-            } else {
-                errorMessage.text = result.error;
-                errorMessage.visible = true;
+        Form {
+            text: "Sign Up"
+            formAction: (username, password) => {
+                const result = messagist.signup(username, password);
+                if (result.success) {
+                    stack.pop()
+                } else {
+                    errorMessage.text = result.error;
+                    errorMessage.visible = true;
+                }
             }
         }
-    }
+
         Text {
             id: errorMessage
             visible: false
@@ -47,7 +44,7 @@ Column {
 
     ClickableText {
         text: "Already have an account? Login instead."
-        action: () => stack.push("Login.qml")
+        action: () => stack.pop()
         anchors.horizontalCenter: parent.horizontalCenter
     }
 }
