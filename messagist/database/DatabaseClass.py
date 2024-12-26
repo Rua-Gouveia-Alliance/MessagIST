@@ -3,10 +3,11 @@ from psycopg2 import sql
 from psycopg2 import OperationalError
 
 class DatabaseClass:
-    def __init__(self, dbname, user, password, host="localhost", port="5432"):
+    def __init__(self, dbname, user, password, sslmode = "require", host="localhost", port="5432"):
         self.dbname = dbname
         self.user = user
         self.password = password
+        self.sslmode = sslmode
         self.host = host
         self.port = port
         self.connection = None
@@ -17,11 +18,13 @@ class DatabaseClass:
         try:
             # Step 1: Connect to the default 'postgres' database to check/create the database
             temp_connection = psycopg2.connect(
-                dbname="postgres",  # Default PostgreSQL database
+                #dbname="postgres",  # Default PostgreSQL database
+                dbname=self.dbname,
                 user=self.user,
                 password=self.password,
                 host=self.host,
-                port=self.port
+                port=self.port,
+                sslmode = self.sslmode
             )
             temp_connection.autocommit = True  # Enable autocommit for creating databases
             temp_cursor = temp_connection.cursor()

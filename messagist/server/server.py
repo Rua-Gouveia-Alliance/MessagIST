@@ -4,6 +4,8 @@ import logging
 import os
 from concurrent import futures
 
+from dotenv import load_dotenv
+
 from MessagISTServerServiceImpl import MessagISTServerServiceImpl
 
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
@@ -61,8 +63,24 @@ def main():
         # ptt nao faz mto sentido perder temepo com isso agora.
 
         ##Initialize DB
-        DB = DatabaseClass(dbname="test", user="postgres", password="sirs")
+        #DB = DatabaseClass(dbname="test", user="postgres", password="sirs")
+        #use exports, is this a good idea? search about it
 
+        """
+        EXPORT ...
+        """
+        load_dotenv()
+        print("DB_NAME:", os.getenv("DB_NAME"))
+        print("DB_USER:", os.getenv("DB_USER"))
+        print("DB_PASSWORD:", os.getenv("DB_PASSWORD"))
+
+        """if not all([db_name, db_user, db_password]):
+            raise ValueError("One or more environment variables are missing.")"""
+        DB = DatabaseClass(
+        dbname=os.getenv("DB_NAME"),
+        user=os.getenv("DB_USER"),
+        password=os.getenv("DB_PASSWORD"),
+        )
         DB.connect()
 
         DB.execute_script("../database/serverschema.sql")
