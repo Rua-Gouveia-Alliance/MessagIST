@@ -8,3 +8,5 @@ dependencies:
   - grpcio-tools=1.62.2
   - pyside6=6.8.0
   - cryptography=44.0.0
+  - psycopg2=2.9.9
+  - python-dotenv=1.0.1
