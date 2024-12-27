@@ -123,7 +123,7 @@ class MessagISTServerServiceImpl(pb2_grpc.MessagISTServerServicer):
             logging.debug("GETIDENTITYKEY FAILED")
 
         logging.debug("GETIDENTITYKEY success")
-        return pb2.GetIdentityKeyResponse(identity_key)
+        return pb2.GetIdentityKeyResponse(identity_key=identity_key)
 
     def trySetSalt(self, request, context):
         logging.debug("TRYSETSALT request received")
@@ -139,4 +139,4 @@ class MessagISTServerServiceImpl(pb2_grpc.MessagISTServerServicer):
         else:
             logging.debug("Salt already existed for this chat")
 
-        return pb2.TrySetSaltResponse(salt)
+        return pb2.TrySetSaltResponse(salt=salt)

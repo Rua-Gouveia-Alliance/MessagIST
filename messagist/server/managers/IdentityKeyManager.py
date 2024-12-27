@@ -23,4 +23,4 @@ class IdentityKeyManager:
         result = self.db.fetch_one(query, (username,))
         if result is None:
             return ""
-        return result[0]
+        return result[0].tobytes()
