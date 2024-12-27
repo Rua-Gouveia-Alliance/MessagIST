@@ -9,8 +9,9 @@ from KeyServerServiceImpl import KeyServerServiceImpl
 
 sys.path.append("../database/")
 sys.path.append("../contract/target/")
-import MessagISTServer_pb2_grpc as pb2_grpc
+import KeyServer_pb2_grpc as pb2_grpc
 from DatabaseClass import DatabaseClass
+
 
 def parse_args():
     parser = argparse.ArgumentParser(
@@ -54,7 +55,7 @@ def main():
     config_log(args.debug)
     try:
         # Initialize DB
-        #TODO: mudar para env. variables
+        # TODO: mudar para env. variables
         DB = DatabaseClass(dbname="test", user="postgres", password="sirs")
 
         DB.connect()

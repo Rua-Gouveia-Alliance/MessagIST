@@ -95,15 +95,9 @@ def main():
         server_credentials = grpc.ssl_server_credentials([(server_key, server_cert)])
 
         server.add_secure_port("localhost:" + str(port), server_credentials)
-
-        # server.add_insecure_port(":" + str(port))
-        # server.add_insecure_port("localhost:5001")
-
         logging.debug("Listening on port " + str(port))
 
-        # start server and wait for termination
         server.start()
-
         server.wait_for_termination()
 
     except KeyboardInterrupt:
