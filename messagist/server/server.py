@@ -2,19 +2,15 @@ import argparse
 import sys
 import logging
 import os
+import grpc
 from concurrent import futures
-
 from dotenv import load_dotenv
-
 from MessagISTServerServiceImpl import MessagISTServerServiceImpl
 
-sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-
-from database.DatabaseClass import DatabaseClass
-
-sys.path.insert(1, "../contract/target/")
-import grpc
+sys.path.append("../database/")
+sys.path.append("../contract/target/")
 import MessagISTServer_pb2_grpc as pb2_grpc
+from DatabaseClass import DatabaseClass
 
 
 def parse_args():
@@ -63,8 +59,8 @@ def main():
         # ptt nao faz mto sentido perder temepo com isso agora.
 
         ##Initialize DB
-        #DB = DatabaseClass(dbname="test", user="postgres", password="sirs")
-        #use exports, is this a good idea? search about it
+        # DB = DatabaseClass(dbname="test", user="postgres", password="sirs")
+        # use exports, is this a good idea? search about it
 
         """
         EXPORT ...
@@ -77,9 +73,9 @@ def main():
         """if not all([db_name, db_user, db_password]):
             raise ValueError("One or more environment variables are missing.")"""
         DB = DatabaseClass(
-        dbname=os.getenv("DB_NAME"),
-        user=os.getenv("DB_USER"),
-        password=os.getenv("DB_PASSWORD"),
+            dbname="test",
+            user="postgres",
+            password="sirs",
         )
         DB.connect()
 

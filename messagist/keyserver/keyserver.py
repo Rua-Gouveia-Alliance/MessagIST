@@ -2,18 +2,15 @@ import argparse
 import sys
 import logging
 import os
+import grpc
 from concurrent import futures
-
+from dotenv import load_dotenv
 from KeyServerServiceImpl import KeyServerServiceImpl
 
-sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-
-from database.DatabaseClass import DatabaseClass
-
-sys.path.insert(1, "../contract/target/")
-import grpc
-import KeyServer_pb2_grpc as pb2_grpc
-
+sys.path.append("../database/")
+sys.path.append("../contract/target/")
+import MessagISTServer_pb2_grpc as pb2_grpc
+from DatabaseClass import DatabaseClass
 
 def parse_args():
     parser = argparse.ArgumentParser(
