@@ -9,10 +9,10 @@ class MessagIST(QObject):
     chatsChanged = Signal()
     loggedOut = Signal()
 
-    def __init__(self, debug, port, ksport):
+    def __init__(self, debug, port):
         QObject.__init__(self)
         self.LEASE_TIME = 5000  # 5000ms, 5s
-        self.ctx = MessagISTContext(debug, port, ksport)
+        self.ctx = MessagISTContext(debug, port)
         self.ctx.setChatsChanged(self.chatsChanged)
         self.sessionManager = SessionManager(self.ctx)
         self.chatManager = ChatManager(self.ctx)

@@ -1,9 +1,7 @@
 import json
 import MessagISTCrypto
-import MessagISTServer_pb2_grpc
-import MessagISTServer_pb2
-import KeyServer_pb2_grpc as ks_pb2_grpc
-import KeyServer_pb2 as ks_pb2
+import MessagISTServer_pb2_grpc as pb2_grpc
+import MessagISTServer_pb2 as pb2
 from datetime import datetime, timezone
 
 
@@ -28,24 +26,24 @@ class Chat:
         self.pending = True
 
         if partner not in self.ctx.contacts:
-            ks_stub = ks_pb2_grpc.KeyServerStub(self.ctx.ks_channel)
-            ks_request = ks_pb2.GetIdentityKeyRequest(username=partner)
-            ks_response = ks_stub.getIdentityKey(ks_request)
+            stub = pb2_grpc.MessagISTServerStub(self.ctx.channel)
+            request = pb2.GetIdentityKeyRequest(username=partner)
+            response = stub.getIdentityKey(request)
 
-            # TODO: what if identity key doesnt exist (ks_response.identity_key == "")
-            self.ctx.contacts[partner] = ks_response.identity_key
+            # TODO: what if identity key doesnt exist (response.identity_key == "")
+            self.ctx.contacts[partner] = response.identity_key
 
         self.partnerIdentityKey = self.ctx.contacts[partner]
 
     def setPassphrase(self, passphrase):
         salt = MessagISTCrypto.getSalt(self.ctx.username + self.partner)
 
-        ks_stub = ks_pb2_grpc.KeyServerStub(self.ctx.ks_channel)
-        ks_request = ks_pb2.TrySetSaltRequest(
+        stub = pb2_grpc.MessagISTServerStub(self.ctx.channel)
+        request = pb2.TrySetSaltRequest(
             username=self.ctx.username, partner=self.partner, salt=salt
         )
-        ks_response = ks_stub.trySetSalt(ks_request)
-        salt = ks_response.salt
+        response = stub.trySetSalt(request)
+        salt = response.salt
 
         self.sessionKey = MessagISTCrypto.computeSessionKey(passphrase, salt)
         self.pending = False
@@ -63,8 +61,8 @@ class Chat:
             return False
 
         message = self._createMessage(message)
-        stub = MessagISTServer_pb2_grpc.MessagISTServerStub(self.ctx.channel)
-        request = MessagISTServer_pb2.SendRequest(
+        stub = pb2_grpc.MessagISTServerStub(self.ctx.channel)
+        request = pb2.SendRequest(
             token=self.ctx.sessionToken, message=message, partner=self.partner
         )
         response = stub.send(request)

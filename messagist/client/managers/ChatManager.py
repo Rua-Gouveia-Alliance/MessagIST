@@ -1,5 +1,3 @@
-import MessagISTServer_pb2_grpc as pb2_grpc
-import MessagISTServer_pb2 as pb2
 from managers.Chat import Chat
 
 

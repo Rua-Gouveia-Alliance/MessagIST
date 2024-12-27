@@ -20,12 +20,6 @@ if __name__ == "__main__":
         help="MessagISTServer port",
     )
     parser.add_argument(
-        "-k",
-        "--ksport",
-        default=5002,
-        help="KeyServer port",
-    )
-    parser.add_argument(
         "-d",
         "--debug",
         action="store_true",
@@ -36,7 +30,7 @@ if __name__ == "__main__":
 
     app = QGuiApplication()
     engine = QQmlApplicationEngine()
-    messagist = MessagIST(args.debug, args.port, args.ksport)
+    messagist = MessagIST(args.debug, args.port)
     engine.rootContext().setContextProperty("messagist", messagist)
     engine.addImportPath(sys.path[0])
     engine.loadFromModule("ui", "Main")

@@ -1,8 +1,6 @@
 import MessagISTCrypto
 import MessagISTServer_pb2_grpc as pb2_grpc
 import MessagISTServer_pb2 as pb2
-import KeyServer_pb2_grpc as ks_pb2_grpc
-import KeyServer_pb2 as ks_pb2
 
 import re
 
@@ -45,9 +43,9 @@ class SessionManager:
             return {"success": False, "error": "User does not exist"}
 
         self.ctx.logger.debug("Sending LOGIN request")
-        password = MessagISTCrypto.prepareForStorage(password, salt)
+        hiddenPassword = MessagISTCrypto.prepareForStorage(password, salt)
         stub = pb2_grpc.MessagISTServerStub(self.ctx.channel)
-        request = pb2.LoginRequest(username=username, password=password)
+        request = pb2.LoginRequest(username=username, password=hiddenPassword)
         response = stub.login(request)
         if response.success:
             self.ctx.logger.debug("Login successful")
@@ -74,23 +72,25 @@ class SessionManager:
         self.ctx.logger.debug("Sending SIGNUP request")
 
         salt = MessagISTCrypto.getSalt(username)
-        password = MessagISTCrypto.prepareForStorage(password, salt)
+        hiddenPassword = MessagISTCrypto.prepareForStorage(password, salt)
 
         stub = pb2_grpc.MessagISTServerStub(self.ctx.channel)
-        request = pb2.SignupRequest(username=username, password=password, salt=salt)
+        request = pb2.SignupRequest(
+            username=username, password=hiddenPassword, salt=salt
+        )
         response = stub.signup(request)
 
         if response.success:
             identityKey = MessagISTCrypto.generateIdentityKey()
             publicKeyBytes = identityKey.public_key().public_bytes_raw()
 
-            ks_stub = ks_pb2_grpc.KeyServerStub(self.ctx.ks_channel)
-            ks_request = ks_pb2.RegisterIdentityKeyRequest(
+            stub = pb2_grpc.MessagISTServerStub(self.ctx.channel)
+            request = pb2.RegisterIdentityKeyRequest(
                 username=username, identity_key=publicKeyBytes
             )
-            ks_response = ks_stub.registerIdentityKey(ks_request)
+            response = stub.registerIdentityKey(request)
 
-            if not ks_response.success:
+            if not response.success:
                 return {"success": False, "error": "Error registing identity key"}
 
             MessagISTCrypto.storeKey(username, password, identityKey)
