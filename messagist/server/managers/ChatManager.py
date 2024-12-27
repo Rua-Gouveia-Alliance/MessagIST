@@ -6,7 +6,7 @@ class ChatManager:
         self.chats = {"TESTE1": {}, "TESTE2": {}}
         self.db = db
 
-    # TODO: Terrible solution to store chats but this will be replaced by a real database
+    # TODO: Arede tira os comentarios que nao sao precisos
     def startChat(self, user1, user2):
         query = """
         SELECT COUNT(*) FROM chat
@@ -88,6 +88,7 @@ class ChatManager:
         # self.chats[user1][user2].append(msg)
         # self.chats[user2][user1].append(msg)
 
+        # TODO: Calcular o numero de mensagens enviadas no chat em questao e retornar esse numero menos 1.
         return len(self.chats[user1][user2]) - 1
 
     def getMessage(self, user1, user2, index):
