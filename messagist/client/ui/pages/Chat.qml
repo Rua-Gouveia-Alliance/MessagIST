@@ -19,17 +19,6 @@ Column {
         anchors.horizontalCenter: parent.horizontalCenter
     }
 
-    Dialog {
-        id: dialog
-        title: "Insert the passphrase for this conversation"
-        standardButtons: Dialog.Ok | Dialog.Cancel
-        modal: true
-        visible: messagist.chats[partner][0]
-
-        onAccepted: messagist.setChatPassphrase(partner, passphrase.text)
-        onRejected: stack.pop()
-    }
-
     Repeater {
         model: messagist.chats[partner].slice(1)
         Message {
@@ -54,5 +43,21 @@ Column {
             font.pointSize: 12
             onClicked: messagist.sendMessage(message.text, partner);
         }
+    }
+
+    Dialog {
+        id: dialog
+        title: "Insert the passphrase for this conversation"
+        standardButtons: Dialog.Ok | Dialog.Cancel
+        modal: true
+        visible: messagist.chats[partner][0]
+
+        TextField {
+            id: passphrase
+            placeholderText: "Passphrase"
+        }
+
+        onAccepted: messagist.setChatPassphrase(partner, passphrase.text) || stack.pop()
+        onRejected: stack.pop()
     }
 }

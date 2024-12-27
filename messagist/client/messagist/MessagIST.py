@@ -54,12 +54,17 @@ class MessagIST(QObject):
         self.loggedOut.emit()
         return success
 
-    @Slot(str, str)
+    @Slot(str, str, result=bool)
     def sendMessage(self, msg, partner):
         self.ctx.logger.debug("Sending a message to " + partner)
         return self.chatManager.sendMessage(msg, partner)
 
-    @Slot(str)
+    @Slot(str, result=bool)
+    def startChat(self, partner):
+        self.ctx.logger.debug("Starting a new chat with " + partner)
+        return self.chatManager.startChat(partner)
+
+    @Slot(str, str, result=bool)
     def setChatPassphrase(self, partner, passphrase):
         self.ctx.logger.debug("Setting the passphrase to the chat with " + partner)
         return self.chatManager.setChatPassphrase(partner, passphrase)

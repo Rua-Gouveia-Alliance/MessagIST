@@ -11,6 +11,7 @@ class Chat:
         self.partner = partner
         self.messages = []
         self.bufferedMessages = []
+        self.pendingMessages = []
         self.timestamp = 0
         # These nonces also establish a partial order for messages, consider
         # using them to check the server ordering (if the ordering does not
@@ -36,6 +37,9 @@ class Chat:
         self.partnerIdentityKey = self.ctx.contacts[partner]
 
     def setPassphrase(self, passphrase):
+        self.ctx.logger.debug(
+            "Setting the passphrase for the chat with " + self.partner
+        )
         salt = MessagISTCrypto.getSalt(self.ctx.username + self.partner)
 
         stub = pb2_grpc.MessagISTServerStub(self.ctx.channel)
@@ -48,6 +52,8 @@ class Chat:
         self.sessionKey = MessagISTCrypto.computeSessionKey(passphrase, salt)
         self.pending = False
         self.pendingMessages.sort(key=lambda x: x[1])
+        for message, ts in self.pendingMessages:
+            self.append(message, ts)
 
     def getMessages(self):
         messages = [self.pending]
@@ -70,9 +76,11 @@ class Chat:
         return True
 
     def append(self, message, ts):
+        self.ctx.logger.debug("Appeding to the chat with " + self.partner)
         # Haven't set the passphrase/sessionKey yet
         if self.pending:
             self.pendingMessages.append((message, ts))
+            self.ctx.logger.debug("Appending to pending messages")
             return
 
         message = MessagISTCrypto.unprotect(
@@ -108,6 +116,7 @@ class Chat:
                 return  # Drop message
 
         if ts == self.timestamp:
+            self.ctx.logger.debug("Appending to the chat")
             self.messages.append(message)
             self.timestamp += 1
             while (
@@ -118,6 +127,7 @@ class Chat:
                 self.messages.append(message)
                 self.timestamp += 1
         elif ts > self.timestamp:
+            self.ctx.logger.debug("Appending to the buffered messages")
             if (ts, message) not in self.bufferedMessages:
                 self.bufferedMessages.append((ts, message))
                 self.bufferedMessages.sort()

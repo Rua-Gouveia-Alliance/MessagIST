@@ -32,7 +32,9 @@ Column {
             id: button
             text: "New chat"
             font.pointSize: 12
-            onClicked: stack.push("Chat.qml", { partner: newPartner.text })
+            onClicked: {
+                messagist.startChat(newPartner.text) && stack.push("Chat.qml", { partner: newPartner.text })
+            }
         }
     }
 
