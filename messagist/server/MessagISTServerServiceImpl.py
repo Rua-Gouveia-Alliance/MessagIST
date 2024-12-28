@@ -7,18 +7,15 @@ import MessagISTServer_pb2 as pb2
 from managers.ChatManager import ChatManager
 from managers.SessionManager import SessionManager
 from managers.UserManager import UserManager
-from managers.IdentityKeyManager import IdentityKeyManager
-from managers.ChatSaltManager import ChatSaltManager
 
 
 # TODO: Configurar logger em condicoes
 class MessagISTServerServiceImpl(pb2_grpc.MessagISTServerServicer):
     def __init__(self, db, *args, **kwargs):
+        self.db = db
         self.userManager = UserManager(db)
         self.chatManager = ChatManager(db)
         self.sessionManager = SessionManager()
-        self.identityKeyManager = IdentityKeyManager(db)
-        self.chatSaltManager = ChatSaltManager(db)
 
     def signup(self, request, context):
         logging.debug("SIGNUP request received.")
@@ -27,7 +24,10 @@ class MessagISTServerServiceImpl(pb2_grpc.MessagISTServerServicer):
         username = request.username
         password = request.password
         salt = request.salt
-        success = self.userManager.newUser(username, password, salt)  # basede dados
+        identityKey = request.identityKey
+        success = self.userManager.newUser(username, password, salt, identityKey)
+        if not success:
+            logging.debug("SIGNUP FAILED")
         return pb2.SignupResponse(success=success)
 
     def getSalt(self, request, context):
@@ -105,41 +105,18 @@ class MessagISTServerServiceImpl(pb2_grpc.MessagISTServerServicer):
         logging.debug("KEEPALIVE success")
         return pb2.KeepAliveResponse(success=True, messages=messages, partners=partners)
 
-    def registerIdentityKey(self, request, context):
-        logging.debug("REGISTERIDENTITYKEY request received")
-        logging.debug("Username: " + request.username)
-
-        username = self.sessionManager.getUser(request.token)
-        if username == "":
-            logging.debug("GETCLIENTKU FAILED")
-            return pb2.RegisterIdentityKeyResponse(success=False)
-
-        identity_key = request.identity_key
-        user_id = self.userManager.getUserId(username)
-        if not self.identityKeyManager.registerKey(user_id, identity_key):
-            logging.debug("GETCLIENTKU FAILED")
-            return pb2.RegisterIdentityKeyResponse(success=False)
-
-        logging.debug("GETCLIENTKU success")
-        return pb2.RegisterIdentityKeyResponse(success=True)
-
     def getIdentityKey(self, request, context):
         logging.debug("GETIDENTITYKEY request received")
         logging.debug("Username: " + request.username)
 
         username = request.username
-        user_id = self.userManager.getUserId(username)
-        if user_id == -1:
+        identityKey = self.userManager.getUserKey(username)
+        if identityKey == "":
             logging.debug("GETIDENTITYKEY FAILED")
-            return pb2.GetIdentityKeyResponse(identity_key=b"")
-
-        identity_key = self.identityKeyManager.getKey(user_id)
-        if identity_key == "":
-            logging.debug("GETIDENTITYKEY FAILED")
-            return pb2.GetIdentityKeyResponse(identity_key=b"")
+            return pb2.GetIdentityKeyResponse(identityKey=b"")
 
         logging.debug("GETIDENTITYKEY success")
-        return pb2.GetIdentityKeyResponse(identity_key=identity_key)
+        return pb2.GetIdentityKeyResponse(identityKey=identityKey)
 
     def trySetSalt(self, request, context):
         logging.debug("TRYSETSALT request received")
@@ -158,7 +135,7 @@ class MessagISTServerServiceImpl(pb2_grpc.MessagISTServerServicer):
 
         user_id = self.userManager.getUserId(username)
         partner_id = self.userManager.getUserId(partner)
-        salt = self.chatSaltManager.trySetSalt(user_id, partner_id, received_salt)
+        salt = self.chatManager.trySetSalt(user_id, partner_id, received_salt)
 
         if salt == received_salt:
             logging.debug("New salt")

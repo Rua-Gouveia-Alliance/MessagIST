@@ -59,13 +59,11 @@ class SessionManager:
             return {"success": True}
         return {"success": False, "error": "Invalid username or password"}
 
-        # return response.success
-
     def signup(self, username, password):
         if not username:
             return {"success": False, "error": "Username cannot be empty"}
+
         if not self.checkPassword(password):
-            # TODO: Avisar utilizador
             return {
                 "success": False,
                 "error": "Password needs to have at least 1 digit, 1 symbol and more than 11 letters",
@@ -76,27 +74,22 @@ class SessionManager:
         salt = MessagISTCrypto.getSalt(username)
         hiddenPassword = MessagISTCrypto.prepareForStorage(password, salt)
 
+        identityKey = MessagISTCrypto.generateIdentityKey()
+        publicKeyBytes = identityKey.public_key().public_bytes_raw()
+
         stub = pb2_grpc.MessagISTServerStub(self.ctx.channel)
         request = pb2.SignupRequest(
-            username=username, password=hiddenPassword, salt=salt
+            username=username,
+            password=hiddenPassword,
+            identityKey=publicKeyBytes,
+            salt=salt,
         )
         response = stub.signup(request)
 
         if response.success:
-            identityKey = MessagISTCrypto.generateIdentityKey()
-            publicKeyBytes = identityKey.public_key().public_bytes_raw()
-
-            stub = pb2_grpc.MessagISTServerStub(self.ctx.channel)
-            request = pb2.RegisterIdentityKeyRequest(
-                token=self.ctx.sessionToken, identity_key=publicKeyBytes
-            )
-            response = stub.registerIdentityKey(request)
-
-            if not response.success:
-                return {"success": False, "error": "Error registing identity key"}
-
             MessagISTCrypto.storeKey(username, password, identityKey)
-            return {"success": True}
+            wordList = MessagISTCrypto.encodeAsWords(identityKey)
+            return {"success": True, "words": "\n".join(wordList)}
 
         return {"success": False, "error": "Invalid username or password"}
 

@@ -27,13 +27,14 @@ class ChatManager:
         INSERT INTO chat (user_1, user_2)
         VALUES (%s, %s)
         """
-        self.db.execute_query(
+        self.db.query(
             insert_query,
             (
                 user_id_1,
                 user_id_2,
             ),
         )
+        self.db.commit()
         return True
 
     def sendMessage(self, user_id_1, user_id_2, msg):
@@ -55,7 +56,8 @@ class ChatManager:
             return -1
 
         insert_query = "INSERT INTO messages (chat_id, message_text) VALUES (%s)"
-        self.db.execute_query(insert_query, (chat_id, msg))
+        self.db.query(insert_query, (chat_id, msg))
+        self.db.commit()
 
         return self.getChatLen(chat_id) - 1
 
@@ -117,3 +119,35 @@ class ChatManager:
 
         chat_partners = [row[0] for row in result]
         return chat_partners
+
+    def getChatSalt(self, user_id, partner_id):
+        query = """SELECT salt FROM chat_salts
+        WHERE user_1 = %s AND user_2 = %s"""
+
+        params = (
+            (user_id, partner_id) if user_id < partner_id else (partner_id, user_id)
+        )
+        result = self.db.fetch_one(query, params)
+
+        if result is None:
+            return ""
+        return result[0].tobytes()
+
+    def registerChatSalt(self, user_id, partner_id, salt):
+        query = """INSERT INTO chat_salts (user_1, user_2, salt)
+        VALUES (%s, %s, %s)"""
+
+        params = (
+            (user_id, partner_id, salt)
+            if user_id < partner_id
+            else (partner_id, user_id, salt)
+        )
+        self.db.query(query, params)
+        self.db.commit()
+
+    def trySetSalt(self, user_id, partner_id, salt):
+        old_salt = self.getChatSalt(user_id, partner_id)
+        if old_salt == "":
+            self.registerChatSalt(user_id, partner_id, salt)
+            return salt
+        return old_salt

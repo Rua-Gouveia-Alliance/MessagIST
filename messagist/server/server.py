@@ -54,11 +54,11 @@ def main():
     config_log(args.debug)
     try:
         # TODO: Aumentar thread pool para 10.
-        # So nao meto ja porque seria preciso meter locks no ChatManager e
-        # UserManager, que vao ser implementados de novo quando tivermos a DB
-        # ptt nao faz mto sentido perder temepo com isso agora.
+        # Preciso trocar a maneira como a base de dados funciona.
+        # Cada thread tem que ter a sua propria db e a classe da base de dados
+        # talvez tenha que ser trocada para ser seguro fazer operacoes concorrentes.
 
-        ##Initialize DB
+        # Initialize DB
         # DB = DatabaseClass(dbname="test", user="postgres", password="sirs")
         # use exports, is this a good idea? search about it
 

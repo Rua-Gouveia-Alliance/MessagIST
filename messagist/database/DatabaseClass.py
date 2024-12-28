@@ -1,108 +1,131 @@
-import psycopg2
-from psycopg2 import sql
-from psycopg2 import OperationalError
+import psycopg
+from psycopg import sql
+from psycopg import OperationalError
 
+
+# TODO: Estas exceptions lançadas aqui nao fazem sentido porque depois nao sao apanhadas em lado nenhum
+# TODO: É preciso rever o codigo dos managers e dar rolback se excecoes forem lançadas.
+# TODO: O ssl mode nao devia tar ativo?
 class DatabaseClass:
-    def __init__(self, dbname, user, password, sslmode = "require", host="localhost", port="5432"):
+    def __init__(
+        self, dbname, user, password, sslmode="require", host="localhost", port="5432"
+    ):
         self.dbname = dbname
         self.user = user
         self.password = password
         self.sslmode = sslmode
         self.host = host
         self.port = port
-        self.connection = None
+        self.conn = None
         self.cursor = None
 
     def connect(self):
         """Connect to the PostgreSQL database. Create the database if it does not exist."""
         try:
             # Step 1: Connect to the default 'postgres' database to check/create the database
-            temp_connection = psycopg2.connect(
-                #dbname="postgres",  # Default PostgreSQL database
+            conn = psycopg.connect(
+                # dbname="postgres",  # Default PostgreSQL database
                 dbname=self.dbname,
                 user=self.user,
                 password=self.password,
                 host=self.host,
                 port=self.port,
-                #sslmode = self.sslmode
+                autocommit=True,
+                # sslmode = self.sslmode
             )
-            temp_connection.autocommit = True  # Enable autocommit for creating databases
-            temp_cursor = temp_connection.cursor()
+            cur = conn.cursor()
 
             # Step 2: Check if the database exists
-            temp_cursor.execute(
+            cur.execute(
                 sql.SQL("SELECT 1 FROM pg_database WHERE datname = %s"),
-                [self.dbname]
+                [self.dbname],
             )
-            if not temp_cursor.fetchone():
+            if not cur.fetchone():
                 # Database does not exist, create it
-                temp_cursor.execute(
+                cur.execute(
                     sql.SQL("CREATE DATABASE {}").format(sql.Identifier(self.dbname))
                 )
                 print(f"Database '{self.dbname}' created successfully.")
             else:
                 print(f"Database '{self.dbname}' already exists.")
 
-            # Close temporary connection
-            temp_cursor.close()
-            temp_connection.close()
+            cur.close()
+            conn.close()
 
             # Step 3: Connect to the specified database
-            self.connection = psycopg2.connect(
+            self.conn = psycopg.connect(
                 dbname=self.dbname,
                 user=self.user,
                 password=self.password,
                 host=self.host,
-                port=self.port
+                port=self.port,
             )
-            self.cursor = self.connection.cursor()
+            self.cur = self.conn.cursor()
             print(f"Connected to {self.dbname} database.")
         except OperationalError as e:
             print(f"Error: {e}")
-            self.connection = None
+            self.conn = None
+            self.cur = None
         except Exception as e:
             print(f"Unexpected error: {e}")
-            self.connection = None
-
+            self.conn = None
+            self.cur = None
 
     def execute_script(self, script_path):
         """Execute a SQL script from a file."""
-        if not self.connection:
+        if not self.conn:
             raise Exception("Not connected to the database.")
         try:
-            with open(script_path, 'r') as file:
+            with open(script_path, "r") as file:
                 sql_script = file.read()
-            self.cursor.execute(sql_script)
-            self.connection.commit()
+            self.cur.execute(sql_script)
+            self.conn.commit()
             print(f"SQL script '{script_path}' executed successfully.")
         except Exception as e:
             print(f"Error executing script '{script_path}': {e}")
 
-    def execute_query(self, query, params=None):
+    def query(self, query, params=None):
         """Execute a single query."""
-        if not self.connection:
+        if not self.conn:
             raise Exception("Not connected to the database.")
         try:
-            self.cursor.execute(query, params)
-            self.connection.commit()
+            self.cur.execute(query, params)
         except Exception as e:
             print(f"Error executing query: {e}")
 
-    def fetch_one(self, query, params=None):
-        """Fetch all results from a query."""
+    def commit(self):
+        """Commit queries."""
+        if not self.conn:
+            raise Exception("Not connected to the database.")
+        try:
+            self.conn.commit()
+        except Exception as e:
+            print(f"Error commiting: {e}")
+
+    def rollback(self):
+        """Rollback queries."""
         if not self.connection:
             raise Exception("Not connected to the database.")
         try:
-            self.cursor.execute(query, params)
-            return self.cursor.fetchone()
+            self.conn.rollback()
+        except Exception as e:
+            print(f"Error rollbacking: {e}")
+
+    def fetch_one(self, query, params=None):
+        """Fetch all results from a query."""
+        if not self.conn:
+            raise Exception("Not connected to the database.")
+        try:
+            self.cur.execute(query, params)
+            return self.cur.fetchone()
         except Exception as e:
             print(f"Error fetching data: {e}")
             return []
 
     def close(self):
         """Close the cursor and connection."""
-        if self.cursor:
-            self.cursor.close()
-        if self.connection:
-            self.connection.close()
+        if self.cur:
+            self.cur.close()
+        if self.conn:
+            self.conn.close()
         print("Connection closed.")

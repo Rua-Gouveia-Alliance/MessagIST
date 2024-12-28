@@ -5,9 +5,10 @@ syntax = "proto3";
 package pt.tecnico.sirs.a61;
 
 message SignupRequest {
-    string username = 1;
-    bytes password  = 2;
-    bytes salt      = 3;
+    string username   = 1;
+    bytes password    = 2;
+    bytes identityKey = 3;
+    bytes salt        = 4;
 }
 
 message SignupResponse {
@@ -45,9 +46,9 @@ message SendResponse {
 }
 
 message KeepAliveRequest {
-    string token              = 2;
-    repeated string partners  = 3;
-    repeated int32 timestamps = 4;
+    string token              = 1;
+    repeated string partners  = 2;
+    repeated int32 timestamps = 3;
 }
 
 message KeepAliveResponse {
@@ -56,21 +57,12 @@ message KeepAliveResponse {
     repeated string messages = 3;
 }
 
-message RegisterIdentityKeyRequest {
-    string token       = 1;
-    bytes identity_key = 2;
-}
-
-message RegisterIdentityKeyResponse {
-    bool success = 1;
-}
-
 message GetIdentityKeyRequest {
     string username = 1;
 }
 
 message GetIdentityKeyResponse {
-    bytes identity_key = 1;
+    bytes identityKey = 1;
 }
 
 message TrySetSaltRequest {
@@ -89,7 +81,6 @@ service MessagISTServer {
     rpc login (LoginRequest) returns (LoginResponse);
     rpc send (SendRequest) returns (SendResponse);
     rpc keepAlive (KeepAliveRequest) returns (KeepAliveResponse);
-    rpc registerIdentityKey (RegisterIdentityKeyRequest) returns (RegisterIdentityKeyResponse);
     rpc getIdentityKey (GetIdentityKeyRequest) returns (GetIdentityKeyResponse);
     rpc trySetSalt (TrySetSaltRequest) returns (TrySetSaltResponse);
 }
