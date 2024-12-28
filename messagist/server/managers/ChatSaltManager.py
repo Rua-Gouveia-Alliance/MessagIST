@@ -2,31 +2,36 @@ class ChatSaltManager:
     def __init__(self, db):
         self.db = db
 
-    def querySalt(self, username, partner):
+    def querySalt(self, user_id, partner_id):
         query = """SELECT salt FROM chat_salts
         WHERE user_1 = %s AND user_2 = %s"""
 
-        params = (username, partner) if username < partner else (partner, username)
+        params = (
+            (user_id, partner_id) if user_id < partner_id else (partner_id, user_id)
+        )
         result = self.db.fetch_one(query, params)
 
         if result is None:
             return ""
         return result[0].tobytes()
 
-    def registerSalt(self, username, partner, salt):
+    def registerSalt(self, user_id, partner_id, salt):
         query = """INSERT INTO chat_salts (user_1, user_2, salt)
         VALUES (%s, %s, %s)"""
 
         params = (
-            (username, partner, salt)
-            if username < partner
-            else (partner, username, salt)
+            (user_id, partner_id, salt)
+            if user_id < partner_id
+            else (partner_id, user_id, salt)
         )
         self.db.execute_query(query, params)
 
-    def trySetSalt(self, username, partner, salt):
-        old_salt = self.querySalt(username, partner)
+    def trySetSalt(self, username, partner, salt, usermngr):
+        user_id = usermngr.getUserId(username)
+        partner_id = usermngr.getUserId(partner)
+
+        old_salt = self.querySalt(user_id, partner_id)
         if old_salt == "":
-            self.registerSalt(username, partner, salt)
+            self.registerSalt(user_id, partner_id, salt)
             return salt
         return old_salt
