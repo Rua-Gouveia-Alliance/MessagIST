@@ -14,29 +14,63 @@ from cryptography.hazmat.primitives.asymmetric.ed25519 import (
 
 
 def getSalt(username=""):
+    """
+    Generate a salt value.
+
+    Parameters:
+    username(str): Optional username that ensures uniqueness of the salt. Default is empty string.
+
+    Returns:
+    bytes: Random salt.
+    """
     salt = os.urandom(16)  # Random bytes
     salt += username.encode("ascii")  # To ensure uniqueness
     return salt
 
 
 def getIV():
+    """
+    Generate a random Initialization Vector (IV).
+
+    Returns:
+    bytes: 16-byte random IV.
+    """
     return os.urandom(16)
 
 
 def protect(privateIdentityKey, sessionKey, message):
-    # Encrypt-then-MAC
+    """
+    Encrypt message and genrate a digital signature (Encrypt-then-MAC).
+
+    This function protects a plaintext message by first encrypting it with AES in CBC mode
+    using a randomly generated Initialization Vector (IV) and a provided session key.
+    Then, the resulting ciphertext is signed using the sender's private identity key to
+    produce a digital signature. This ensures both confidentiality, integrity, and authenticity.
+
+    Parameters:
+    privateIdentityKey (Ed25519PrivateKey): Private key used to sign the message.
+    sessionKey (bytes): Symmetric key used for encryption.
+    message (str): Plaintext message to protect.
+
+    Returns:
+    str: Base64-encoded encrypted message, signature, and IV, separated by newlines.
+    """
     message = message.encode("ascii")
 
+    # Apply padding to ensure message size is multiple of the AES block size
     padder = padding.PKCS7(128).padder()
     message = padder.update(message) + padder.finalize()
 
-    iv = getIV()
+    # Encrypt the message
+    iv = getIV()  # Ensures uniqueness even if messages are the same
     cipher = Cipher(algorithms.AES256(sessionKey), modes.CBC(iv))
     encryptor = cipher.encryptor()
     message = encryptor.update(message) + encryptor.finalize()
 
+    # Generate signature
     signature = privateIdentityKey.sign(message)
 
+    # Concatenate all
     message = base64.b64encode(message).decode("ascii") + "\n"
     message += base64.b64encode(signature).decode("ascii") + "\n"
     message += base64.b64encode(iv).decode("ascii")
@@ -45,16 +79,30 @@ def protect(privateIdentityKey, sessionKey, message):
 
 
 def unprotect(publicIdentityKey, sessionKey, message):
+    """
+    Decrypt protected message and verify its integrity (Encrypt-then-MAC).
+
+    Parameters:
+    publicIdentityKey (Ed25519PublicKey): Public key used to verify the message.
+    sessionKey (bytes): Symmetric key used for decryption.
+    message (str): Base64-encoded encrypted message, signature, and IV, separated by newlines.
+
+    Returns:
+    str or None: Decrypted plaintext message, or None if verification fails.
+    """
     message = message.splitlines()
     iv = base64.b64decode(message[2].encode("ascii"))
     signature = base64.b64decode(message[1].encode("ascii"))
     message = base64.b64decode(message[0].encode("ascii"))
 
+    # Verify the digital signature using the public key
     try:
         publicIdentityKey.verify(signature, message)
     except InvalidSignature:
+        # If signature not valid, return None (verification failed)
         return None
 
+    # Decrypt the message
     try:
         cipher = Cipher(algorithms.AES256(sessionKey), modes.CBC(iv))
         decryptor = cipher.decryptor()
@@ -63,27 +111,53 @@ def unprotect(publicIdentityKey, sessionKey, message):
         unpadder = padding.PKCS7(128).unpadder()
         message = unpadder.update(message) + unpadder.finalize()
     except ValueError:
+        # If decryption or unpadding fails, return None
         return None
 
     return message.decode("ascii")
 
 
 def computeSessionKey(passphrase, salt):
+    """
+    Derive cryptographic session key from a passphrase and salt.
+
+    This function uses PBKDF2 (Password-Based Key Derivation Function 2) algorithm
+    with HMAC (Hash-based Message Authentication Code) and SHA-256 to derive a secure
+    cryptographic session key from a user-povided passphrase and a salt.
+
+    Parameters:
+    passphrase (str): Passphrase used for key derivation.
+    salt (bytes): Unique salt to ensure secure and unique key derivation.
+
+    Returns:
+    bytes: 32-byte derived session key.
+    """
     data = passphrase.encode("ascii")
     kdf = PBKDF2HMAC(
         algorithm=hashes.SHA256(),
         length=32,
-        salt=salt,
+        salt=salt,  # Ensures uniqueness even if same passphrase is chosen
         iterations=480000,
     )
     return kdf.derive(data)
 
 
 def prepareForStorage(password, salt):
+    """
+
+
+    Parameters:
+    password (str): Password used for key derivation.
+    salt (bytes): Unique salt for key derivation.
+
+    Returns:
+    bytes: 32-byte derived key.
+    """
+
     # https://datatracker.ietf.org/doc/html/rfc7914.html#section-2
     password = password.encode("ascii")
     kdf = Scrypt(
-        salt=salt,
+        salt=salt,  # Ensures uniqueness even if same password is chosen
         length=32,
         n=2**14,
         r=8,
@@ -93,11 +167,23 @@ def prepareForStorage(password, salt):
 
 
 def deriveKeysFromPassword(password, salt):
+    """
+    Derive HMAC and encryption keys from a password.
+
+    Parameters:
+    password (str): Password used for key derivation.
+    salt (bytes): Unique salt for key derivation.
+
+    Returns:
+    tuple: A tuple that contains:
+        - hmacKey (bytes): 32 bytes for HMAC operations.
+        - encryptionKey (bytes): 32 bytes for encryption operations.
+    """
     data = password.encode("ascii")
     kdf = PBKDF2HMAC(
         algorithm=hashes.SHA256(),
         length=64,
-        salt=salt,
+        salt=salt,  # Ensures uniqueness even if same password is chosen
         iterations=480000,
     )
     key = kdf.derive(data)
@@ -107,6 +193,24 @@ def deriveKeysFromPassword(password, salt):
 
 
 def encodeAsWords(key):
+    """
+    Encode a private key as a sequence of words for human-friendly storage.
+
+    This function involves converting the key into a large integer, dividing the
+    number into smaller chunks, and mapping each chunk to a corresponding word
+    from a predefined word list.
+
+    The word list (`words.txt`) is expected to be a file where each line corresponds
+    to a unique word.
+
+    Parameters:
+    key (Ed25519PrivateKey): Private key to encode.
+
+    Returns:
+    list: A list where:
+        - The first element is the total length of the numeric representation of the key.
+        - The subsequent elements are words mapped from chunks of the numeric key.
+    """
     num = str(int.from_bytes(key.private_bytes_raw(), "big"))
     numbers = [num[x : min(x + 5, len(num))] for x in range(0, len(num), 5)]
     words = [len(num)]
@@ -118,6 +222,23 @@ def encodeAsWords(key):
 
 
 def decodeFromWords(words):
+    """
+    Decode a sequence of words back into a private key.
+
+    This function does the inverse of the function `encodeAsWords`. It maps each word
+    back into its corresponding numeric value, based on the same `words.txt` word list.
+    This numeric values are concatenated to reconstruct the original large integer, which
+    is converted back into the private key.
+
+    Parameters:
+    words (list): A list where:
+        - The first element is an integer that corresponds to the total length of the numeric
+          representation of the key.
+        - The subsequent elements are the words encoding the key.
+
+    Returns:
+    Ed25519PrivateKey: The reconstructed private key.
+    """
     number = []
     size = int(words[0])
     with open("words.txt", "r") as f:
@@ -136,20 +257,50 @@ def decodeFromWords(words):
 
 
 def generateIdentityKey():
+    """
+    Generate new Ed25519 private identity key.
+
+    Returns:
+    Ed25519PrivateKey: Newly generated private identity key.
+    """
+
     ## https://safecurves.cr.yp.to/
     return Ed25519PrivateKey.generate()
 
 
-def protectLocalData(data, encryptionKey, hmacKey, username):
-    # Encrypt-then-MAC
+def protectLocalData(data, encryptionKey, hmacKey):
+    """
+    Encrypt data and generate a MAC signature (Encrypt-then-MAC).
+
+    This function protects sensitive binary data by first encrypting it with AES-256
+    in CBC mode using a randomly generated Initialization Vector (IV) and a provided
+    encryption key. After encryption, the resulting ciphertext is signed with HMAC-SHA256
+    and a provided HMAC key to generate a message authentication code (MAC). This ensures
+    confidentiality, integrity, and authenticity.
+
+    Parameters:
+    data (bytes): Plaintext data to encrypt.
+    encryptionKey (bytes): Key used for AES encryption.
+    hmacKey (bytes): Key used for HMAC signature generation.
+
+    Returns:
+    tuple: A tuple containing:
+        - iv (bytes): Initialization Vector used for encryption.
+        - signature (bytes): HMAC signature of the encrypted data.
+        - encryptedData (bytes): Encrypted data.
+    """
+
+    # Apply padding to ensure message size is multiple of the AES block size
     padder = padding.PKCS7(128).padder()
     data = padder.update(data) + padder.finalize()
 
-    iv = getIV()
+    # Encrypt the data
+    iv = getIV()  # Ensures uniqueness even if messages are the same
     cipher = Cipher(algorithms.AES256(encryptionKey), modes.CBC(iv))
     encryptor = cipher.encryptor()
     data = encryptor.update(data) + encryptor.finalize()
 
+    # Generate signature
     signer = hmac.HMAC(hmacKey, hashes.SHA256())
     signer.update(data)
     signature = signer.finalize()
@@ -158,25 +309,55 @@ def protectLocalData(data, encryptionKey, hmacKey, username):
 
 
 def unprotectLocalData(data, encryptionKey, hmacKey, iv, signature):
+    """
+    Decrypt data and verify its integrity (Encrypt-then-MAC).
+
+    Parameters:
+    data (bytes): Encrypted data to decrypt.
+    encryptionKey (bytes): Key used for AES decryption.
+    hmacKey (bytes): Key used for HMAC signature verification.
+    iv (bytes): Initialization Vector used for encryption.
+    signature (bytes): HMAC signature to veirfy.
+
+    Returns:
+    bytes or None: Decrypted plaintext data, or None if verification fails.
+    """
     signer = hmac.HMAC(hmacKey, hashes.SHA256())
     signer.update(data)
 
+    # Verify the digital signature
     try:
         signer.verify(signature)
     except InvalidSignature:
+        # If signature not valid, return None (verification failed)
         return None
 
-    cipher = Cipher(algorithms.AES256(encryptionKey), modes.CBC(iv))
-    decryptor = cipher.decryptor()
-    data = decryptor.update(data) + decryptor.finalize()
+    # Decrypt the data
+    try:
+        cipher = Cipher(algorithms.AES256(encryptionKey), modes.CBC(iv))
+        decryptor = cipher.decryptor()
+        data = decryptor.update(data) + decryptor.finalize()
 
-    unpadder = padding.PKCS7(128).unpadder()
-    data = unpadder.update(data) + unpadder.finalize()
+        unpadder = padding.PKCS7(128).unpadder()
+        data = unpadder.update(data) + unpadder.finalize()
+    except ValueError:
+        # If decryption or unpadding fails, return None
+        return None
 
     return data
 
 
 def loadKey(username, password):
+    """
+    Load and decrypt a stored identity key.
+
+    Parameters:
+    username (str): Username associated with the stored key.
+    password (str): Password to decrypt the key.
+
+    Returns:
+    Ed25519PrivateKey or None: The private key if decryption succeeds, or None if it fails.
+    """
     path = os.path.abspath(f"./keys/{username}.key")
     if not os.path.exists(path):
         return None
@@ -193,11 +374,19 @@ def loadKey(username, password):
 
     # Unprotect failed
     if key is None:
-        return {}
+        return None
     return Ed25519PrivateKey.from_private_bytes(key)
 
 
 def storeKey(username, password, key):
+    """
+    Encrypt and store a private identity key.
+
+    Parameters:
+    username (str): Username associated with the key.
+    password (str): Password used to encrypt the key.
+    key (Ed25519PrivateKey): The private key to store.
+    """
     path = os.path.abspath("./keys")
     if not os.path.exists(path):
         os.mkdir(path)
@@ -205,7 +394,7 @@ def storeKey(username, password, key):
     salt = getSalt(username)
     encryptionKey, hmacKey = deriveKeysFromPassword(password, salt)
     iv, signature, serializedKey = protectLocalData(
-        key.private_bytes_raw(), encryptionKey, hmacKey, username
+        key.private_bytes_raw(), encryptionKey, hmacKey
     )
 
     with open(f"./keys/{username}.key", "w") as f:
@@ -218,10 +407,17 @@ def storeKey(username, password, key):
         iv = base64.b64encode(iv).decode("ascii") + "\n"
         f.write(iv)
 
-    return True
-
 
 def encodeContacts(contacts):
+    """
+    Serialize and encode contacts for storage.
+
+    Parameters:
+    contacts (dict): A dictionary mapping partner usernames to their public keys.
+
+    Returns:
+    bytes: Serialized and pickled contacts.
+    """
     serializedContacts = {}
     for partner, identityKey in contacts.items():
         serializedContacts[partner] = identityKey.public_bytes_raw()
@@ -229,6 +425,15 @@ def encodeContacts(contacts):
 
 
 def decodeContacts(serializedContacts):
+    """
+    Deserialize and decode contacts from storage.
+
+    Parameters:
+    serializedContacts (bytes): Serialized and pickled contacts.
+
+    Returns:
+    dict: Dictionary mapping partner usernames to their public keys.
+    """
     contacts = pickle.loads(serializedContacts)
     for partner, identityKey in contacts.items():
         contacts[partner] = Ed25519PublicKey.from_public_bytes(identityKey)
@@ -236,6 +441,16 @@ def decodeContacts(serializedContacts):
 
 
 def loadContacts(username, password):
+    """
+    Load and decrypt contacts from storage.
+
+    Parameters:
+    username (str): Username associated with the contacts file.
+    password (str): Password used to decrypt the contacts.
+
+    Returns:
+    dict: Dictionary of contacts, or an empty dictionary if decryption fails.
+    """
     path = os.path.abspath(f"./contacts/{username}.contacts")
     if not os.path.exists(path):
         return {}
@@ -259,6 +474,14 @@ def loadContacts(username, password):
 
 
 def storeContacts(username, password, contacts):
+    """
+    Encrypt and store contacts.
+
+    Parameters:
+    username (str): Username associated with the contacts file.
+    password (str): Password used to encrypt the contacts.
+    contacts (dict): Dictionary of contacts to store.
+    """
     path = os.path.abspath("./contacts")
     if not os.path.exists(path):
         os.mkdir(path)
@@ -266,9 +489,7 @@ def storeContacts(username, password, contacts):
     salt = getSalt(username)
     encryptionKey, hmacKey = deriveKeysFromPassword(password, salt)
     contacts = encodeContacts(contacts)
-    iv, signature, contacts = protectLocalData(
-        contacts, encryptionKey, hmacKey, username
-    )
+    iv, signature, contacts = protectLocalData(contacts, encryptionKey, hmacKey)
 
     with open(f"./contacts/{username}.contacts", "w") as f:
         contacts = base64.b64encode(contacts).decode("ascii") + "\n"
@@ -280,8 +501,6 @@ def storeContacts(username, password, contacts):
         iv = base64.b64encode(iv).decode("ascii") + "\n"
         f.write(iv)
 
-    return True
-
 
 def readFiles(*filepaths):
     contents = []
@@ -291,7 +510,7 @@ def readFiles(*filepaths):
                 contents.append(f.read())
         except IOError:
             print(f"File not found: {os.path.abspath(f"{path}")}")
-            return
+            return None
     return contents
 
 
