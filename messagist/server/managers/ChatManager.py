@@ -41,25 +41,34 @@ class ChatManager:
         user_id_1, user_id_2 = min(user_id_1, user_id_2), max(user_id_1, user_id_2)
 
         query = """
-        SELECT * FROM chat
+        SELECT chat_id FROM chat
         WHERE user_1 = %s AND user_2 = %s
         """
-        chat_id = self.db.fetch_one(
+        result = self.db.fetch_one(
             query,
             (
                 user_id_1,
                 user_id_2,
             ),
         )
-
+        chat_id = result[0]
         if chat_id:
             return -1
 
         insert_query = "INSERT INTO messages (chat_id, message_text) VALUES (%s)"
         self.db.execute_query(insert_query, (chat_id, msg))
 
-        # TODO: Calcular o numero de mensagens enviadas no chat em questao e retornar esse numero menos 1.
-        return len(self.chats[user1][user2]) - 1
+        return self.getChatLen(chat_id) - 1
+
+    def getChatLen(self, chat_id):
+        query = """
+        SELECT COUNT(*)
+        FROM messages
+        WHERE chat_id = %s"""
+        result = self.db.fetch_one(query, (chat_id,))
+        if result:
+            return result[0]
+        return 0
 
     def getMessage(self, user1, user2, index):
         query = """
