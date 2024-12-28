@@ -10,7 +10,7 @@ class ChatManager:
     def startChat(self, user1, user2):
         query = """
         SELECT COUNT(*) FROM chat
-        WHERE user_1 = LEAST(%s, %s) AND user_2 = GREATEST(%s, %s)
+        WHERE user_1 = %s AND user_2 = %s
         """
         user1 = user1.strip()
         user2 = user2.strip()
@@ -28,8 +28,6 @@ class ChatManager:
 
         user_id_1, user_id_2 = min(user_id_1, user_id_2), max(user_id_1, user_id_2)
 
-        # chat ja existe?
-
         result = self.db.fetch_one(
             query,
             (
@@ -41,13 +39,20 @@ class ChatManager:
         if result and result[0] > 0:
             return False
 
-            ##if chat doesnt exist return chat
+        insert_query = """
+        INSERT INTO chat (user_1, user_2)
+        VALUES (%s, %s)
+        """
 
-            # insert_query = (
-            "INSERT INTO chat (user_1, user_2) VALUES (%s, %s)"  # )
-        # self.db.execute_query(insert_query,(user_id_1,user_id_2,))
-        # self.chats[user1][user2] = []
-        # self.chats[user2][user1] = []
+        self.db.execute_query(
+            insert_query,
+            (
+                user_id_1,
+                user_id_2,
+            ),
+        )
+        self.chats[user1][user2] = []
+        self.chats[user2][user1] = []
         return True
 
     def sendMessage(self, user1, user2, msg):
