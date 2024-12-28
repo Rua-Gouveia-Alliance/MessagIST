@@ -66,6 +66,10 @@ class MessagISTServerServiceImpl(pb2_grpc.MessagISTServerServicer):
         if username == "" or not self.userManager.existingUser(partner):
             logging.debug("SEND FAILED")
             return pb2.SendResponse(success=False, timestamp=-1)
+        if username == partner:
+            # cant chat with yourself
+            logging.debug("SEND FAILED")
+            return pb2.SendResponse(success=False, timestamp=-1)
 
         self.chatManager.startChat(username, partner)
         ts = self.chatManager.sendMessage(username, partner, request.message)
@@ -138,6 +142,10 @@ class MessagISTServerServiceImpl(pb2_grpc.MessagISTServerServicer):
         if username == "" or not self.userManager.existingUser(partner):
             logging.debug("TRYSETSALT FAILED")
             return pb2.TrySetSaltResponse(salt=received_salt)
+        if username == partner:
+            # cant chat with yourself
+            logging.debug("TRYSETSALT FAILED")
+            return pb2.SendResponse(success=False, timestamp=-1)
 
         salt = self.chatSaltManager.trySetSalt(username, partner, received_salt)
 
