@@ -36,8 +36,7 @@ message LoginResponse {
 message SendRequest {
     string token    = 1;
     string message  = 2;
-    string username = 3;
-    string partner  = 4;
+    string partner  = 3;
 }
 
 message SendResponse {
