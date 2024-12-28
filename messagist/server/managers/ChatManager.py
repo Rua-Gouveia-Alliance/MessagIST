@@ -3,23 +3,16 @@ import logging
 
 class ChatManager:
     def __init__(self, db):
-        self.chats = {"TESTE1": {}, "TESTE2": {}}
         self.db = db
 
     # TODO: Arede tira os comentarios que nao sao precisos
-    def startChat(self, user1, user2):
+    def startChat(self, user1, user2, usermngr):
         user1 = user1.strip()
         user2 = user2.strip()
 
-        user_1_query = "SELECT id FROM users WHERE username = %s"
-        user_2_query = "SELECT id FROM users WHERE username = %s"
-
-        user_id_1 = self.db.fetch_one(user_1_query, (user1,))
-        user_id_2 = self.db.fetch_one(user_2_query, (user2,))
-
-        user_id_1 = user_id_1[0]
-        user_id_2 = user_id_2[0]
-        if not (user_id_1 > 0 and user_id_2 > 0):
+        user_id_1 = usermngr.getUserId(user1)
+        user_id_2 = usermngr.getUserId(user2)
+        if user_id_1 == -1 or user_id_2 == -1:
             return False  # user doesnt exist
 
         user_id_1, user_id_2 = min(user_id_1, user_id_2), max(user_id_1, user_id_2)
@@ -50,36 +43,28 @@ class ChatManager:
                 user_id_2,
             ),
         )
-        self.chats[user1][user2] = []
-        self.chats[user2][user1] = []
         return True
 
-    def sendMessage(self, user1, user2, msg):
+    def sendMessage(self, user1, user2, msg, usermngr):
         user1 = user1.strip()
         user2 = user2.strip()
-        user_1_query = "SELECT id FROM users WHERE username = %s"
-        user_2_query = "SELECT id FROM users WHERE username = %s"
 
-        user_id_1 = self.db.fetch_one(user_1_query, (user1,))
-        user_id_2 = self.db.fetch_one(user_2_query, (user2,))
+        user_id_1 = usermngr.getUserId(user1)
+        user_id_2 = usermngr.getUserId(user2)
+        if user_id_1 == -1 or user_id_2 == -1:
+            return -1  # user doesnt exist
 
-        user_id_1 = user_id_1[0]
-        user_id_2 = user_id_2[0]
+        user_id_1, user_id_2 = min(user_id_1, user_id_2), max(user_id_1, user_id_2)
 
-        print(user_id_1)
-
-        query = """SELECT *
-        FROM chat
-        WHERE (user_1 = %s AND user_2 = %s)
-        OR (user_1 = %s AND user_2 = %s)"""
-
+        query = """
+        SELECT * FROM chat
+        WHERE user_1 = %s AND user_2 = %s
+        """
         chat_id = self.db.fetch_one(
             query,
             (
                 user_id_1,
                 user_id_2,
-                user_id_2,
-                user_id_1,
             ),
         )
 
@@ -87,10 +72,7 @@ class ChatManager:
             return -1
 
         insert_query = "INSERT INTO messages (chat_id, message_text) VALUES (%s)"
-
         self.db.execute_query(insert_query, (chat_id, msg))
-        # self.chats[user1][user2].append(msg)
-        # self.chats[user2][user1].append(msg)
 
         # TODO: Calcular o numero de mensagens enviadas no chat em questao e retornar esse numero menos 1.
         return len(self.chats[user1][user2]) - 1
@@ -125,15 +107,6 @@ class ChatManager:
                 f"Message at index {index} not found for chat between {user1} and {user2}"
             )
             return ""
-        """if user1 not in self.chats[user2] or user2 not in self.chats[user1]:
-            logging.debug("Chat of " + user1 + " with " + user2 + " not found")
-            return ""
-
-        if index > len(self.chats[user1][user2]) - 1 or index < 0:
-            logging.debug("Index " + str(index) + " is not a valid index")
-            return ""
-
-        return self.chats[user1][user2][index]"""
 
     def getPartners(self, username):
         query = """
@@ -151,8 +124,4 @@ class ChatManager:
         result = self.db.fetch_one(query, (username))
 
         chat_partners = [row[0] for row in result]
-
         return chat_partners
-        # if username not in self.chats:
-        # return []
-        # return self.chats[username].keys()
