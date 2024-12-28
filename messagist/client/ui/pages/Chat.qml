@@ -51,6 +51,7 @@ Column {
         standardButtons: Dialog.Ok | Dialog.Cancel
         modal: true
         visible: messagist.chats[partner][0]
+        anchors.centerIn: parent
 
         TextField {
             id: passphrase

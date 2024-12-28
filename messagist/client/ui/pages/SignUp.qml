@@ -15,6 +15,29 @@ Column {
         anchors.horizontalCenter: parent.horizontalCenter
     }
 
+    Dialog {
+        id: wordList
+        title: "Account recovery list of words."
+        anchors.centerIn: parent
+
+        Text {
+            font.pointSize: 12
+            color: "white"
+            horizontalAlignment: Text.AlignHCenter
+            text: {
+                "The following list of words/numbers can be used to recover " +
+                "your private key when you change devices. Memorize them or " +
+                "store them somewhere safe.\n Words:\n"
+            }
+        }
+
+        standardButtons: Dialog.Ok
+        modal: true
+        visible: false
+        onAccepted: stack.pop()
+        onRejected: stack.pop()
+    }
+
     Column {
         spacing: 10
         anchors.horizontalCenter: parent.horizontalCenter
@@ -24,7 +47,8 @@ Column {
             formAction: (username, password) => {
                 const result = messagist.signup(username, password);
                 if (result.success) {
-                    stack.pop()
+                    wordList.text += result.words;
+                    wordList.visible = true;
                 } else {
                     errorMessage.text = result.error;
                     errorMessage.visible = true;
