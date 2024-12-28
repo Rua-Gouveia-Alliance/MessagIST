@@ -103,8 +103,11 @@ class MessagISTServerServiceImpl(pb2_grpc.MessagISTServerServicer):
         logging.debug("REGISTERIDENTITYKEY request received")
         logging.debug("Username: " + request.username)
 
-        # TODO: this is vulnerable
-        username = request.username
+        username = self.sessionManager.getUser(request.token)
+        if username == "":
+            logging.debug("GETCLIENTKU FAILED")
+            return pb2.RegisterIdentityKeyResponse(success=False)
+
         identity_key = request.identity_key
         if not self.identityKeyManager.registerKey(username, identity_key):
             logging.debug("GETCLIENTKU FAILED")
@@ -129,9 +132,13 @@ class MessagISTServerServiceImpl(pb2_grpc.MessagISTServerServicer):
         logging.debug("TRYSETSALT request received")
         logging.debug("Username: " + request.username)
 
-        username = request.username
+        username = self.sessionManager.getUser(request.token)
         partner = request.partner
         received_salt = request.salt
+        if username == "" or not self.userManager.existingUser(partner):
+            logging.debug("TRYSETSALT FAILED")
+            return pb2.TrySetSaltResponse(salt=received_salt)
+
         salt = self.chatSaltManager.trySetSalt(username, partner, received_salt)
 
         if salt == received_salt:

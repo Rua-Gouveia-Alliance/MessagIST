@@ -58,7 +58,7 @@ message KeepAliveResponse {
 }
 
 message RegisterIdentityKeyRequest {
-    string username    = 1;
+    string token       = 1;
     bytes identity_key = 2;
 }
 
@@ -75,7 +75,7 @@ message GetIdentityKeyResponse {
 }
 
 message TrySetSaltRequest {
-    string username = 1;
+    string token    = 1;
     string partner  = 2;
     bytes salt      = 3;
 }
