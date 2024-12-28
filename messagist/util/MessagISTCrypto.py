@@ -515,9 +515,10 @@ def readFiles(*filepaths):
 
 
 def protectCLI(args):
-    message, identityKey, sessionKey = readFiles(
-        args.inputFile, args.identityKey, args.sessionKey
-    )
+    contents = readFiles(args.inputFile, args.identityKey, args.sessionKey)
+    if contents is None:
+        return
+    message, identityKey, sessionKey = contents
 
     identityKey = base64.b64decode(identityKey.encode("ascii"))
     identityKey = Ed25519PrivateKey.from_private_bytes(identityKey)
@@ -531,9 +532,10 @@ def protectCLI(args):
 
 
 def unprotectCLI(args):
-    message, identityKey, sessionKey = readFiles(
-        args.inputFile, args.identityKey, args.sessionKey
-    )
+    contents = readFiles(args.inputFile, args.identityKey, args.sessionKey)
+    if contents is None:
+        return
+    message, identityKey, sessionKey = contents
 
     identityKey = base64.b64decode(identityKey.encode("ascii"))
     identityKey = Ed25519PublicKey.from_public_bytes(identityKey)
@@ -541,6 +543,10 @@ def unprotectCLI(args):
     sessionKey = base64.b64decode(sessionKey.encode("ascii"))
 
     message = unprotect(identityKey, sessionKey, message)
+    if message is None:
+        print("Verification/Decryption failed")
+        return
+
     with open(os.path.abspath(f"{args.outputFile}"), "w") as f:
         f.write(message)
     print("Decrypted message written to " + os.path.abspath(f"{args.outputFile}"))
