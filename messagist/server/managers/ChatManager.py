@@ -8,10 +8,6 @@ class ChatManager:
 
     # TODO: Arede tira os comentarios que nao sao precisos
     def startChat(self, user1, user2):
-        query = """
-        SELECT COUNT(*) FROM chat
-        WHERE user_1 = %s AND user_2 = %s
-        """
         user1 = user1.strip()
         user2 = user2.strip()
 
@@ -24,10 +20,14 @@ class ChatManager:
         user_id_1 = user_id_1[0]
         user_id_2 = user_id_2[0]
         if not (user_id_1 > 0 and user_id_2 > 0):
-            return False
+            return False  # user doesnt exist
 
         user_id_1, user_id_2 = min(user_id_1, user_id_2), max(user_id_1, user_id_2)
 
+        query = """
+        SELECT COUNT(*) FROM chat
+        WHERE user_1 = %s AND user_2 = %s
+        """
         result = self.db.fetch_one(
             query,
             (
@@ -37,13 +37,12 @@ class ChatManager:
         )
 
         if result and result[0] > 0:
-            return False
+            return False  # chat already exists
 
         insert_query = """
         INSERT INTO chat (user_1, user_2)
         VALUES (%s, %s)
         """
-
         self.db.execute_query(
             insert_query,
             (
