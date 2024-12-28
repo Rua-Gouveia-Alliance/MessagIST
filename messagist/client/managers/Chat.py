@@ -44,7 +44,7 @@ class Chat:
 
         stub = pb2_grpc.MessagISTServerStub(self.ctx.channel)
         request = pb2.TrySetSaltRequest(
-            username=self.ctx.username, partner=self.partner, salt=salt
+            token=self.ctx.sessionToken, partner=self.partner, salt=salt
         )
         response = stub.trySetSalt(request)
         salt = response.salt

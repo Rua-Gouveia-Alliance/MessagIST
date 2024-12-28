@@ -86,7 +86,7 @@ class SessionManager:
 
             stub = pb2_grpc.MessagISTServerStub(self.ctx.channel)
             request = pb2.RegisterIdentityKeyRequest(
-                username=username, identity_key=publicKeyBytes
+                token=self.ctx.sessionToken, identity_key=publicKeyBytes
             )
             response = stub.registerIdentityKey(request)
 
