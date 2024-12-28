@@ -5,7 +5,6 @@ class ChatManager:
     def __init__(self, db):
         self.db = db
 
-    # TODO: Arede tira os comentarios que nao sao precisos
     def startChat(self, user_id_1, user_id_2):
         user_id_1, user_id_2 = min(user_id_1, user_id_2), max(user_id_1, user_id_2)
 

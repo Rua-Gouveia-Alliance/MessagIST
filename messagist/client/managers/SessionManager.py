@@ -51,7 +51,9 @@ class SessionManager:
             self.ctx.logger.debug("Login successful")
             self.ctx.setUsername(username)
             self.ctx.setSessionToken(response.token)
-            self.ctx.setIdentityKey(MessagISTCrypto.loadKey(username, password))
+            self.ctx.setIdentityKey(
+                MessagISTCrypto.loadKey(username, password)
+            )  # TODO: not checking for loadKey fail, fix after backup key implementation
             self.ctx.setContacts(MessagISTCrypto.loadContacts(username, password))
             self.ctx.setActiveSession(True)
             return {"success": True}
