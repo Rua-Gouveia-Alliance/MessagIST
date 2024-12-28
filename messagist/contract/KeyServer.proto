@@ -1,6 +1,0 @@
-//
-// Protocol buffers definition for the KeyServer
-//
-syntax = "proto3";
-package pt.tecnico.sirs.a61;
-
