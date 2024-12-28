@@ -28,7 +28,7 @@ CREATE TABLE IF NOT EXISTS messages (
 CREATE TABLE IF NOT EXISTS identity_keys (
     id SERIAL PRIMARY KEY,
     user_id INT UNIQUE NOT NULL,
-    identity_key BYTEA NOT NULL
+    identity_key BYTEA NOT NULL,
     FOREIGN KEY (user_id) REFERENCES users(id)
 );
 
