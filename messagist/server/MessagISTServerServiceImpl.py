@@ -71,8 +71,10 @@ class MessagISTServerServiceImpl(pb2_grpc.MessagISTServerServicer):
             logging.debug("SEND FAILED")
             return pb2.SendResponse(success=False, timestamp=-1)
 
-        self.chatManager.startChat(username, partner)
-        ts = self.chatManager.sendMessage(username, partner, request.message)
+        user_id = self.userManager.getUserId(username)
+        partner_id = self.userManager.getUserId(partner)
+        self.chatManager.startChat(user_id, partner_id)
+        ts = self.chatManager.sendMessage(user_id, partner_id, request.message)
         logging.debug("SEND " + ("success" if ts != -1 else "FAILED"))
         return pb2.SendResponse(success=(ts != -1), timestamp=ts)
 
@@ -113,7 +115,8 @@ class MessagISTServerServiceImpl(pb2_grpc.MessagISTServerServicer):
             return pb2.RegisterIdentityKeyResponse(success=False)
 
         identity_key = request.identity_key
-        if not self.identityKeyManager.registerKey(username, identity_key):
+        user_id = self.userManager.getUserId(username)
+        if not self.identityKeyManager.registerKey(user_id, identity_key):
             logging.debug("GETCLIENTKU FAILED")
             return pb2.RegisterIdentityKeyResponse(success=False)
 
@@ -125,9 +128,15 @@ class MessagISTServerServiceImpl(pb2_grpc.MessagISTServerServicer):
         logging.debug("Username: " + request.username)
 
         username = request.username
-        identity_key = self.identityKeyManager.getKey(username)
+        user_id = self.userManager.getUserId(username)
+        if user_id == -1:
+            logging.debug("GETIDENTITYKEY FAILED")
+            return pb2.GetIdentityKeyResponse(identity_key=b"")
+
+        identity_key = self.identityKeyManager.getKey(user_id)
         if identity_key == "":
             logging.debug("GETIDENTITYKEY FAILED")
+            return pb2.GetIdentityKeyResponse(identity_key=b"")
 
         logging.debug("GETIDENTITYKEY success")
         return pb2.GetIdentityKeyResponse(identity_key=identity_key)
@@ -147,7 +156,9 @@ class MessagISTServerServiceImpl(pb2_grpc.MessagISTServerServicer):
             logging.debug("TRYSETSALT FAILED")
             return pb2.SendResponse(success=False, timestamp=-1)
 
-        salt = self.chatSaltManager.trySetSalt(username, partner, received_salt)
+        user_id = self.userManager.getUserId(username)
+        partner_id = self.userManager.getUserId(partner)
+        salt = self.chatSaltManager.trySetSalt(user_id, partner_id, received_salt)
 
         if salt == received_salt:
             logging.debug("New salt")

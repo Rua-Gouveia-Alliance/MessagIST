@@ -6,15 +6,7 @@ class ChatManager:
         self.db = db
 
     # TODO: Arede tira os comentarios que nao sao precisos
-    def startChat(self, user1, user2, usermngr):
-        user1 = user1.strip()
-        user2 = user2.strip()
-
-        user_id_1 = usermngr.getUserId(user1)
-        user_id_2 = usermngr.getUserId(user2)
-        if user_id_1 == -1 or user_id_2 == -1:
-            return False  # user doesnt exist
-
+    def startChat(self, user_id_1, user_id_2):
         user_id_1, user_id_2 = min(user_id_1, user_id_2), max(user_id_1, user_id_2)
 
         query = """
@@ -45,15 +37,7 @@ class ChatManager:
         )
         return True
 
-    def sendMessage(self, user1, user2, msg, usermngr):
-        user1 = user1.strip()
-        user2 = user2.strip()
-
-        user_id_1 = usermngr.getUserId(user1)
-        user_id_2 = usermngr.getUserId(user2)
-        if user_id_1 == -1 or user_id_2 == -1:
-            return -1  # user doesnt exist
-
+    def sendMessage(self, user_id_1, user_id_2, msg):
         user_id_1, user_id_2 = min(user_id_1, user_id_2), max(user_id_1, user_id_2)
 
         query = """

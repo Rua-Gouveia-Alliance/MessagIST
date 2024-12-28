@@ -26,10 +26,7 @@ class ChatSaltManager:
         )
         self.db.execute_query(query, params)
 
-    def trySetSalt(self, username, partner, salt, usermngr):
-        user_id = usermngr.getUserId(username)
-        partner_id = usermngr.getUserId(partner)
-
+    def trySetSalt(self, user_id, partner_id, salt):
         old_salt = self.querySalt(user_id, partner_id)
         if old_salt == "":
             self.registerSalt(user_id, partner_id, salt)

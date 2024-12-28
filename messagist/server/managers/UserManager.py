@@ -45,4 +45,14 @@ class UserManager:
         # Check if the user exists in the database
         query = "SELECT EXISTS(SELECT 1 FROM users WHERE username = %s)"
         result = self.db.fetch_one(query, (username,))
-        return result[0] if result else False
+        if result:
+            return result[0]
+        return False
+
+    def getUserId(self, username):
+        # Check if the user exists in the database
+        query = "SELECT id FROM users WHERE username = %s"
+        result = self.db.fetch_one(query, (username,))
+        if result:
+            return result[0]
+        return -1
