@@ -33,6 +33,7 @@ class UserManager:
     def getSalt(self, username):
         query = "SELECT salt FROM users WHERE username = %s"
         result = self.db.fetch_one(query, (username,))
+        print(result)
         if result:
             return result[0]
         else:
