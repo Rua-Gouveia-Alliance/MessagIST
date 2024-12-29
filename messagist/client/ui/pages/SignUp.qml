@@ -16,18 +16,31 @@ Column {
     }
 
     Dialog {
-        id: wordList
-        title: "Account recovery list of words."
+        id: wordListDialog
+        title: "Identity key recovery list of words."
         anchors.centerIn: parent
 
-        Text {
-            font.pointSize: 12
-            color: "white"
-            horizontalAlignment: Text.AlignHCenter
-            text: {
-                "The following list of words/numbers can be used to recover " +
-                "your private key when you change devices. Memorize them or " +
-                "store them somewhere safe.\n Words:\n"
+        Column {
+            spacing: 10
+
+            Text {
+                font.pointSize: 12
+                color: "white"
+                horizontalAlignment: Text.AlignLeft
+                text: {
+                    "The following list of words/numbers can be used to recover " +
+                    "your identity key when you change devices. Memorize them or " +
+                    "store them somewhere safe.\n Words:\n"
+                }
+            }
+            TextEdit {
+                id: wordList
+                font.pointSize: 12
+                color: "white"
+                horizontalAlignment: Text.AlignHCenter
+                anchors.horizontalCenter: parent.horizontalCenter
+                readOnly: true
+                selectByMouse: true
             }
         }
 
@@ -48,7 +61,7 @@ Column {
                 const result = messagist.signup(username, password);
                 if (result.success) {
                     wordList.text += result.words;
-                    wordList.visible = true;
+                    wordListDialog.visible = true;
                 } else {
                     errorMessage.text = result.error;
                     errorMessage.visible = true;

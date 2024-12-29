@@ -8,7 +8,6 @@ Column {
     anchors.horizontalCenter: parent.horizontalCenter
 
     Title {
-        /* text: `${messagist.username} chats` */
         text: "All chats"
         anchors.horizontalCenter: parent.horizontalCenter
     }

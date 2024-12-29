@@ -34,7 +34,7 @@ class UserManager:
         query = "SELECT salt FROM users WHERE username = %s"
         result = self.db.fetch_one(query, (username,))
         if result:
-            return result[0].tobytes()
+            return result[0]
         else:
             return b""
 
@@ -42,7 +42,7 @@ class UserManager:
         query = "SELECT password_hash FROM users WHERE username = %s"
         result = self.db.fetch_one(query, (username,))
         if result:
-            return result[0].tobytes() == password
+            return result[0] == password
         return False
 
     def existingUser(self, username):
@@ -63,7 +63,7 @@ class UserManager:
         result = self.db.fetch_one(query, (userId,))
         if result is None:
             return ""
-        return result[0].tobytes()
+        return result[0]
 
     def getUserId(self, username):
         # Check if the user exists in the database

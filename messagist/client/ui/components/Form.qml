@@ -4,6 +4,7 @@ import QtQuick.Controls
 Column {
     required property var formAction
     property alias text: button.text
+    property alias password: password.text
 
     id: form
     spacing: 5

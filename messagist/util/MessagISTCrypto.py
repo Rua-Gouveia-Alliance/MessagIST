@@ -213,7 +213,7 @@ def encodeAsWords(key):
     """
     num = str(int.from_bytes(key.private_bytes_raw(), "big"))
     numbers = [num[x : min(x + 5, len(num))] for x in range(0, len(num), 5)]
-    words = [len(num)]
+    words = [str(len(num))]
     with open("words.txt", "r") as f:
         wordList = f.readlines()
         for n in numbers:
@@ -239,21 +239,25 @@ def decodeFromWords(words):
     Returns:
     Ed25519PrivateKey: The reconstructed private key.
     """
-    number = []
-    size = int(words[0])
-    with open("words.txt", "r") as f:
-        wordList = f.readlines()
-        for word in words[1:]:
-            index = str(wordList.index(word + "\n"))
-            if size >= 5:
-                index = "0" * (5 - len(index)) + index
-                size -= 5
-            else:
-                index = "0" * (size - len(index)) + index
-            number.append(index)
-    privateBytesValue = int("".join(number))
-    privateBytes = privateBytesValue.to_bytes(32, "big")
-    return Ed25519PrivateKey.from_private_bytes(privateBytes)
+    try:
+        number = []
+        size = int(words[0])
+        with open("words.txt", "r") as f:
+            wordList = f.readlines()
+            for word in words[1:]:
+                index = str(wordList.index(word + "\n"))
+                if size >= 5:
+                    index = "0" * (5 - len(index)) + index
+                    size -= 5
+                else:
+                    index = "0" * (size - len(index)) + index
+                number.append(index)
+        privateBytesValue = int("".join(number))
+        privateBytes = privateBytesValue.to_bytes(32, "big")
+        identityKey = Ed25519PrivateKey.from_private_bytes(privateBytes)
+    except Exception:
+        return None
+    return identityKey
 
 
 def generateIdentityKey():

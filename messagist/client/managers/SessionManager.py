@@ -2,8 +2,6 @@ import MessagISTCrypto
 import MessagISTServer_pb2_grpc as pb2_grpc
 import MessagISTServer_pb2 as pb2
 
-import re
-
 
 # TODO catch _InactiveRpcError(state) e emitir logout signal
 class SessionManager:
@@ -36,8 +34,11 @@ class SessionManager:
         return response.salt
 
     def login(self, username, password):
-        if not username or not password:
-            return {"success": False, "error": "Username or password cannot be empty"}
+        if not username or username == "":
+            return {"success": False, "error": "Username cannot be empty"}
+        if not password or password == "":
+            return {"success": False, "error": "Password cannot be empty"}
+
         salt = self.getSalt(username)
         if salt == "":
             return {"success": False, "error": "User does not exist"}
@@ -51,23 +52,17 @@ class SessionManager:
             self.ctx.logger.debug("Login successful")
             self.ctx.setUsername(username)
             self.ctx.setSessionToken(response.token)
-            self.ctx.setIdentityKey(
-                MessagISTCrypto.loadKey(username, password)
-            )  # TODO: not checking for loadKey fail, fix after backup key implementation
+            self.ctx.setIdentityKey(MessagISTCrypto.loadKey(username, password))
             self.ctx.setContacts(MessagISTCrypto.loadContacts(username, password))
             self.ctx.setActiveSession(True)
             return {"success": True}
         return {"success": False, "error": "Invalid username or password"}
 
     def signup(self, username, password):
-        if not username:
+        if not username or username == "":
             return {"success": False, "error": "Username cannot be empty"}
-
-        if not self.checkPassword(password):
-            return {
-                "success": False,
-                "error": "Password needs to have at least 1 digit, 1 symbol and more than 11 letters",
-            }
+        if not password or password == "":
+            return {"success": False, "error": "Password cannot be empty"}
 
         self.ctx.logger.debug("Sending SIGNUP request")
 
@@ -107,10 +102,11 @@ class SessionManager:
         self.ctx.setActiveSession(False)
         return True
 
-    def checkPassword(self, password):
+    def recoverIdentityKey(self, wordList, password):
+        wordList = wordList.splitlines()
+        identityKey = MessagISTCrypto.decodeFromWords(wordList)
+        if identityKey is None:
+            return False
+        MessagISTCrypto.storeKey(self.ctx.username, password, identityKey)
+        self.ctx.setIdentityKey(identityKey)
         return True
-        # has_uppercase = bool(re.search(r"[A-Z]", password))
-        # has_symbol = bool(re.search(r'[!@#$%^&*(),.?":{}|<>]', password))
-        # if len(password) > 11 and has_symbol and has_uppercase:
-        #     return True
-        # return False

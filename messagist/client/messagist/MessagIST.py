@@ -36,6 +36,9 @@ class MessagIST(QObject):
             self.keepAliveTimer = QTimer(parent=self, timeout=self.keepAlive)
             self.logoutTimer.start(self.LEASE_TIME)
             self.keepAliveTimer.start(self.LEASE_TIME / 2)
+            if self.ctx.identityKey is None:
+                self.ctx.logger.debug("Identity key needs to be recovered")
+                result["recovery"] = True
         return result
 
     @Slot(result=bool)
@@ -68,6 +71,11 @@ class MessagIST(QObject):
     def setChatPassphrase(self, partner, passphrase):
         self.ctx.logger.debug("Setting the passphrase to the chat with " + partner)
         return self.chatManager.setChatPassphrase(partner, passphrase)
+
+    @Slot(str, str, result=bool)
+    def recoverIdentityKey(self, wordList, password):
+        self.ctx.logger.debug("Recovering the key for user " + self.ctx.username)
+        return self.sessionManager.recoverIdentityKey(wordList, password)
 
     @Slot()
     def keepAlive(self):

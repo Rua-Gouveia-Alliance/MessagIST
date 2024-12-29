@@ -15,16 +15,60 @@ Column {
         anchors.horizontalCenter: parent.horizontalCenter
     }
 
+    Dialog {
+        id: recoveryDialog
+        title: "Identity key recovery."
+        anchors.centerIn: parent
+
+        Column {
+            spacing: 10
+
+            Text {
+                font.pointSize: 12
+                color: "white"
+                horizontalAlignment: Text.AlignLeft
+                text: {
+                    "Identity key not found. Please insert the word list used to " +
+                    "recover it:"
+                }
+            }
+            TextArea {
+                id: wordList
+                placeholderText: "Word list"
+                anchors.horizontalCenter: parent.horizontalCenter
+            }
+        }
+
+        standardButtons: Dialog.Ok | Dialog.Cancel
+        modal: true
+        visible: false
+        onAccepted: {
+            console.log(form.password)
+            const success = messagist.recoverIdentityKey(wordList.text, form.password);
+            if (success) {
+                stack.push("UserChats.qml");
+            } else {
+                messagist.logout();
+            }
+        }
+        onRejected: messagist.logout()
+    }
+
     Column {
         spacing: 10
         anchors.horizontalCenter: parent.horizontalCenter
 
         Form {
+            id: form
             text: "Login"
             formAction: (username, password) => {
                 const result = messagist.login(username, password);
                 if (result.success) {
-                    stack.push("UserChats.qml");
+                    if (result.recovery) {
+                        recoveryDialog.visible = true;
+                    } else {
+                        stack.push("UserChats.qml");
+                    }
                 } else {
                     errorMessage.text = result.error;
                     errorMessage.visible = true;
