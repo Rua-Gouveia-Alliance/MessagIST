@@ -32,7 +32,11 @@ class Chat:
             response = stub.getIdentityKey(request)
 
             # TODO: what if identity key doesnt exist (response.identity_key == "")
-            self.ctx.contacts[partner] = response.identityKey
+            if(response.identify_key == ""):
+                print("teste")
+            else:
+
+                self.ctx.contacts[partner] = response.identityKey
 
         self.partnerIdentityKey = self.ctx.contacts[partner]
 
