@@ -91,9 +91,4 @@ Column {
         action: () => stack.push("SignUp.qml")
         anchors.horizontalCenter: parent.horizontalCenter
     }
-    ClickableText {
-        text: "Forgot your password?"
-        action: () => recoveryDialog.visible = true
-        anchors.horizontalCenter: parent.horizontalCenter
-    }
 }
