@@ -59,12 +59,12 @@ def main():
         # UserManager, que vao ser implementados de novo quando tivermos a DB
         # ptt nao faz mto sentido perder temepo com isso agora.
 
-
         ### FAZER DNS SE HOUVER TEMPO
         server = grpc.server(futures.ThreadPoolExecutor(max_workers=1))
         pb2_grpc.add_MessagISTServerServicer_to_server(
-            #que port coloco aqui?
-            DmzMainClass("localhost:5001"), server
+            # que port coloco aqui?
+            DmzMainClass("localhost:5001"),
+            server,
         )
 
         # GRPS WITH TLS
@@ -90,6 +90,7 @@ def main():
     except KeyboardInterrupt:
         print("Stopping server.")
         exit(0)
+
 
 if __name__ == "__main__":
     main()

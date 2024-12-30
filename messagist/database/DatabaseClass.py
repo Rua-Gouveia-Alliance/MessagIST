@@ -24,8 +24,8 @@ class DatabaseClass:
         try:
             # Step 1: Connect to the default 'postgres' database to check/create the database
             conn = psycopg.connect(
-                 dbname="postgres",  # Default PostgreSQL database
-                #dbname=self.dbname,
+                dbname="postgres",  # Default PostgreSQL database
+                # dbname=self.dbname,
                 user=self.user,
                 password=self.password,
                 host=self.host,

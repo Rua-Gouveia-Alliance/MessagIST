@@ -14,12 +14,11 @@ class MessagISTContext:
 
         self.activeSession = False
 
-        #server_cert = "../server/keys/server.crt"
-        
-        #ligar a dmz
-        #para testar sem DMZ descomentar linha acima
-        server_cert =  "../dmz/keys/server.crt"
+        # server_cert = "../server/keys/server.crt"
 
+        # ligar a dmz
+        # para testar sem DMZ descomentar linha acima
+        server_cert = "../dmz/keys/server.crt"
 
         with open(server_cert, "rb") as cert_file:
             trusted_certs = cert_file.read()

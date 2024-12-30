@@ -32,7 +32,7 @@ class Chat:
             response = stub.getIdentityKey(request)
 
             # TODO: what if identity key doesnt exist (response.identity_key == "")
-            if(response.identify_key == ""):
+            if response.identify_key == "":
                 print("teste")
             else:
 
