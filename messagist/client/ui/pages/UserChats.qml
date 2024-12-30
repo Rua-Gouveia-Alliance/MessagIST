@@ -39,6 +39,7 @@ Column {
                 passwordCharacter: "●"
                 passwordMaskDelay: 500
                 echoMode: TextInput.Password
+                anchors.horizontalCenter: parent.horizontalCenter
             }
         }
 
