@@ -11,7 +11,6 @@ class Chat:
         self.partner = partner
         self.messages = []
         self.bufferedMessages = []
-        self.pendingMessages = []
         self.timestamp = 0
         # These nonces also establish a partial order for messages, consider
         # using them to check the server ordering (if the ordering does not
@@ -24,7 +23,6 @@ class Chat:
         # by changing the timestamp, the most it can do is cause the message to
         # be dropped (basically the same as not sending it, achieves nothing).
         self.nonce = [0, 0]
-        self.pending = True
 
         if partner not in self.ctx.contacts:
             stub = pb2_grpc.MessagISTServerStub(self.ctx.channel)
@@ -39,7 +37,11 @@ class Chat:
                     response.identityKey
                 )
 
-        self.partnerIdentityKey = self.ctx.contacts[partner]
+        self.pending = False
+        self.partnerIdentityKey = self.ctx.contacts[partner]["key"]
+        self.sessionKey = self.ctx.contacts[partner]["sessionKey"]
+        if self.sessionKey is None:
+            self.pending = True
 
     def setPassphrase(self, passphrase):
         self.ctx.logger.debug(
@@ -55,10 +57,8 @@ class Chat:
         salt = response.salt
 
         self.sessionKey = MessagISTCrypto.computeSessionKey(passphrase, salt)
+        self.ctx.contacts[self.partner]["sessionKey"] = self.sessionKey
         self.pending = False
-        self.pendingMessages.sort(key=lambda x: x[1])
-        for message, ts in self.pendingMessages:
-            self.append(message, ts)
 
     def getMessages(self):
         messages = [self.pending]
@@ -88,10 +88,10 @@ class Chat:
         self.ctx.logger.debug("Appeding to the chat with " + self.partner)
         self.ctx.logger.debug("Message: " + str(message))
         self.ctx.logger.debug("Timestamp " + str(ts))
+
         # Haven't set the passphrase/sessionKey yet
         if self.pending:
-            self.pendingMessages.append((message, ts))
-            self.ctx.logger.debug("Appending to pending messages")
+            self.ctx.logger.debug("Chat is pending, drop message")
             return
 
         unprotectedMessage = MessagISTCrypto.unprotect(

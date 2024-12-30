@@ -80,10 +80,13 @@ class MessagIST(QObject):
     @Slot()
     def keepAlive(self):
         self.ctx.logger.debug("Perfoming KeepAlive")
-        partners = self.chatManager.chats.keys()
+        partners = []
         timestamps = []
-        for partner in partners:
-            timestamps.append(self.chatManager.chats[partner].timestamp)
+        for partner, chat in self.chatManager.chats.items():
+            if not chat.pending:
+                partners.append(partner)
+                timestamps.append(chat.timestamp)
+
         success, partners, messages = self.sessionManager.keepAlive(
             partners, timestamps
         )
