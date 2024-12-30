@@ -120,7 +120,7 @@ class MessagISTServerServiceImpl(pb2_grpc.MessagISTServerServicer):
 
     def trySetSalt(self, request, context):
         logging.debug("TRYSETSALT request received")
-        logging.debug("Username: " + request.username)
+        logging.debug("Partner: " + request.partner)
 
         username = self.sessionManager.getUser(request.token)
         partner = request.partner

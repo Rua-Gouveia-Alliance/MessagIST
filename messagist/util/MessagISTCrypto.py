@@ -506,6 +506,10 @@ def storeContacts(username, password, contacts):
         f.write(iv)
 
 
+def createContactsEntry(data):
+    return Ed25519PublicKey.from_public_bytes(data)
+
+
 def readFiles(*filepaths):
     contents = []
     for path in filepaths:

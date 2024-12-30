@@ -21,8 +21,6 @@ class ChatManager:
         return True
 
     def sendMessage(self, message, partner):
-        self.ctx.logger.debug("Sending a message to " + partner)
-
         if partner not in self.chats:
             self.startChat(partner)
 
@@ -30,8 +28,6 @@ class ChatManager:
         self.ctx.chatsChanged.emit()
 
     def setChatPassphrase(self, partner, passphrase):
-        self.ctx.logger.debug("Setting the passphrase for the chat with " + partner)
-
         if partner not in self.chats:
             self.startChat(partner)
 

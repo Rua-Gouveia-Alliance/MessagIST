@@ -131,7 +131,7 @@ class ChatManager:
 
         if result is None:
             return ""
-        return result[0].tobytes()
+        return result[0]
 
     def registerChatSalt(self, user_id, partner_id, salt):
         query = """INSERT INTO chat_salts (user_1, user_2, salt)

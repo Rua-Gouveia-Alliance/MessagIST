@@ -32,11 +32,12 @@ class Chat:
             response = stub.getIdentityKey(request)
 
             # TODO: what if identity key doesnt exist (response.identity_key == "")
-            if response.identify_key == "":
+            if response.identityKey == "":
                 print("teste")
             else:
-
-                self.ctx.contacts[partner] = response.identityKey
+                self.ctx.contacts[partner] = MessagISTCrypto.createContactsEntry(
+                    response.identityKey
+                )
 
         self.partnerIdentityKey = self.ctx.contacts[partner]
 
@@ -76,11 +77,17 @@ class Chat:
             token=self.ctx.sessionToken, message=message, partner=self.partner
         )
         response = stub.send(request)
+        if not response.success:
+            return False
+
         self.append(message, response.timestamp)
+        self.ctx.logger.debug("Message: " + str(message))
         return True
 
     def append(self, message, ts):
         self.ctx.logger.debug("Appeding to the chat with " + self.partner)
+        self.ctx.logger.debug("Message: " + str(message))
+        self.ctx.logger.debug("Timestamp " + str(ts))
         # Haven't set the passphrase/sessionKey yet
         if self.pending:
             self.pendingMessages.append((message, ts))
