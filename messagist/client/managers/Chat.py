@@ -94,23 +94,23 @@ class Chat:
             self.ctx.logger.debug("Appending to pending messages")
             return
 
-        message = MessagISTCrypto.unprotect(
+        unprotectedMessage = MessagISTCrypto.unprotect(
             self.partnerIdentityKey, self.sessionKey, message
         )
         sentMessage = False
-        if message is None:  # Unprotect failed with partner's key
+        if unprotectedMessage is None:  # Unprotect failed with partner's key
             # Check if we sent the message
-            message = MessagISTCrypto.unprotect(
+            unprotectedMessage = MessagISTCrypto.unprotect(
                 self.ctx.identityKey.public_key(), self.sessionKey, message
             )
             sentMessage = True
 
-        if message is None:  # Unprotect also failed with our key
+        if unprotectedMessage is None:  # Unprotect also failed with our key
             self.ctx.logger.debug("Decryption failed")
             self.ctx.logger.debug("Dropped message")
             return  # Drop message
 
-        message = json.loads(message)
+        message = json.loads(unprotectedMessage)
         if not sentMessage:
             aux = message["nonce"][0]
             message["nonce"][0] = message["nonce"][1]
