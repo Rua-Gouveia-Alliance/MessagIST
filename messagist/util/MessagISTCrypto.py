@@ -144,7 +144,7 @@ def computeSessionKey(passphrase, salt):
 
 def prepareForStorage(password, salt):
     """
-
+    Derive a cryptographic key from the password and salt as it is stored in the server's database.
 
     Parameters:
     password (str): Password used for key derivation.
