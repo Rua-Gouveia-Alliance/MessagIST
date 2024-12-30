@@ -48,10 +48,10 @@ Column {
             if (success) {
                 stack.push("UserChats.qml");
             } else {
-                messagist.logout();
+                messagist.logout("");
             }
         }
-        onRejected: messagist.logout()
+        onRejected: messagist.logout("")
     }
 
     Column {

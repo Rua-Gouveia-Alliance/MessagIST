@@ -88,12 +88,17 @@ class SessionManager:
 
         return {"success": False, "error": "Invalid username or password"}
 
-    def logout(self):
+    def logout(self, password=""):
         # TODO: Send logout request?
         self.ctx.logger.debug("Sending LOGOUT request (not really sending)")
         if not self.ctx.activeSession:
             self.ctx.logger.debug("LOGOUT request FAILED")
             return False
+
+        if password != "":
+            MessagISTCrypto.storeContacts(
+                self.ctx.username, password, self.ctx.contacts
+            )
 
         self.ctx.setUsername("")
         self.ctx.setSessionToken("")
