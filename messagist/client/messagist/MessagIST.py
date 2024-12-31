@@ -30,7 +30,7 @@ class MessagIST(QObject):
             return {"success": False, "error": "Session already active"}
 
         result = self.sessionManager.login(username, password)
-        #needs the FA 
+        # needs the FA
         if result["success"]:
             """self.ctx.logger.debug("Starting session related timers")
             self.logoutTimer = QTimer(parent=self, singleShot=True, timeout=self.logout)
@@ -41,6 +41,7 @@ class MessagIST(QObject):
                 self.ctx.logger.debug("Identity key needs to be recovered")
                 result["recovery"] = True"""
         return result
+
     @Slot(str, result="QVariant")
     def submit_2fa_code(self, code):
         self.ctx.logger.debug("Submitting 2FA code")
@@ -59,6 +60,7 @@ class MessagIST(QObject):
             return result
         self.ctx.logger.debug("2FA failed")
         return {"success": False, "error": "Invalid 2FA code"}
+
     @Slot(str, result=bool)
     def logout(self, password):
         self.ctx.logger.debug("Logging out")

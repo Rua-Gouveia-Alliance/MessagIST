@@ -10,7 +10,7 @@ class SessionManager:
         self.LEASE_TIME = 5  # 5s
         self.sessions = {}
         self.lock = threading.Lock()
-        self.tokens= {}
+        self.tokens = {}
 
     def startSession(self, username):
         self.lock.acquire()
@@ -64,10 +64,12 @@ class SessionManager:
 
         self.lock.release()
         return status
-    def storeToken(self, username,token, timestamp):
+
+    def storeToken(self, username, token, timestamp):
 
         self.tokens[username] = (token, timestamp)
         logging.debug(f"Token stored for user {username}.")
+
     def retrieveToken(self, username):
         """
         Retrieve the token and timestamp for a specific user.
@@ -75,6 +77,7 @@ class SessionManager:
         :return: A tuple (token, timestamp) or None if the user has no token
         """
         return self.tokens.get(username)
+
     def clearToken(self, username):
         """
         Clear the stored token for a user after successful verification or expiration.
@@ -82,7 +85,7 @@ class SessionManager:
         """
         if username in self.tokens:
             del self.tokens[username]
-            logging.debug(f"Token cleared for user {username}.")    
+            logging.debug(f"Token cleared for user {username}.")
 
     def verifyToken(self, username, token):
         # Retrieve stored token and timestamp
@@ -96,7 +99,6 @@ class SessionManager:
             logging.warning("Token expired.")
             self.clearToken(username)
             return False
-        
 
         # Verify the token
         key = "NeuralNineMySuperSecretKey"

@@ -14,7 +14,7 @@ class MessagISTContext:
 
         self.activeSession = False
 
-        #server_cert = "../server/keys/server.crt"
+        # server_cert = "../server/keys/server.crt"
 
         # ligar a dmz
         server_cert = "../dmz/keys/server.crt"

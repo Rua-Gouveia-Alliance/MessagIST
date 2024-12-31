@@ -16,6 +16,7 @@ from email.message import EmailMessage
 import ssl
 import smtplib
 
+
 # TODO: Configurar logger em condicoes
 class MessagISTServerServiceImpl(pb2_grpc.MessagISTServerServicer):
     def __init__(self, db, *args, **kwargs):
@@ -57,7 +58,7 @@ class MessagISTServerServiceImpl(pb2_grpc.MessagISTServerServicer):
         password = request.password
 
         if self.userManager.validUser(username, password):
-                
+
             logging.debug("Valid user")
             # Generate 2FA Token
             key = "NeuralNineMySuperSecretKey"
@@ -69,11 +70,12 @@ class MessagISTServerServiceImpl(pb2_grpc.MessagISTServerServicer):
 
         logging.debug("LOGIN FAILED")
         return pb2.LoginResponse(success=False, token="")
+
     def submit_2fa_code(self, request, context):
         logging.debug("2FA code submission received")
         username = request.username
         token = request.code
-        if self.sessionManager.verifyToken(username,token):
+        if self.sessionManager.verifyToken(username, token):
             session_token = self.sessionManager.startSession(username)
             logging.debug("2FA success, session started.")
             self.sessionManager.clearToken(username)
@@ -81,13 +83,14 @@ class MessagISTServerServiceImpl(pb2_grpc.MessagISTServerServicer):
 
         logging.debug("2FA failed")
         return pb2.LoginResponse(success=False)
+
     def sendMailToken(self, username, token):
-        email_sender = 'messagistauthentication@gmail.com'
-        #email_password = os.environ.get("EMAIL_PASSWORD")
-        email_password = 'wlub cnnk xiiw grdz'
+        email_sender = "messagistauthentication@gmail.com"
+        # email_password = os.environ.get("EMAIL_PASSWORD")
+        email_password = "wlub cnnk xiiw grdz"
         email_receiver = username
 
-        subject = '2FA Token'
+        subject = "2FA Token"
 
         body = f"""
         Hello,
@@ -102,15 +105,15 @@ class MessagISTServerServiceImpl(pb2_grpc.MessagISTServerServicer):
         MessagIST Team
         """
         em = EmailMessage()
-        em['From'] = email_sender
-        em['To'] = email_receiver
-        em['subject'] = subject
+        em["From"] = email_sender
+        em["To"] = email_receiver
+        em["subject"] = subject
         em.set_content(body)
 
         context = ssl.create_default_context()
 
         try:
-            with smtplib.SMTP_SSL('smtp.gmail.com', 465, context=context) as smtp:
+            with smtplib.SMTP_SSL("smtp.gmail.com", 465, context=context) as smtp:
                 smtp.login(email_sender, email_password)
                 smtp.sendmail(email_sender, email_receiver, em.as_string())
             logging.info("Token email sent successfully.")
