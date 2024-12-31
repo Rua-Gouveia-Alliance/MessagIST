@@ -137,7 +137,7 @@ class MessagISTServerServiceImpl(pb2_grpc.MessagISTServerServicer):
         if username == partner:
             # cant chat with yourself
             logging.debug("TRYSETSALT FAILED")
-            return pb2.SendResponse(success=False, timestamp=-1)
+            return pb2.TrySetSaltResponse(slat="")
 
         user_id = self.userManager.getUserId(username)
         partner_id = self.userManager.getUserId(partner)
@@ -145,6 +145,8 @@ class MessagISTServerServiceImpl(pb2_grpc.MessagISTServerServicer):
 
         if salt == received_salt:
             logging.debug("New salt")
+        elif salt == "":
+            logging.error("Error setting/getting salt")
         else:
             logging.debug("Salt already existed for this chat")
 

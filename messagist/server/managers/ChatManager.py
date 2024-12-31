@@ -36,7 +36,7 @@ class ChatManager:
         )
         if not self.db.commit():
             self.db.rollback()
-            return False
+            return False  # TODO: this is not being treated as a failure
         return True
 
     def sendMessage(self, user_id_1, user_id_2, msg):
@@ -159,6 +159,7 @@ class ChatManager:
     def trySetSalt(self, user_id, partner_id, salt):
         old_salt = self.getChatSalt(user_id, partner_id)
         if old_salt == "":
-            self.registerChatSalt(user_id, partner_id, salt)
+            if not self.registerChatSalt(user_id, partner_id, salt):
+                return ""
             return salt
         return old_salt
