@@ -3,7 +3,7 @@ import logging
 
 
 class MessagISTContext:
-    def __init__(self, debug, port):
+    def __init__(self, debug, host, port):
         logging.basicConfig(level=(logging.DEBUG if debug else logging.CRITICAL))
         logger_handler = logging.StreamHandler()
         logger_handler.setFormatter(logging.Formatter("[%(levelname)s]: %(message)s"))
@@ -23,7 +23,7 @@ class MessagISTContext:
         with open(server_cert, "rb") as cert_file:
             trusted_certs = cert_file.read()
         credentials = grpc.ssl_channel_credentials(root_certificates=trusted_certs)
-        self.channel = grpc.secure_channel("localhost:" + str(port), credentials)
+        self.channel = grpc.secure_channel(host + ":" + str(port), credentials)
 
     def setUsername(self, username):
         self.username = username

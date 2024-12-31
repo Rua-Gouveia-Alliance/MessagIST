@@ -14,11 +14,15 @@ if __name__ == "__main__":
         prog="MessagIST", description="Secure messaging application."
     )
     parser.add_argument(
+        "-h",
+        "--host",
+        default="localhost",
+        help="MessagISTServer IP",
+    )
+    parser.add_argument(
         "-p",
         "--port",
-        # default=5001,
-        # para testar sem DMZ descomentar linha acima
-        default=5002,
+        default=5001,
         help="MessagISTServer port",
     )
     parser.add_argument(
@@ -32,7 +36,7 @@ if __name__ == "__main__":
 
     app = QGuiApplication()
     engine = QQmlApplicationEngine()
-    messagist = MessagIST(args.debug, args.port)
+    messagist = MessagIST(args.debug, args.host, args.port)
     engine.rootContext().setContextProperty("messagist", messagist)
     engine.addImportPath(sys.path[0])
     engine.loadFromModule("ui", "Main")
