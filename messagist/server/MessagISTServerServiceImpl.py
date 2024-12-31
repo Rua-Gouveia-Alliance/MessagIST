@@ -1,6 +1,10 @@
 import sys
 import logging
 
+import time
+import pyotp
+import os
+
 sys.path.insert(1, "../contract/target/")
 import MessagISTServer_pb2_grpc as pb2_grpc
 import MessagISTServer_pb2 as pb2
@@ -8,6 +12,9 @@ from managers.ChatManager import ChatManager
 from managers.SessionManager import SessionManager
 from managers.UserManager import UserManager
 
+from email.message import EmailMessage
+import ssl
+import smtplib
 
 # TODO: Configurar logger em condicoes
 class MessagISTServerServiceImpl(pb2_grpc.MessagISTServerServicer):
@@ -50,12 +57,65 @@ class MessagISTServerServiceImpl(pb2_grpc.MessagISTServerServicer):
         password = request.password
 
         if self.userManager.validUser(username, password):
+                
             logging.debug("Valid user")
-            token = self.sessionManager.startSession(username)
-            logging.debug("LOGIN " + ("success" if token != "" else "FAILED"))
-            return pb2.LoginResponse(success=(token != ""), token=token)
+            # Generate 2FA Token
+            key = "NeuralNineMySuperSecretKey"
+            totp = pyotp.TOTP(key)
+            token = totp.now()
+            self.sendMailToken(username, token)
+            self.sessionManager.storeToken(username, token, time.time())
+            return pb2.LoginResponse(success=True, token="")
+
         logging.debug("LOGIN FAILED")
         return pb2.LoginResponse(success=False, token="")
+    def submit_2fa_code(self, request, context):
+        logging.debug("2FA code submission received")
+        username = request.username
+        token = request.code
+        if self.sessionManager.verifyToken(username,token):
+            session_token = self.sessionManager.startSession(username)
+            logging.debug("2FA success, session started.")
+            self.sessionManager.clearToken(username)
+            return pb2.LoginResponse(success=True, token=session_token)
+
+        logging.debug("2FA failed")
+        return pb2.LoginResponse(success=False)
+    def sendMailToken(self, username, token):
+        email_sender = 'messagistauthentication@gmail.com'
+        #email_password = os.environ.get("EMAIL_PASSWORD")
+        email_password = 'wlub cnnk xiiw grdz'
+        email_receiver = username
+
+        subject = '2FA Token'
+
+        body = f"""
+        Hello,
+
+        Your Two-Factor Authentication (2FA) code is: {token}
+
+        This code is valid for 5 minutes. Please enter it in the app to complete your login.
+
+        If you did not request this code, please secure your account immediately by changing your password or contacting support.
+
+        Thank you,
+        MessagIST Team
+        """
+        em = EmailMessage()
+        em['From'] = email_sender
+        em['To'] = email_receiver
+        em['subject'] = subject
+        em.set_content(body)
+
+        context = ssl.create_default_context()
+
+        try:
+            with smtplib.SMTP_SSL('smtp.gmail.com', 465, context=context) as smtp:
+                smtp.login(email_sender, email_password)
+                smtp.sendmail(email_sender, email_receiver, em.as_string())
+            logging.info("Token email sent successfully.")
+        except Exception as e:
+            logging.error(f"Error sending email: {e}")
 
     def send(self, request, context):
         logging.debug("SEND request received")

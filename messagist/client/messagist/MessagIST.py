@@ -30,6 +30,23 @@ class MessagIST(QObject):
             return {"success": False, "error": "Session already active"}
 
         result = self.sessionManager.login(username, password)
+        #needs the FA 
+        if result["success"]:
+            """self.ctx.logger.debug("Starting session related timers")
+            self.logoutTimer = QTimer(parent=self, singleShot=True, timeout=self.logout)
+            self.keepAliveTimer = QTimer(parent=self, timeout=self.keepAlive)
+            self.logoutTimer.start(self.LEASE_TIME)
+            self.keepAliveTimer.start(self.LEASE_TIME / 2)
+            if self.ctx.identityKey is None:
+                self.ctx.logger.debug("Identity key needs to be recovered")
+                result["recovery"] = True"""
+        return result
+    @Slot(str, result="QVariant")
+    def submit_2fa_code(self, code):
+        self.ctx.logger.debug("Submitting 2FA code")
+
+        # Send the 2FA code to the server for verification
+        result = self.sessionManager.submit_2fa_code(code)
         if result["success"]:
             self.ctx.logger.debug("Starting session related timers")
             self.logoutTimer = QTimer(parent=self, singleShot=True, timeout=self.logout)
@@ -39,8 +56,9 @@ class MessagIST(QObject):
             if self.ctx.identityKey is None:
                 self.ctx.logger.debug("Identity key needs to be recovered")
                 result["recovery"] = True
-        return result
-
+            return result
+        self.ctx.logger.debug("2FA failed")
+        return {"success": False, "error": "Invalid 2FA code"}
     @Slot(str, result=bool)
     def logout(self, password):
         self.ctx.logger.debug("Logging out")

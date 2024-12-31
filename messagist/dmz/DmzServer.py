@@ -33,7 +33,7 @@ def parse_args():
     parser.add_argument(
         "-p",
         "--port",
-        default=5001,
+        default=5002,
         help="port where the DMZ listens",
     )
     parser.add_argument(
@@ -83,9 +83,9 @@ def main():
         server_key = open(server_key_path, "rb").read()
         server_credentials = grpc.ssl_server_credentials([(server_key, server_cert)])
 
-        server.add_secure_port("localhost:" + str(args.port()), server_credentials)
+        server.add_secure_port("localhost:" + str(args.port), server_credentials)
 
-        logging.debug("Listening on port " + str(args.port()))
+        logging.debug("Listening on port " + str(args.port))
 
         # start server and wait for termination
         server.start()

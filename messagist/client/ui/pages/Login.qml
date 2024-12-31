@@ -53,6 +53,42 @@ Column {
         }
         onRejected: messagist.logout("")
     }
+    // 2FA dialog
+    Dialog {
+        id: twoFADialog
+        title: "Two-Factor Authentication"
+        anchors.centerIn: parent
+
+        Column {
+            spacing: 10
+
+            Text {
+                font.pointSize: 12
+                color: "white"
+                text: "Please enter your 2FA code:"
+            }
+            TextField {
+                id: twoFACode
+                placeholderText: "2FA Code"
+                anchors.horizontalCenter: parent.horizontalCenter
+            }
+        }
+
+        standardButtons: Dialog.Ok | Dialog.Cancel
+        modal: true
+        visible: false
+        onAccepted: {
+            const result = messagist.submit_2fa_code(twoFACode.text);
+            if (result.success) {
+                stack.push("UserChats.qml");
+            } else {
+                errorMessage.text = "Invalid 2FA code.";
+                errorMessage.visible = true;
+                twoFADialog.visible = true;
+            }
+        }
+        onRejected: messagist.logout("")
+    }
 
     Column {
         spacing: 10
@@ -67,7 +103,7 @@ Column {
                     if (result.recovery) {
                         recoveryDialog.visible = true;
                     } else {
-                        stack.push("UserChats.qml");
+                       twoFADialog.visible = true;
                     }
                 } else {
                     errorMessage.text = result.error;
