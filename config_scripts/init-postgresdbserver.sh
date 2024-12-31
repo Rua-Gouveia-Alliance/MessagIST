@@ -1,7 +1,9 @@
 #!/bin/bash
 
-# interfaces (replace if needed)
+# change if needed
 DB_IF="eth0"   # Network interface
+DB_USER="messagist"
+DB_PASSWORD="messagist"
 
 SERVICE_FILE=/etc/systemd/system/init-postgresdbserver.service
 
@@ -42,6 +44,29 @@ iptables -A INPUT -m conntrack --ctstate ESTABLISHED,RELATED -j ACCEPT
 # allow traffic only from the MessagIST server
 iptables -A INPUT -p tcp -s 192.168.2.1 --dport 5432 -j ACCEPT
 
+# check if PostgreSQL is installed
+if ! command -v psql &> /dev/null; then
+    apt-get update
+    apt-get install -y postgresql postgresql-client
+fi
+systemctl enable --now postgresql
+
+# create default user if not exists
+sudo -u postgres psql <<EOF
+DO
+\$do\$
+BEGIN
+   IF NOT EXISTS (
+      SELECT FROM pg_roles WHERE rolname = '$DB_USER'
+   ) THEN
+      CREATE ROLE $DB_USER WITH LOGIN PASSWORD '$DB_PASSWORD' CREATEDB;
+   END IF;
+END
+\$do\$;
+
+REVOKE ALL PRIVILEGES ON DATABASE postgres FROM $DB_USER;
+EOF
+
 # create systemd service for running this script at boot time
 if [ ! -f "$SERVICE_FILE" ]; then
     echo "[Unit]
@@ -58,4 +83,4 @@ WantedBy=multi-user.target" > $SERVICE_FILE
 fi
 
 # enable the service
-systemctl enable init-postgresdbserver
+systemctl enable --now init-postgresdbserver
