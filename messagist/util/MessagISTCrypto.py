@@ -423,8 +423,10 @@ def encodeContacts(contacts):
     bytes: Serialized and pickled contacts.
     """
     serializedContacts = {}
-    for partner, identityKey in contacts.items():
-        serializedContacts[partner] = identityKey.public_bytes_raw()
+    for partner, entry in contacts.items():
+        serializedContacts[partner] = {}
+        serializedContacts[partner]["key"] = entry["key"].public_bytes_raw()
+        serializedContacts[partner]["sessionKey"] = entry["sessionKey"]
     return pickle.dumps(serializedContacts)
 
 
@@ -439,8 +441,8 @@ def decodeContacts(serializedContacts):
     dict: Dictionary mapping partner usernames to their public keys.
     """
     contacts = pickle.loads(serializedContacts)
-    for partner, identityKey in contacts.items():
-        contacts[partner] = Ed25519PublicKey.from_public_bytes(identityKey)
+    for partner, entry in contacts.items():
+        contacts[partner]["key"] = Ed25519PublicKey.from_public_bytes(entry["key"])
     return contacts
 
 
@@ -504,6 +506,10 @@ def storeContacts(username, password, contacts):
         f.write(salt)
         iv = base64.b64encode(iv).decode("ascii") + "\n"
         f.write(iv)
+
+
+def createContactsEntry(data):
+    return {"key": Ed25519PublicKey.from_public_bytes(data), "sessionKey": None}
 
 
 def readFiles(*filepaths):

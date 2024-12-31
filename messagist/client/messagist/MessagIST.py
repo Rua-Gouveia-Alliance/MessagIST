@@ -41,13 +41,13 @@ class MessagIST(QObject):
                 result["recovery"] = True
         return result
 
-    @Slot(result=bool)
-    def logout(self):
+    @Slot(str, result=bool)
+    def logout(self, password):
         self.ctx.logger.debug("Logging out")
         if not self.ctx.activeSession:
             return False
 
-        success = self.chatManager.logout() and self.sessionManager.logout()
+        success = self.chatManager.logout() and self.sessionManager.logout(password)
         self.ctx.logger.debug("Logout " + ("successful" if success else "FAILED"))
         # TODO: Close app if logout not successful?
         self.ctx.logger.debug("Deleting session related timers")
@@ -80,10 +80,13 @@ class MessagIST(QObject):
     @Slot()
     def keepAlive(self):
         self.ctx.logger.debug("Perfoming KeepAlive")
-        partners = self.chatManager.chats.keys()
+        partners = []
         timestamps = []
-        for partner in partners:
-            timestamps.append(self.chatManager.chats[partner].timestamp)
+        for partner, chat in self.chatManager.chats.items():
+            if not chat.pending:
+                partners.append(partner)
+                timestamps.append(chat.timestamp)
+
         success, partners, messages = self.sessionManager.keepAlive(
             partners, timestamps
         )

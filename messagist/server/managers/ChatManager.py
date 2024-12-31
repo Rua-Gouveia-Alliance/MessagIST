@@ -52,10 +52,10 @@ class ChatManager:
             ),
         )
         chat_id = result[0]
-        if chat_id:
+        if not chat_id:
             return -1
 
-        insert_query = "INSERT INTO messages (chat_id, message_text) VALUES (%s)"
+        insert_query = "INSERT INTO messages (chat_id, message_text) VALUES (%s, %s)"
         self.db.query(insert_query, (chat_id, msg))
         self.db.commit()
 
@@ -131,7 +131,7 @@ class ChatManager:
 
         if result is None:
             return ""
-        return result[0].tobytes()
+        return result[0]
 
     def registerChatSalt(self, user_id, partner_id, salt):
         query = """INSERT INTO chat_salts (user_1, user_2, salt)

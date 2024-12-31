@@ -7,6 +7,46 @@ Column {
     spacing: 10
     anchors.horizontalCenter: parent.horizontalCenter
 
+    Button {
+        text: "Logout"
+        onClicked: contactsDialog.visible = true
+    }
+
+    Dialog {
+        id: contactsDialog
+        title: "Encrypt passphrases"
+        standardButtons: Dialog.Ok | Dialog.Cancel
+        modal: true
+        visible: false
+        anchors.centerIn: parent
+
+        Column {
+            spacing: 10
+
+            Text {
+                font.pointSize: 12
+                color: "white"
+                horizontalAlignment: Text.AlignLeft
+                text: {
+                    "Insert your password to save the passphrases inserted " +
+                    "and public keys discovered during this session. " +
+                    "(Recommended)"
+                }
+            }
+            TextField {
+                id: password
+                placeholderText: "Password"
+                passwordCharacter: "●"
+                passwordMaskDelay: 500
+                echoMode: TextInput.Password
+                anchors.horizontalCenter: parent.horizontalCenter
+            }
+        }
+
+        onAccepted: messagist.logout(password.text)
+        onRejected: messagist.logout("")
+    }
+
     Title {
         text: "All chats"
         anchors.horizontalCenter: parent.horizontalCenter

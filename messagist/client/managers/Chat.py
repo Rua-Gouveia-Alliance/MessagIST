@@ -11,7 +11,6 @@ class Chat:
         self.partner = partner
         self.messages = []
         self.bufferedMessages = []
-        self.pendingMessages = []
         self.timestamp = 0
         # These nonces also establish a partial order for messages, consider
         # using them to check the server ordering (if the ordering does not
@@ -24,7 +23,6 @@ class Chat:
         # by changing the timestamp, the most it can do is cause the message to
         # be dropped (basically the same as not sending it, achieves nothing).
         self.nonce = [0, 0]
-        self.pending = True
 
         if partner not in self.ctx.contacts:
             stub = pb2_grpc.MessagISTServerStub(self.ctx.channel)
@@ -32,13 +30,18 @@ class Chat:
             response = stub.getIdentityKey(request)
 
             # TODO: what if identity key doesnt exist (response.identity_key == "")
-            if response.identify_key == "":
+            if response.identityKey == "":
                 print("teste")
             else:
+                self.ctx.contacts[partner] = MessagISTCrypto.createContactsEntry(
+                    response.identityKey
+                )
 
-                self.ctx.contacts[partner] = response.identityKey
-
-        self.partnerIdentityKey = self.ctx.contacts[partner]
+        self.pending = False
+        self.partnerIdentityKey = self.ctx.contacts[partner]["key"]
+        self.sessionKey = self.ctx.contacts[partner]["sessionKey"]
+        if self.sessionKey is None:
+            self.pending = True
 
     def setPassphrase(self, passphrase):
         self.ctx.logger.debug(
@@ -54,10 +57,8 @@ class Chat:
         salt = response.salt
 
         self.sessionKey = MessagISTCrypto.computeSessionKey(passphrase, salt)
+        self.ctx.contacts[self.partner]["sessionKey"] = self.sessionKey
         self.pending = False
-        self.pendingMessages.sort(key=lambda x: x[1])
-        for message, ts in self.pendingMessages:
-            self.append(message, ts)
 
     def getMessages(self):
         messages = [self.pending]
@@ -76,34 +77,40 @@ class Chat:
             token=self.ctx.sessionToken, message=message, partner=self.partner
         )
         response = stub.send(request)
+        if not response.success:
+            return False
+
         self.append(message, response.timestamp)
+        self.ctx.logger.debug("Message: " + str(message))
         return True
 
     def append(self, message, ts):
         self.ctx.logger.debug("Appeding to the chat with " + self.partner)
+        self.ctx.logger.debug("Message: " + str(message))
+        self.ctx.logger.debug("Timestamp " + str(ts))
+
         # Haven't set the passphrase/sessionKey yet
         if self.pending:
-            self.pendingMessages.append((message, ts))
-            self.ctx.logger.debug("Appending to pending messages")
+            self.ctx.logger.debug("Chat is pending, drop message")
             return
 
-        message = MessagISTCrypto.unprotect(
+        unprotectedMessage = MessagISTCrypto.unprotect(
             self.partnerIdentityKey, self.sessionKey, message
         )
         sentMessage = False
-        if message is None:  # Unprotect failed with partner's key
+        if unprotectedMessage is None:  # Unprotect failed with partner's key
             # Check if we sent the message
-            message = MessagISTCrypto.unprotect(
+            unprotectedMessage = MessagISTCrypto.unprotect(
                 self.ctx.identityKey.public_key(), self.sessionKey, message
             )
             sentMessage = True
 
-        if message is None:  # Unprotect also failed with our key
+        if unprotectedMessage is None:  # Unprotect also failed with our key
             self.ctx.logger.debug("Decryption failed")
             self.ctx.logger.debug("Dropped message")
             return  # Drop message
 
-        message = json.loads(message)
+        message = json.loads(unprotectedMessage)
         if not sentMessage:
             aux = message["nonce"][0]
             message["nonce"][0] = message["nonce"][1]
