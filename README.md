@@ -22,24 +22,32 @@ It offers insights into the rationale behind these choices, the project's archit
 
 This document presents installation and demonstration instructions.
 
-*(adapt all of the following to your project, changing to the specific Linux distributions, programming languages, libraries, etc)*
-
 ## Installation
 
-To see the project in action, it is necessary to setup a virtual environment, with N networks and M machines.  
+To see the project in action, it is necessary to setup a virtual environment, with 2 networks and 5 machines.
 
 The following diagram shows the networks and machines:
 
-*(include a text-based or an image-based diagram)*
+![diagram](img/diagram.png)
+
+The `NAT Firewall 1` server connects to the internet with an IP address obtained via DHCP.
 
 ### Prerequisites
 
-All the virtual machines are based on: Linux 64-bit, Kali 2023.3  
+All the virtual machines are based on: `Ubuntu Server 24.04.1 LTS`.
 
-[Download](https://...link_to_download_installation_media) and [install](https://...link_to_installation_instructions) a virtual machine of Kali Linux 2023.3.  
-Clone the base machine to create the other machines.
+[Download](https://ubuntu.com/download/server) and [install](https://ubuntu.com/tutorials/install-ubuntu-server#4-choose-your-language) a virtual machine of `Ubuntu Server 24.04.1 LTS`.
 
-*(above, replace witch actual links)*
+**Notes for the installation**:
+- The steps not specifically specified were left as default.
+- In the step **Choose the type of installation**, choose the `Ubuntu Server` option (not `Ubuntu Server (minimized)`).
+- In the step **Profile configuration**, we used the following configuration (choose another values as you which, keep in mind the rest of the guide uses these ones where needed):
+  - **Your name**: (blank)
+  - **Server's name**: ubuntuserver
+  - **Userame**: serveradmin
+  - **Password**: (choose a password)
+
+Clone the base machine to create four other machines and set up the networks according to the diagram above.
 
 ### Machine configurations
 
@@ -48,10 +56,8 @@ For each machine, there is an initialization script with the machine name, with 
 Inside each machine, use Git to obtain a copy of all the scripts and code.
 
 ```sh
-$ git clone https://github.com/tecnico-sec/cxx...
+$ git clone https://github.com/tecnico-sec/A61
 ```
-
-*(above, replace with link to actual repository)*
 
 Next we have custom instructions for each machine.
 
@@ -85,9 +91,125 @@ If you receive the following message ... then ...
 
 *(explain how to fix some known problem)*
 
-#### Machine ...
+#### Machine 2
 
-*(similar content structure as Machine 1)*
+This machine runs ...
+
+*(describe what kind of software runs on this machine, e.g. a database server (PostgreSQL 16.1))*
+
+To verify:
+
+```sh
+$ setup command
+```
+
+*(replace with actual commands)*
+
+To test:
+
+```sh
+$ test command
+```
+
+*(replace with actual commands)*
+
+The expected results are ...
+
+*(explain what is supposed to happen if all goes well)*
+
+If you receive the following message ... then ...
+
+*(explain how to fix some known problem)*
+
+#### Machine 3
+
+This machine runs ...
+
+*(describe what kind of software runs on this machine, e.g. a database server (PostgreSQL 16.1))*
+
+To verify:
+
+```sh
+$ setup command
+```
+
+*(replace with actual commands)*
+
+To test:
+
+```sh
+$ test command
+```
+
+*(replace with actual commands)*
+
+The expected results are ...
+
+*(explain what is supposed to happen if all goes well)*
+
+If you receive the following message ... then ...
+
+*(explain how to fix some known problem)*
+
+#### Machine 4
+
+This machine runs ...
+
+*(describe what kind of software runs on this machine, e.g. a database server (PostgreSQL 16.1))*
+
+To verify:
+
+```sh
+$ setup command
+```
+
+*(replace with actual commands)*
+
+To test:
+
+```sh
+$ test command
+```
+
+*(replace with actual commands)*
+
+The expected results are ...
+
+*(explain what is supposed to happen if all goes well)*
+
+If you receive the following message ... then ...
+
+*(explain how to fix some known problem)*
+
+#### Machine 5
+
+This machine runs ...
+
+*(describe what kind of software runs on this machine, e.g. a database server (PostgreSQL 16.1))*
+
+To verify:
+
+```sh
+$ setup command
+```
+
+*(replace with actual commands)*
+
+To test:
+
+```sh
+$ test command
+```
+
+*(replace with actual commands)*
+
+The expected results are ...
+
+*(explain what is supposed to happen if all goes well)*
+
+If you receive the following message ... then ...
+
+*(explain how to fix some known problem)*
 
 ## Demonstration
 
