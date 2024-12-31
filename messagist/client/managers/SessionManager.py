@@ -49,15 +49,27 @@ class SessionManager:
         request = pb2.LoginRequest(username=username, password=hiddenPassword)
         response = stub.login(request)
         if response.success:
+            #devo passar isto para depois do submit_2fa_code
             self.ctx.logger.debug("Login successful")
             self.ctx.setUsername(username)
             self.ctx.setSessionToken(response.token)
             self.ctx.setIdentityKey(MessagISTCrypto.loadKey(username, password))
             self.ctx.setContacts(MessagISTCrypto.loadContacts(username, password))
-            self.ctx.setActiveSession(True)
+            #self.ctx.setActiveSession(True)
             return {"success": True}
         return {"success": False, "error": "Invalid username or password"}
+    def submit_2fa_code(self, code):
+        self.ctx.logger.debug("Sending 2FA request")
 
+        stub = pb2_grpc.MessagISTServerStub(self.ctx.channel)
+        request = pb2.TwoFactorRequest(username=self.ctx.username, code=code)
+        response = stub.submit_2fa_code(request)
+        if response.success:
+            self.ctx.setActiveSession(True)
+            self.ctx.logger.debug("TESTE")
+            return {"success": True}
+        #clean ctx
+        return {"success": False, "error": "Invalid code"}
     def signup(self, username, password):
         if not username or username == "":
             return {"success": False, "error": "Username cannot be empty"}

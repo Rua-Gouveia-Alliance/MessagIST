@@ -22,7 +22,7 @@ if __name__ == "__main__":
     parser.add_argument(
         "-p",
         "--port",
-        default=5001,
+        default=5002,
         help="MessagISTServer DMZ port",
     )
     parser.add_argument(
