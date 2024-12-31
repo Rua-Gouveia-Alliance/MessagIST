@@ -19,10 +19,22 @@ def parse_args():
         prog="MessagISTServer", description="Secure messaging service."
     )
     parser.add_argument(
+        "-i",
+        "--serverip",
+        default="192.168.1.1",
+        help="ip of the MessagISTServer",
+    )
+    parser.add_argument(
+        "-s",
+        "--serverport",
+        default=5001,
+        help="port of the MessagISTServer",
+    )
+    parser.add_argument(
         "-p",
         "--port",
-        required=True,
-        help="port where the server listens",
+        default=5001,
+        help="port where the DMZ listens",
     )
     parser.add_argument(
         "-debug",
@@ -50,21 +62,17 @@ def config_log(debug):
 def main():
     print("Starting server.")
     args = parse_args()
-    port = args.port
-    # Provavelmente passar o path das cenas no comando
     config_log(args.debug)
+
     try:
         # TODO: Aumentar thread pool para 10.
-        # So nao meto ja porque seria preciso meter locks no ChatManager e
-        # UserManager, que vao ser implementados de novo quando tivermos a DB
-        # ptt nao faz mto sentido perder temepo com isso agora.
+        # Preciso trocar a maneira como a base de dados funciona.
+        # Cada thread tem que ter a sua propria db e a classe da base de dados
+        # talvez tenha que ser trocada para ser seguro fazer operacoes concorrentes.
 
-        ### FAZER DNS SE HOUVER TEMPO
         server = grpc.server(futures.ThreadPoolExecutor(max_workers=1))
         pb2_grpc.add_MessagISTServerServicer_to_server(
-            # que port coloco aqui?
-            DmzMainClass("localhost:5001"),
-            server,
+            DmzMainClass(args.serverip, args.serverport), server
         )
 
         # GRPS WITH TLS
@@ -75,12 +83,9 @@ def main():
         server_key = open(server_key_path, "rb").read()
         server_credentials = grpc.ssl_server_credentials([(server_key, server_cert)])
 
-        server.add_secure_port("localhost:" + str(port), server_credentials)
+        server.add_secure_port("localhost:" + str(args.port()), server_credentials)
 
-        # server.add_insecure_port(":" + str(port))
-        # server.add_insecure_port("localhost:5001")
-
-        logging.debug("Listening on port " + str(port))
+        logging.debug("Listening on port " + str(args.port()))
 
         # start server and wait for termination
         server.start()

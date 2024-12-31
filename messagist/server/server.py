@@ -20,8 +20,38 @@ def parse_args():
     parser.add_argument(
         "-p",
         "--port",
-        required=True,
+        default=5001,
         help="port where the server listens",
+    )
+    parser.add_argument(
+        "-i",
+        "--dbip",
+        default="192.168.2.2",
+        help="ip of the PostgreSQL DB Server",
+    )
+    parser.add_argument(
+        "-d",
+        "--dbport",
+        default=5432,
+        help="port of the PostgreSQL DB Server",
+    )
+    parser.add_argument(
+        "-u",
+        "--dbuser",
+        required=True,
+        help="username of PostgreSQL user",
+    )
+    parser.add_argument(
+        "-P",
+        "--dbpassword",
+        required=True,
+        help="password of PostgreSQL user",
+    )
+    parser.add_argument(
+        "-n",
+        "--dbname",
+        default="messagist",
+        help="database name of PostgreSQL db",
     )
     parser.add_argument(
         "-debug",
@@ -49,36 +79,26 @@ def config_log(debug):
 def main():
     print("Starting server.")
     args = parse_args()
-    port = args.port
     # Provavelmente passar o path das cenas no comando
     config_log(args.debug)
+
+    # connect to DB
+    DB = DatabaseClass(
+        dbname=args.dbname,
+        user=args.dbuser,
+        password=args.dbpassword,
+        host=args.dbip,
+        port=args.dbport,
+    )
+    DB.connect()
+
     try:
         # TODO: Aumentar thread pool para 10.
         # Preciso trocar a maneira como a base de dados funciona.
         # Cada thread tem que ter a sua propria db e a classe da base de dados
         # talvez tenha que ser trocada para ser seguro fazer operacoes concorrentes.
 
-        # Initialize DB
-        # DB = DatabaseClass(dbname="test", user="postgres", password="sirs")
-        # use exports, is this a good idea? search about it
-
-        """
-        EXPORT ...
-        """
-        load_dotenv()
-        """print("DB_NAME:", os.getenv("DB_NAME"))
-        print("DB_USER:", os.getenv("DB_USER"))
-        print("DB_PASSWORD:", os.getenv("DB_PASSWORD"))"""
-
-        """if not all([db_name, db_user, db_password]):
-            raise ValueError("One or more environment variables are missing.")"""
-        DB = DatabaseClass(
-            dbname="test",
-            user="postgres",
-            password="sirs",
-        )
-        DB.connect()
-
+        # initialize DB
         DB.execute_script("../database/serverschema.sql")
 
         server = grpc.server(futures.ThreadPoolExecutor(max_workers=1))
@@ -94,8 +114,8 @@ def main():
         server_key = open(server_key_path, "rb").read()
         server_credentials = grpc.ssl_server_credentials([(server_key, server_cert)])
 
-        server.add_secure_port("localhost:" + str(port), server_credentials)
-        logging.debug("Listening on port " + str(port))
+        server.add_secure_port("localhost:" + str(args.port), server_credentials)
+        logging.debug("Listening on port " + str(args.port))
 
         server.start()
         server.wait_for_termination()

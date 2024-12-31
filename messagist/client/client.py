@@ -17,13 +17,13 @@ if __name__ == "__main__":
         "-h",
         "--host",
         default="localhost",
-        help="MessagISTServer IP",
+        help="MessagISTServer DMZ IP",
     )
     parser.add_argument(
         "-p",
         "--port",
         default=5001,
-        help="MessagISTServer port",
+        help="MessagISTServer DMZ port",
     )
     parser.add_argument(
         "-d",

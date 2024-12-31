@@ -3,7 +3,7 @@ import MessagISTServer_pb2_grpc as pb2_grpc
 import MessagISTServer_pb2 as pb2
 
 
-# TODO catch _InactiveRpcError(state) e emitir logout signal
+# TODO catch grpc.RpcError e emitir logout signal
 class SessionManager:
     def __init__(self, ctx):
         self.ctx = ctx
