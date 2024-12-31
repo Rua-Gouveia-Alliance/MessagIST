@@ -4,7 +4,7 @@
 WAN_IF="eth0"   # WAN interface
 LAN_IF="eth1"   # LAN interface
 
-SERVICE_FILE=/etc/systemd/system/init-natfirewall1-setup.service
+SERVICE_FILE=/etc/systemd/system/init-natfirewall1.service
 
 # ensure the script is running as root
 if [ "$(id -u)" -ne 0 ]; then
@@ -70,4 +70,4 @@ WantedBy=multi-user.target" > $SERVICE_FILE
 fi
 
 # enable the service
-systemctl enable init-natfirewall1-setup
+systemctl enable init-natfirewall1

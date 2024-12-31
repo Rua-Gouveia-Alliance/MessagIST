@@ -4,7 +4,7 @@
 EXT_IF="eth0"   # DMZ zone interface
 INT_IF="eth1"   # Internal interface
 
-SERVICE_FILE=/etc/systemd/system/init-natfirewall2-setup.service
+SERVICE_FILE=/etc/systemd/system/init-natfirewall2.service
 
 # ensure the script is running as root
 if [ "$(id -u)" -ne 0 ]; then
@@ -73,4 +73,4 @@ WantedBy=multi-user.target" > $SERVICE_FILE
 fi
 
 # enable the service
-systemctl enable init-natfirewall2-setup
+systemctl enable init-natfirewall2
