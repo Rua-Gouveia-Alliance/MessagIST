@@ -220,7 +220,7 @@ If you receive the following message ... then ...
 
 #### Machine 5
 
-This machine runs the PostgreSQL database (version).
+This machine runs the PostgreSQL database (version 16.6).
 
 **First, run the initialization script:**
 
