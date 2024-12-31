@@ -1,5 +1,7 @@
 #!/bin/bash
 
+# TODO: generate keys/cert
+
 # change if needed
 MSG_IF="eth0"   # Network interface
 NON_ROOT_USER="serveradmin" # to avoid running the server as root

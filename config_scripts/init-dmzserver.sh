@@ -1,4 +1,6 @@
 #!/bin/bash
+#
+# TODO: generate keys/cert
 
 # change if needed
 DMZ_IF="eth0"   # Network interface

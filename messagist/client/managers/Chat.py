@@ -56,6 +56,9 @@ class Chat:
         response = stub.trySetSalt(request)
         salt = response.salt
 
+        if salt == "":
+            pass  # TODO: handle trysetsalt error
+
         self.sessionKey = MessagISTCrypto.computeSessionKey(passphrase, salt)
         self.ctx.contacts[self.partner]["sessionKey"] = self.sessionKey
         self.pending = False
