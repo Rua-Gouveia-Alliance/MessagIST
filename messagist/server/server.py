@@ -4,7 +4,6 @@ import logging
 import os
 import grpc
 from concurrent import futures
-from dotenv import load_dotenv
 from MessagISTServerServiceImpl import MessagISTServerServiceImpl
 
 sys.path.append("../database/")
