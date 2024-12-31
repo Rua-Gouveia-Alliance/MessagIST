@@ -6,6 +6,12 @@ LAN_IF="eth1"   # LAN interface
 
 SERVICE_FILE=/etc/systemd/system/init-natfirewall1-setup.service
 
+# ensure the script is running as root
+if [ "$(id -u)" -ne 0 ]; then
+    echo "Error: Please run the script as root (with sudo)."
+    exit 1
+fi
+
 # configure IPv4
 ip link set dev $WAN_IF up
 dhcpcd eth0

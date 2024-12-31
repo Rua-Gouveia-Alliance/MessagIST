@@ -6,6 +6,12 @@ INT_IF="eth1"   # Internal interface
 
 SERVICE_FILE=/etc/systemd/system/init-natfirewall2-setup.service
 
+# ensure the script is running as root
+if [ "$(id -u)" -ne 0 ]; then
+    echo "Error: Please run the script as root (with sudo)."
+    exit 1
+fi
+
 # configure IPv4
 ip addr add 192.168.1.1/24 dev $EXT_IF
 ip link set dev $EXT_IF up
