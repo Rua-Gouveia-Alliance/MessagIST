@@ -154,7 +154,6 @@ def prepareForStorage(password, salt):
     bytes: 32-byte derived key.
     """
 
-    # https://datatracker.ietf.org/doc/html/rfc7914.html#section-2
     password = password.encode("ascii")
     kdf = Scrypt(
         salt=salt,  # Ensures uniqueness even if same password is chosen
@@ -268,7 +267,6 @@ def generateIdentityKey():
     Ed25519PrivateKey: Newly generated private identity key.
     """
 
-    ## https://safecurves.cr.yp.to/
     return Ed25519PrivateKey.generate()
 
 

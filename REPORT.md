@@ -1,8 +1,21 @@
-# CXX GrooveGalaxy / BombAppetit / BlingBank / MediTrack Project Report
+# A51 MessagIST Project Report
 
 ## 1. Introduction
 
 (_Provide a brief overview of your project, including the business scenario and the main components: secure documents, infrastructure, and security challenge._)
+
+MessagIST is a secure instant messaging service that aims to provide IST
+students with a way of securely communicating. Since we chose to tackle the
+first security challenge (Security challenge A), the security requirements for
+our messaging service go beyond the basic legal requirements (GDPR). As such,
+the security requirements are as follows:
+1. Only the sender and receiver of a message can read it (end-to-end
+   encryption).
+2. The receiver of a message can confirm if whoever claims to be the sender
+   actually wrote the message.
+3. The conversation participants can detect if messages are out-of-order or
+   missing.
+4. If a user switches devices, they can recover their messages.
 
 (_Include a structural diagram, in UML or other standard notation._)
 
@@ -52,7 +65,7 @@
 
 (_Explain how your team redesigned and extended the solution to meet the security challenge, including key distribution and other security measures._)
 
-(_Identify communication entities and the messages they exchange with a UML sequence or collaboration diagram._)  
+(_Identify communication entities and the messages they exchange with a UML sequence or collaboration diagram._)
 
 ## 3. Conclusion
 
@@ -67,6 +80,14 @@
 ## 4. Bibliography
 
 (_Present bibliographic references, with clickable links. Always include at least the authors, title, "where published", and year._)
+
+[Colin Percival, Encrypt-then-MAC, Daemonic Dispatches Blog, 2009](https://www.daemonology.net/blog/2009-06-24-encrypt-then-mac.html)
+
+[Colin Percival and Simon Josefsson, The scrypt Password-Based Key Derivation Function, IETF RFC 7914, 2016](https://datatracker.ietf.org/doc/html/rfc7914.html)
+
+[Daniel J. Bernstein and Tanja Lange, SafeCurves: choosing safe curves for elliptic-curve cryptography, 2024](https://safecurves.cr.yp.to)
+
+[Daniel J. Bernstein, Niels Duif, Tanja Lange, Peter Schwabe and Bo-Yin Yang, Ed25519: high-speed high-security signatures, 2012](https://ed25519.cr.yp.to/index.html)
 
 ----
 END OF REPORT

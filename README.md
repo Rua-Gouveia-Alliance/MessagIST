@@ -283,7 +283,7 @@ This concludes the demonstration.
 
 ### Versioning
 
-We use [SemVer](http://semver.org/) for versioning.  
+We use [SemVer](http://semver.org/) for versioning.
 
 ### License
 
