@@ -6,25 +6,22 @@ class UserManager:
         if username == "" or password == "":
             return False
 
-        try:
-            query = (
-                "INSERT INTO users (username, password_hash, salt) VALUES (%s, %s, %s)"
-            )
-            self.db.query(
-                query,
-                (
-                    username,
-                    password,
-                    salt,
-                ),
-            )
+        query = "INSERT INTO users (username, password_hash, salt) VALUES (%s, %s, %s)"
+        self.db.query(
+            query,
+            (
+                username,
+                password,
+                salt,
+            ),
+        )
 
-            userId = self.getUserId(username)
-            query = """INSERT INTO identity_keys (user_id, identity_key)
-            VALUES (%s, %s)"""
-            self.db.query(query, (userId, key))
-            self.db.commit()
-        except Exception:
+        userId = self.getUserId(username)
+        query = """INSERT INTO identity_keys (user_id, identity_key)
+        VALUES (%s, %s)"""
+        self.db.query(query, (userId, key))
+
+        if not self.db.commit():
             self.db.rollback()
             return False
 
@@ -62,7 +59,7 @@ class UserManager:
         query = """SELECT identity_key FROM identity_keys
         WHERE user_id = %s"""
         result = self.db.fetch_one(query, (userId,))
-        if result is None:
+        if not result:
             return ""
         return result[0]
 

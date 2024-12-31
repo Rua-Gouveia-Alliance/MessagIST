@@ -34,7 +34,9 @@ class ChatManager:
                 user_id_2,
             ),
         )
-        self.db.commit()
+        if not self.db.commit():
+            self.db.rollback()
+            return False
         return True
 
     def sendMessage(self, user_id_1, user_id_2, msg):
@@ -57,7 +59,10 @@ class ChatManager:
 
         insert_query = "INSERT INTO messages (chat_id, message_text) VALUES (%s, %s)"
         self.db.query(insert_query, (chat_id, msg))
-        self.db.commit()
+
+        if not self.db.commit():
+            self.db.rollback()
+            return -1
 
         return self.getChatLen(chat_id) - 1
 
@@ -116,6 +121,8 @@ class ChatManager:
         """
 
         result = self.db.fetch_one(query, (username))
+        if not result:
+            return []
 
         chat_partners = [row[0] for row in result]
         return chat_partners
@@ -129,7 +136,7 @@ class ChatManager:
         )
         result = self.db.fetch_one(query, params)
 
-        if result is None:
+        if not result:
             return ""
         return result[0]
 
@@ -143,7 +150,11 @@ class ChatManager:
             else (partner_id, user_id, salt)
         )
         self.db.query(query, params)
-        self.db.commit()
+
+        if not self.db.commit():
+            self.db.rollback()
+            return False
+        return True
 
     def trySetSalt(self, user_id, partner_id, salt):
         old_salt = self.getChatSalt(user_id, partner_id)
