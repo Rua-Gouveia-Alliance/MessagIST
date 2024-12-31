@@ -61,51 +61,30 @@ $ git clone https://github.com/tecnico-sec/A61
 
 Next we have custom instructions for each machine.
 
-#### Machine 1
+#### Machine 1 (NAT Firewall 1)
 
-This machine runs ...
+This machine runs the NAT firewall for the DMZ.
 
-*(describe what kind of software runs on this machine, e.g. a database server (PostgreSQL 16.1))*
-
-To verify:
+**First, run the initialization script:**
 
 ```sh
-$ setup command
+$ sudo ./config_scripts/init-natfirewall1.sh
 ```
 
-*(replace with actual commands)*
-
-To test:
+**To verify:**
 
 ```sh
-$ test command
+$ sudo systemctl status init-natfirewall1
 ```
 
-*(replace with actual commands)*
-
-The expected results are ...
-
-*(explain what is supposed to happen if all goes well)*
-
-If you receive the following message ... then ...
-
-*(explain how to fix some known problem)*
-
-#### Machine 2
-
-This machine runs ...
-
-*(describe what kind of software runs on this machine, e.g. a database server (PostgreSQL 16.1))*
-
-To verify:
+Ensure the service is active. If not, enable and start it:
 
 ```sh
-$ setup command
+$ sudo systemctl enable init-natfirewall1
+$ sudo systemctl start init-natfirewall1
 ```
 
-*(replace with actual commands)*
-
-To test:
+**To test:**
 
 ```sh
 $ test command
@@ -121,21 +100,30 @@ If you receive the following message ... then ...
 
 *(explain how to fix some known problem)*
 
-#### Machine 3
+#### Machine 2 (DMZ Server)
 
-This machine runs ...
+This machine runs the gRPC service to handle external requests to the MessagIST server.
 
-*(describe what kind of software runs on this machine, e.g. a database server (PostgreSQL 16.1))*
-
-To verify:
+**First, run the initialization script:**
 
 ```sh
-$ setup command
+$ sudo ./config_scripts/init-dmzserver.sh
 ```
 
-*(replace with actual commands)*
+**To verify:**
 
-To test:
+```sh
+$ sudo systemctl status init-dmzserver
+```
+
+Ensure the service is active. If not, enable and start it:
+
+```sh
+$ sudo systemctl enable init-dmzserver
+$ sudo systemctl start init-dmzserver
+```
+
+**To test:**
 
 ```sh
 $ test command
@@ -151,21 +139,70 @@ If you receive the following message ... then ...
 
 *(explain how to fix some known problem)*
 
-#### Machine 4
+#### Machine 3 (NAT Firewall 2)
 
-This machine runs ...
+This machine runs the NAT firewall for the internal network.
 
-*(describe what kind of software runs on this machine, e.g. a database server (PostgreSQL 16.1))*
-
-To verify:
+**First, run the initialization script:**
 
 ```sh
-$ setup command
+$ sudo ./config_scripts/init-natfirewall2.sh
+```
+
+**To verify:**
+
+```sh
+$ sudo systemctl status init-natfirewall2
+```
+
+Ensure the service is active. If not, enable and start it:
+
+```sh
+$ sudo systemctl enable init-natfirewall2
+$ sudo systemctl start init-natfirewall2
+```
+
+**To test:**
+
+```sh
+$ test command
 ```
 
 *(replace with actual commands)*
 
-To test:
+The expected results are ...
+
+*(explain what is supposed to happen if all goes well)*
+
+If you receive the following message ... then ...
+
+*(explain how to fix some known problem)*
+
+#### Machine 4 (MessagIST Server)
+
+This machine runs the main server of the application.
+It runs a gRPC service for handling requests from the DMZ server and communicates with the PostgreSQL database.
+
+**First, run the initialization script:**
+
+```sh
+$ sudo ./config_scripts/init-messagistserver.sh
+```
+
+**To verify:**
+
+```sh
+$ sudo systemctl status init-messagistserver
+```
+
+Ensure the service is active. If not, enable and start it:
+
+```sh
+$ sudo systemctl enable init-messagistserver
+$ sudo systemctl start init-messagistserver
+```
+
+**To test:**
 
 ```sh
 $ test command
@@ -183,19 +220,28 @@ If you receive the following message ... then ...
 
 #### Machine 5
 
-This machine runs ...
+This machine runs the PostgreSQL database (version).
 
-*(describe what kind of software runs on this machine, e.g. a database server (PostgreSQL 16.1))*
-
-To verify:
+**First, run the initialization script:**
 
 ```sh
-$ setup command
+$ sudo ./config_scripts/init-messagistserver.sh
 ```
 
-*(replace with actual commands)*
+**To verify:**
 
-To test:
+```sh
+$ sudo systemctl status init-messagistserver
+```
+
+Ensure the service is active. If not, enable and start it:
+
+```sh
+$ sudo systemctl enable init-messagistserver
+$ sudo systemctl start init-messagistserver
+```
+
+**To test:**
 
 ```sh
 $ test command
