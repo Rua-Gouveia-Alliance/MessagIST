@@ -5,6 +5,7 @@ Column {
     required property var formAction
     property alias text: button.text
     property alias password: password.text
+    property alias username: username.text
 
     id: form
     spacing: 5

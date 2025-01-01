@@ -4,6 +4,7 @@ import MessagISTServer_pb2 as pb2
 
 import re
 
+
 # TODO catch grpc.RpcError e emitir logout signal
 class SessionManager:
     def __init__(self, ctx):
@@ -50,38 +51,36 @@ class SessionManager:
         request = pb2.LoginRequest(username=username, password=hiddenPassword)
         response = stub.login(request)
         if response.success:
-            # devo passar isto para depois do submit_2fa_code
-            self.ctx.logger.debug("Login successful")
+            return {"success": True}
+        return {"success": False, "error": "Invalid username or password"}
+
+    def submitTwoFactorToken(self, username, password, token):
+        self.ctx.logger.debug("Sending SUBMITTWOFACTORTOKEN request")
+
+        stub = pb2_grpc.MessagISTServerStub(self.ctx.channel)
+        request = pb2.SubmitTwoFactorTokenRequest(username=username, token=token)
+        response = stub.submitTwoFactorToken(request)
+        if response.success:
             self.ctx.setUsername(username)
             self.ctx.setSessionToken(response.token)
             self.ctx.setIdentityKey(MessagISTCrypto.loadKey(username, password))
             self.ctx.setContacts(MessagISTCrypto.loadContacts(username, password))
-            # self.ctx.setActiveSession(True)
-            return {"success": True}
-        return {"success": False, "error": "Invalid username or password"}
-
-    def submit_2fa_code(self, code):
-        self.ctx.logger.debug("Sending 2FA request")
-
-        stub = pb2_grpc.MessagISTServerStub(self.ctx.channel)
-        request = pb2.TwoFactorRequest(username=self.ctx.username, code=code)
-        response = stub.submit_2fa_code(request)
-        if response.success:
             self.ctx.setActiveSession(True)
-            self.ctx.logger.debug("TESTE")
             return {"success": True}
-        # clean ctx
-        return {"success": False, "error": "Invalid code"}
+        return {"success": False, "error": "Invalid token"}
 
     def signup(self, username, password):
         """if not username or username == "":
-            return {"success": False, "error": "Username cannot be empty"}"""
+        return {"success": False, "error": "Username cannot be empty"}"""
         if not password or password == "":
             return {"success": False, "error": "Password cannot be empty"}
         pattern = r"^ist\d+$"  # Matches 'ist' followed by one or more digits
         ist_type = bool(re.match(pattern, username))
-        if not ist_type : 
-            return {"success": False, "error": "Username should be your ist id (ist####)"}
+        if not ist_type:
+            return {
+                "success": False,
+                "error": "Username should be your ist id (ist####)",
+            }
         self.ctx.logger.debug("Sending SIGNUP request")
 
         salt = MessagISTCrypto.getSalt(username)

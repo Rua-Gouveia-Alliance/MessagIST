@@ -51,7 +51,7 @@ class MessagISTServerServiceImpl(pb2_grpc.MessagISTServerServicer):
 
         if self.userManager.validUser(username, password):
             logging.debug("Valid user")
-            self.sessionManager.sendToken(username)
+            self.sessionManager.sendTwoFactorToken(username)
             return pb2.LoginResponse(success=True)
 
         logging.debug("LOGIN FAILED")
