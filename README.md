@@ -53,6 +53,12 @@ All the virtual machines are based on: `Ubuntu Server 24.04.1 LTS`, except for t
 
 Clone the `Ubuntu Server` machine to create four other machines.
 
+### TLS Certificates
+
+For convenience, TLS/SSL server certificates and private keys come pre-generated in this repo and are ready to use. If you want to generate new ones:
+
+**TODO**
+
 ### Machine configurations
 
 Inside each machine, use Git to obtain a copy of all the scripts and code.
@@ -226,10 +232,13 @@ This concludes the demonstration.
 ## Additional Information
 
 ### Links to Used Tools and Libraries
-
-- [Java 11.0.16.1](https://openjdk.java.net/)
-- [Maven 3.9.5](https://maven.apache.org/)
-- ...
+- [Python 3.12](https://www.python.org/)
+- [grpcio 1.62.2](https://grpc.io/)
+- [grpcio-tools 1.62.2](https://grpc.io/)
+- [pyside 6.8.0](https://wiki.qt.io/Qt_for_Python)
+- [cryptography 44.0.0](https://cryptography.io/en/latest/)
+- [PostgreSQL 16.6](https://www.postgresql.org/)
+- [psycopg 3.2.3](https://www.psycopg.org/)
 
 ### Versioning
 

@@ -1,7 +1,5 @@
 #!/bin/bash
 
-# TODO: configure ssl for postgres
-
 # change if needed
 DB_IF="eth0"   # Network interface
 DB_USER="messagist"

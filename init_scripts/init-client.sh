@@ -1,3 +1,5 @@
+#!/bin/bash
+
 # change if needed
 NON_ROOT_USER="client"
 MESSAGIST_PATH="/home/$NON_ROOT_USER/A61" # location of cloned repo
