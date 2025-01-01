@@ -30,7 +30,7 @@ The following diagram shows the networks and machines:
 
 The `NAT Firewall 1` server connects to the internet with an IP address obtained via DHCP.
 
-We also need to setup one more machine for the client, with default network configurations. It needs to be able to connect to the internet to obtain the necessary requirements and to connect to the `NAT Firewall 1` to interact with the server.
+We also need to setup one more machine for the client, with default network configurations. It needs to be able to connect to the internet to obtain the necessary requirements and to connect to the `NAT Firewall 1`'s external interface to interact with the server. It shouldn't be able to directly connect to any other internal network interfaces of the machines, effectively simulating a connection from the internet.
 
 ### Prerequisites
 
