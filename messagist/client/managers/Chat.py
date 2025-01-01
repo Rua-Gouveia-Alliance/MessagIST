@@ -12,17 +12,19 @@ class Chat:
         self.messages = []
         self.bufferedMessages = []
         self.timestamp = 0
-        # These nonces also establish a partial order for messages, consider
+        # These clocks also establish a partial order for messages, consider
         # using them to check the server ordering (if the ordering does not
         # match, drop message).
         # With this solution:
-        # If a client tries altering the message order by changing the nonce,
+        # If a client tries altering the message order by changing the clock,
         # the most it can do is cause the message to be dropped (basically the
         # same as not sending it, achieves nothing).
         # If the server is compromised and tries to altering the message order
         # by changing the timestamp, the most it can do is cause the message to
         # be dropped (basically the same as not sending it, achieves nothing).
-        self.nonce = [0, 0]
+        self.index = 0 if self.ctx.username < self.partner else 1
+        self.partnerIndex = 1 if self.partner >= self.ctx.username else 0
+        self.clock = [0, 0]
 
         if partner not in self.ctx.contacts:
             stub = pb2_grpc.MessagISTServerStub(self.ctx.channel)
@@ -74,6 +76,9 @@ class Chat:
         if self.pending:
             return False
 
+        # Advancing our clock entry before sending the message
+        self._advanceClock()
+
         message = self._createMessage(message)
         stub = pb2_grpc.MessagISTServerStub(self.ctx.channel)
         request = pb2.SendRequest(
@@ -114,47 +119,60 @@ class Chat:
             return  # Drop message
 
         message = json.loads(unprotectedMessage)
-        if not sentMessage:
-            aux = message["nonce"][0]
-            message["nonce"][0] = message["nonce"][1]
-            message["nonce"][1] = aux
+        message["sender"] = sentMessage
 
-        # Checking if we already received this nonce
-        for msg in self.messages:
-            if (
-                msg["nonce"][0] == message["nonce"][0]
-                and msg["nonce"][1] == message["nonce"][1]
-            ):
-                self.ctx.logger.debug("Duplicate nonce")
-                self.ctx.logger.debug("Dropped message")
-                return  # Drop message
+        # Checking the message clock
+        if not self._verifyMessageClock(message):
+            self.ctx.logger.debug("Invalid clock")
+            self.ctx.logger.debug("Dropped message")
+            return  # Drop message
 
         if ts == self.timestamp:
             self.ctx.logger.debug("Appending to the chat")
             self.messages.append(message)
             self.timestamp += 1
+            self._advanceClock(message["clock"])
             while (
                 len(self.bufferedMessages) != 0
                 and self.bufferedMessages[0][0] == self.timestamp
             ):
                 message = self.bufferedMessages.pop(0)[1]
-                self.messages.append(message)
-                self.timestamp += 1
+                if self._verifyMessageClock(message):
+                    self.messages.append(message)
+                    self.timestamp += 1
+                    self._advanceClock(message["clock"])
         elif ts > self.timestamp:
             self.ctx.logger.debug("Appending to the buffered messages")
             if (ts, message) not in self.bufferedMessages:
                 self.bufferedMessages.append((ts, message))
                 self.bufferedMessages.sort()
 
-        # Updating the next nonce to be used
-        self.nextNonce(sentMessage)
+    def _advanceClock(self, clock=None):
+        self.clock[self.index] += 1
+        if clock is not None:
+            self.clock[self.partnerIndex] = max(
+                self.clock[self.partnerIndex], clock[self.partnerIndex]
+            )
 
-    def nextNonce(self, sentMessage):
-        self.nonce[0 if sentMessage else 1] += 1
+    def _verifyMessageClock(self, message):
+        clock = message["clock"]
+        if len(self.messages) > 0:
+            previousClock = self.messages[-1]["clock"]
+            if clock[0] < previousClock[0] and clock[1] < previousClock[1]:
+                return False
+
+        for msg in self.messages:
+            if (
+                msg["clock"][0] == clock[0]
+                and msg["clock"][1] == clock[1]
+                and msg["sender"] == message["sender"]
+            ):
+                return False
+        return True
 
     def _createMessage(self, message):
         message = {
-            "nonce": self.nonce,
+            "clock": self.clock,
             "sender_istid": self.ctx.username,
             "receiver_istid": self.partner,
             "timestamp": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
