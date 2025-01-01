@@ -32,13 +32,17 @@ The following diagram shows the networks and machines:
 
 The `NAT Firewall 1` server connects to the internet with an IP address obtained via DHCP.
 
+We also need to setup one more machine for the client, with default network configurations. It needs to be able to connect to the internet to obtain the necessary requirements and to connect to the `NAT Firewall 1` to interact with the server.
+
 ### Prerequisites
 
-All the virtual machines are based on: `Ubuntu Server 24.04.1 LTS`.
+All the virtual machines are based on: `Ubuntu Server 24.04.1 LTS`, except for the client that runs `Ubuntu 24.04.1 LTS`.
 
 [Download](https://ubuntu.com/download/server) and [install](https://ubuntu.com/tutorials/install-ubuntu-server#4-choose-your-language) a virtual machine of `Ubuntu Server 24.04.1 LTS`.
 
-**Notes for the installation**:
+[Download](https://ubuntu.com/download/desktop) and [install](https://ubuntu.com/tutorials/install-ubuntu-desktop#5-installation-setup) a virtual machine of `Ubuntu 24.04.1 LTS`.
+
+**Notes for the installation of Ubuntu Server**:
 - The steps not specifically specified were left as default.
 - In the step **Choose the type of installation**, choose the `Ubuntu Server` option (not `Ubuntu Server (minimized)`).
 - In the step **Profile configuration**, we used the following configuration (choose another values as you which, keep in mind the rest of the guide uses these ones where needed):
@@ -47,7 +51,7 @@ All the virtual machines are based on: `Ubuntu Server 24.04.1 LTS`.
   - **Userame**: serveradmin
   - **Password**: (choose a password)
 
-Clone the base machine to create four other machines.
+Clone the `Ubuntu Server` machine to create four other machines.
 
 ### Machine configurations
 
@@ -61,7 +65,9 @@ Next we have custom instructions for each machine. Before continuing, turn off t
 
 For each machine, there is an initialization script with the machine name, with prefix `init-` and suffix `.sh`, that installs all the necessary packages and makes all required configurations in the a clean machine.
 
-**Note:** before running the initialization scripts, please change the necessary variables in the first lines as necessary, specially the network interfaces.
+**Note 1:** before running the initialization scripts, please change the necessary variables in the first lines as necessary, specially the network interfaces.
+
+**Note 2:** please run the scripts from the cloned repo's root directory
 
 #### Machine 1 (NAT Firewall 1)
 
@@ -86,22 +92,6 @@ $ sudo systemctl enable init-natfirewall1
 $ sudo systemctl start init-natfirewall1
 ```
 
-**To test:**
-
-```sh
-$ test command
-```
-
-*(replace with actual commands)*
-
-The expected results are ...
-
-*(explain what is supposed to happen if all goes well)*
-
-If you receive the following message ... then ...
-
-*(explain how to fix some known problem)*
-
 #### Machine 2 (DMZ Server)
 
 This machine runs the gRPC service to handle external requests to the MessagIST server.
@@ -125,22 +115,6 @@ $ sudo systemctl enable init-dmzserver
 $ sudo systemctl start init-dmzserver
 ```
 
-**To test:**
-
-```sh
-$ test command
-```
-
-*(replace with actual commands)*
-
-The expected results are ...
-
-*(explain what is supposed to happen if all goes well)*
-
-If you receive the following message ... then ...
-
-*(explain how to fix some known problem)*
-
 #### Machine 3 (NAT Firewall 2)
 
 This machine runs the NAT firewall for the internal network.
@@ -163,22 +137,6 @@ Ensure the service is active. If not, enable and start it:
 $ sudo systemctl enable init-natfirewall2
 $ sudo systemctl start init-natfirewall2
 ```
-
-**To test:**
-
-```sh
-$ test command
-```
-
-*(replace with actual commands)*
-
-The expected results are ...
-
-*(explain what is supposed to happen if all goes well)*
-
-If you receive the following message ... then ...
-
-*(explain how to fix some known problem)*
 
 #### Machine 4 (MessagIST Server)
 
@@ -204,60 +162,50 @@ $ sudo systemctl enable init-messagistserver
 $ sudo systemctl start init-messagistserver
 ```
 
-**To test:**
-
-```sh
-$ test command
-```
-
-*(replace with actual commands)*
-
-The expected results are ...
-
-*(explain what is supposed to happen if all goes well)*
-
-If you receive the following message ... then ...
-
-*(explain how to fix some known problem)*
-
-#### Machine 5
+#### Machine 5 (PostgresDB)
 
 This machine runs the PostgreSQL database (version 16.6).
 
 **First, run the initialization script:**
 
 ```sh
-$ sudo ./config_scripts/init-messagistserver.sh
+$ sudo ./config_scripts/init-postgresdbserver.sh
 ```
 
 **To verify:**
 
 ```sh
-$ sudo systemctl status init-messagistserver
+$ sudo systemctl status init-postgresdbserver
 ```
 
 Ensure the service is active. If not, enable and start it:
 
 ```sh
-$ sudo systemctl enable init-messagistserver
-$ sudo systemctl start init-messagistserver
+$ sudo systemctl enable init-postgresdbserver
+$ sudo systemctl start init-postgresdbserver
 ```
 
-**To test:**
+#### Machine 6 (Client)
+
+This machine will be used to run the client and test the entire application.
+
+**First, open a terminal and run the initialization script:**
 
 ```sh
-$ test command
+$ sudo ./config_scripts/init-client.sh
 ```
 
-*(replace with actual commands)*
+**To test, restart the terminal, and run the client:**
 
-The expected results are ...
+```sh
+$ cd messagist/client
+$ conda activate messagist
+$ python client.py -h [NAT Firewall 1 external IP]
+```
 
-*(explain what is supposed to happen if all goes well)*
+This should open the application without errors.
 
-If you receive the following message ... then ...
-
-*(explain how to fix some known problem)*
+**Note:** To obtain the `NAT Firewall 1 external IP`, go to the `NAT Firewall 1` server and type `ip addr`. It should be the one that belongs to the external interface.
 
 ## Demonstration
 
@@ -290,8 +238,6 @@ We use [SemVer](http://semver.org/) for versioning.
 ### License
 
 This project is licensed under the MIT License - see the [LICENSE.txt](LICENSE.txt) for details.
-
-*(switch to another license, or no license, as you see fit)*
 
 ----
 END OF README
