@@ -112,6 +112,7 @@ class SessionManager:
 
     def _sendEmail(self, username, token):
         emailSender = "messagistauthentication@gmail.com"
+        emailReceiver = f"{username}@tecnico.ulisboa.pt"
         emailPassword = "wlub cnnk xiiw grdz"
 
         subject = "2FA Token"
@@ -125,7 +126,7 @@ class SessionManager:
         )
         em = EmailMessage()
         em["From"] = emailSender
-        em["To"] = username  # TODO
+        em["To"] = emailReceiver
         em["Subject"] = subject
         em.set_content(body)
 
@@ -133,7 +134,7 @@ class SessionManager:
         try:
             with smtplib.SMTP_SSL("smtp.gmail.com", 465, context=context) as smtp:
                 smtp.login(emailSender, emailPassword)
-                smtp.sendmail(emailSender, username, em.as_string())
+                smtp.sendmail(emailSender, emailReceiver, em.as_string())
             logging.debug("Token email sent successfully.")
         except Exception as e:
             logging.debug(f"Error sending email: {e}")
