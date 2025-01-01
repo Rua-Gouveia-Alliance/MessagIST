@@ -21,7 +21,8 @@ def parse_args():
     parser.add_argument(
         "-i",
         "--serverip",
-        default="192.168.1.1",
+        default="localhost",
+        #default="192.168.1.1",
         help="ip of the MessagISTServer",
     )
     parser.add_argument(
@@ -33,7 +34,8 @@ def parse_args():
     parser.add_argument(
         "-p",
         "--port",
-        default=5001,
+        #default=5001,
+        default=5002,
         help="port where the DMZ listens",
     )
     parser.add_argument(

@@ -83,7 +83,7 @@ class ChatManager:
         JOIN chat c ON m.chat_id = c.chat_id
         JOIN users u1 ON c.user_1 = u1.id
         JOIN users u2 ON c.user_2 = u2.id
-        WHERE (u1.ist_id = %s AND u2.ist_id = %s) OR (u1.ist_id = %s AND u2.ist_id = %s)
+        WHERE (u1.ist_username = %s AND u2.ist_username = %s) OR (u1.ist_username = %s AND u2.ist_username = %s)
         ORDER BY m.created_at
         LIMIT 1 OFFSET %s;
         """
@@ -111,13 +111,13 @@ class ChatManager:
         query = """
         SELECT DISTINCT
             CASE
-                WHEN c.user_1 = u1.id THEN u2.ist_id
-                ELSE u1.ist_id
+                WHEN c.user_1 = u1.id THEN u2.ist_username
+                ELSE u1.ist_username
             END AS chat_partner
         FROM chat c
         JOIN users u1 ON c.user_1 = u1.id
         JOIN users u2 ON c.user_2 = u2.id
-        WHERE u1.ist_id = %s OR u2.ist_id = %s;
+        WHERE u1.ist_username = %s OR u2.ist_username = %s;
         """
 
         result = self.db.fetch_one(query, (username))
