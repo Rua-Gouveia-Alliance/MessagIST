@@ -92,30 +92,7 @@ $ sudo systemctl enable init-natfirewall1
 $ sudo systemctl start init-natfirewall1
 ```
 
-#### Machine 2 (DMZ Server)
-
-This machine runs the gRPC service to handle external requests to the MessagIST server.
-
-**First, run the initialization script:**
-
-```sh
-$ sudo ./config_scripts/init-dmzserver.sh
-```
-
-**To verify:**
-
-```sh
-$ sudo systemctl status init-dmzserver
-```
-
-Ensure the service is active. If not, enable and start it:
-
-```sh
-$ sudo systemctl enable init-dmzserver
-$ sudo systemctl start init-dmzserver
-```
-
-#### Machine 3 (NAT Firewall 2)
+#### Machine 2 (NAT Firewall 2)
 
 This machine runs the NAT firewall for the internal network.
 
@@ -136,6 +113,29 @@ Ensure the service is active. If not, enable and start it:
 ```sh
 $ sudo systemctl enable init-natfirewall2
 $ sudo systemctl start init-natfirewall2
+```
+
+#### Machine 3 (PostgresDB)
+
+This machine runs the PostgreSQL database (version 16.6).
+
+**First, run the initialization script:**
+
+```sh
+$ sudo ./config_scripts/init-postgresdbserver.sh
+```
+
+**To verify:**
+
+```sh
+$ sudo systemctl status init-postgresdbserver
+```
+
+Ensure the service is active. If not, enable and start it:
+
+```sh
+$ sudo systemctl enable init-postgresdbserver
+$ sudo systemctl start init-postgresdbserver
 ```
 
 #### Machine 4 (MessagIST Server)
@@ -162,27 +162,27 @@ $ sudo systemctl enable init-messagistserver
 $ sudo systemctl start init-messagistserver
 ```
 
-#### Machine 5 (PostgresDB)
+#### Machine 5 (DMZ Server)
 
-This machine runs the PostgreSQL database (version 16.6).
+This machine runs the gRPC service to handle external requests to the MessagIST server.
 
 **First, run the initialization script:**
 
 ```sh
-$ sudo ./config_scripts/init-postgresdbserver.sh
+$ sudo ./config_scripts/init-dmzserver.sh
 ```
 
 **To verify:**
 
 ```sh
-$ sudo systemctl status init-postgresdbserver
+$ sudo systemctl status init-dmzserver
 ```
 
 Ensure the service is active. If not, enable and start it:
 
 ```sh
-$ sudo systemctl enable init-postgresdbserver
-$ sudo systemctl start init-postgresdbserver
+$ sudo systemctl enable init-dmzserver
+$ sudo systemctl start init-dmzserver
 ```
 
 #### Machine 6 (Client)
