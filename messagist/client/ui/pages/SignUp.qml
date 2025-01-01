@@ -57,8 +57,8 @@ Column {
 
         Form {
             text: "Sign Up"
-            formAction: (username, password) => {
-                const result = messagist.signup(username, password);
+            formAction: (ist_email, password) => {
+                const result = messagist.signup(ist_email, password);
                 if (result.success) {
                     wordList.text += result.words;
                     wordListDialog.visible = true;
@@ -81,7 +81,9 @@ Column {
 
     ClickableText {
         text: "Already have an account? Login instead."
-        action: () => stack.pop()
+        action: () => {
+            stack.pop();
+        }
         anchors.horizontalCenter: parent.horizontalCenter
     }
 }

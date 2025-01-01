@@ -14,7 +14,7 @@ if __name__ == "__main__":
         prog="MessagIST", description="Secure messaging application."
     )
     parser.add_argument(
-        "-h",
+        "-H",
         "--host",
         default="localhost",
         help="MessagISTServer DMZ IP",
@@ -22,7 +22,8 @@ if __name__ == "__main__":
     parser.add_argument(
         "-p",
         "--port",
-        default=5001,
+        #default=5001,
+        default=5002,
         help="MessagISTServer DMZ port",
     )
     parser.add_argument(

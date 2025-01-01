@@ -81,6 +81,8 @@ Column {
             const result = messagist.submit_2fa_code(twoFACode.text);
             if (result.success) {
                 stack.push("UserChats.qml");
+                
+
             } else {
                 errorMessage.text = "Invalid 2FA code.";
                 errorMessage.visible = true;
@@ -94,8 +96,8 @@ Column {
         spacing: 10
         anchors.horizontalCenter: parent.horizontalCenter
 
-        Form {
-            id: form
+        Form  {
+            id: formLogin
             text: "Login"
             formAction: (username, password) => {
                 const result = messagist.login(username, password);
@@ -124,7 +126,10 @@ Column {
 
     ClickableText {
         text: "Don't have an account? Sign up instead."
-        action: () => stack.push("SignUp.qml")
+        action: () => {
+            stack.push("SignUp.qml");
+        }
+
         anchors.horizontalCenter: parent.horizontalCenter
     }
 }
