@@ -70,18 +70,19 @@ class SessionManager:
         return {"success": False, "error": "Invalid token"}
 
     def signup(self, username, password):
-        """if not username or username == "":
-        return {"success": False, "error": "Username cannot be empty"}"""
+        if not username or username == "":
+            return {"success": False, "error": "Username cannot be empty"}
         if not password or password == "":
             return {"success": False, "error": "Password cannot be empty"}
+
         pattern = r"^[a-zA-Z0-9._%+-]+@tecnico\.ulisboa\.pt$"
         ist_type = bool(re.match(pattern, username))
         if not ist_type:
             return {"success": False, "error": "Username should be your ist email"}
+
         self.ctx.logger.debug("Sending SIGNUP request")
 
         username = username.split("@")[0]
-
         salt = MessagISTCrypto.getSalt(username)
         hiddenPassword = MessagISTCrypto.prepareForStorage(password, salt)
 
