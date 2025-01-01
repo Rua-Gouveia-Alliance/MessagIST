@@ -34,14 +34,14 @@ message LoginResponse {
     string token = 2;
 }
 
-message TwoFactorRequest {
+message SubmitTwoFactorTokenRequest {
     string username = 1;
-    string code = 2; // The 2FA code entered by the user
+    string token    = 2;
 }
 
-message TwoFactorResponse {
+message SubmitTwoFactorTokenResponse {
     bool success = 1;
-    string token = 2; // A session token if 2FA is successful
+    string token = 2;
 }
 
 message SendRequest {
@@ -89,7 +89,7 @@ service MessagISTServer {
     rpc signup (SignupRequest) returns (SignupResponse);
     rpc getSalt (GetSaltRequest) returns (GetSaltResponse);
     rpc login (LoginRequest) returns (LoginResponse);
-    rpc submit_2fa_code(TwoFactorRequest) returns (TwoFactorResponse); 
+    rpc submitTwoFactorToken(SubmitTwoFactorTokenRequest) returns (SubmitTwoFactorTokenResponse);
     rpc send (SendRequest) returns (SendResponse);
     rpc keepAlive (KeepAliveRequest) returns (KeepAliveResponse);
     rpc getIdentityKey (GetIdentityKeyRequest) returns (GetIdentityKeyResponse);
