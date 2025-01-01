@@ -22,6 +22,10 @@ ip link set dev $INT_IF up
 ip route add default via 192.168.1.254 dev $EXT_IF
 
 # configure DNS
+systemctl disable systemd-resolved
+systemctl stop systemd-resolved
+rm /etc/resolv.conf
+touch /etc/resolv.conf
 echo "nameserver 8.8.8.8" | tee /etc/resolv.conf
 echo "nameserver 8.8.4.4" | tee -a /etc/resolv.conf
 
@@ -73,4 +77,6 @@ WantedBy=multi-user.target" > $SERVICE_FILE
 fi
 
 # enable the service
-systemctl enable init-natfirewall2
+if ! systemctl is-enabled --quiet init-natfirewall2; then
+    systemctl enable init-natfirewall2
+fi

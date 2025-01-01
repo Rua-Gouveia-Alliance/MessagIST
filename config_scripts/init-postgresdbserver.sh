@@ -23,6 +23,10 @@ ip link set dev $DB_IF up
 ip route add default via 192.168.2.254 dev $DB_IF
 
 # configure DNS
+systemctl disable systemd-resolved
+systemctl stop systemd-resolved
+rm /etc/resolv.conf
+touch /etc/resolv.conf
 echo "nameserver 8.8.8.8" | tee /etc/resolv.conf
 echo "nameserver 8.8.4.4" | tee -a /etc/resolv.conf
 
@@ -51,7 +55,10 @@ if ! command -v psql &> /dev/null; then
     apt-get update
     apt-get install -y postgresql postgresql-client
 fi
-systemctl enable --now postgresql
+
+if ! systemctl is-enabled --quiet postgresql || ! systemctl is-active --quiet postgresql; then
+    systemctl enable --now postgresql
+fi
 
 # create default user if not exists
 sudo -u postgres psql <<EOF
@@ -85,4 +92,6 @@ WantedBy=multi-user.target" > $SERVICE_FILE
 fi
 
 # enable the service
-systemctl enable --now init-postgresdbserver
+if ! systemctl is-enabled --quiet init-postgresdbserver; then
+    systemctl enable init-postgresdbserver
+fi

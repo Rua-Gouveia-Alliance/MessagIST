@@ -14,11 +14,15 @@ fi
 
 # configure IPv4
 ip link set dev $WAN_IF up
-dhcpcd eth0
+dhcpcd $WAN_IF
 ip addr add 192.168.1.254/24 dev $LAN_IF
 ip link set dev $LAN_IF up
 
 # configure DNS
+systemctl disable systemd-resolved
+systemctl stop systemd-resolved
+rm /etc/resolv.conf
+touch /etc/resolv.conf
 echo "nameserver 8.8.8.8" | tee /etc/resolv.conf
 echo "nameserver 8.8.4.4" | tee -a /etc/resolv.conf
 
@@ -70,4 +74,6 @@ WantedBy=multi-user.target" > $SERVICE_FILE
 fi
 
 # enable the service
-systemctl enable init-natfirewall1
+if ! systemctl is-enabled --quiet init-natfirewall1; then
+    systemctl enable init-natfirewall1
+fi

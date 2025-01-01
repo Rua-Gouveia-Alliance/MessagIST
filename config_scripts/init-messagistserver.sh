@@ -5,7 +5,7 @@
 # change if needed
 MSG_IF="eth0"   # Network interface
 NON_ROOT_USER="serveradmin" # to avoid running the server as root
-MESSAGIST_PATH="/home/A61" # location of cloned repo
+MESSAGIST_PATH="/home/$NON_ROOT_USER/A61" # location of cloned repo
 DB_USER="messagist"
 DB_PASSWORD="messagist"
 
@@ -36,6 +36,10 @@ ip link set dev $MSG_IF up
 ip route add default via 192.168.2.254 dev $MSG_IF
 
 # configure DNS
+systemctl disable systemd-resolved
+systemctl stop systemd-resolved
+rm /etc/resolv.conf
+touch /etc/resolv.conf
 echo "nameserver 8.8.8.8" | tee /etc/resolv.conf
 echo "nameserver 8.8.4.4" | tee -a /etc/resolv.conf
 
@@ -61,7 +65,7 @@ iptables -A INPUT -p tcp -s 192.168.1.2 --dport 5001 -j ACCEPT
 
 # switch to the non-root user for Conda installation and environment setup
 sudo -u "$NON_ROOT_USER" bash <<EOF
-export PATH="/home/$NON_ROOT_USER/miniconda/bin:\$PATH"
+export PATH="/home/$NON_ROOT_USER/miniconda/bin:$PATH"
 if ! command -v conda &>/dev/null; then
     wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh -O /tmp/miniconda.sh
     bash /tmp/miniconda.sh -b -p /home/$NON_ROOT_USER/miniconda
@@ -77,14 +81,8 @@ cd "$MESSAGIST_PATH/messagist"
 conda run -n "$ENV_NAME" bash "$PROTO_SCRIPT"
 EOF
 
-# kill DMZ server processes if already running
-if pgrep -f "$SERVER" > /dev/null; then
-    pkill -f "$SERVER"
-fi
-cd "$MESSAGIST_PATH/messagist/server"
-sudo -u "$NON_ROOT_USER" conda run -n "$ENV_NAME" python "$SERVER" --dbuser "$DB_USER" --dbpassword "$DB_PASSWORD" &
-
 # create systemd service for running this script at boot time
+cd "$MESSAGIST_PATH"
 if [ ! -f "$SERVICE_FILE" ]; then
     echo "[Unit]
 Description=MessagIST Server Setup
@@ -100,5 +98,13 @@ User=root
 WantedBy=multi-user.target" > $SERVICE_FILE
 fi
 
-# enable the service
-systemctl enable --now init-messagistserver
+if ! systemctl is-enabled --quiet init-messagistserver || ! systemctl is-active --quiet init-messagistserver; then
+    systemctl enable --now init-messagistserver
+fi
+
+# kill DMZ server processes if already running
+if pgrep -f "$SERVER" > /dev/null; then
+    pkill -f "$SERVER"
+fi
+cd "$MESSAGIST_PATH/messagist/server"
+sudo -u "$NON_ROOT_USER" /home/$NON_ROOT_USER/miniconda/bin/conda run -n "$ENV_NAME" python "$SERVER" --dbuser "$DB_USER" --dbpassword "$DB_PASSWORD"
