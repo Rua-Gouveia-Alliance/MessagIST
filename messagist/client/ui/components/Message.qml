@@ -6,7 +6,7 @@ Rectangle {
     id: message
     width: label.width + 50
     height: label.height + 25
-    color: "dodgerblue"
+    color: messageObject['sent'] ? "dodgerblue" : "green"
     border.color: "black"
     border.width: 5
     radius: 90
