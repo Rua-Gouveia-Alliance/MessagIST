@@ -11,8 +11,6 @@
 
 ![João Gouveia](img/ist1102611.jpeg) ![Rodrigo Arêde](img/ist1102606.png) ![Gonçalo Rua](img/ist1102604.jpeg)
 
-*(add face photos with 150px height; faces should have similar size and framing)*
-
 ## Contents
 
 This repository contains documentation and source code for the *Network and Computer Security (SIRS)* project.
