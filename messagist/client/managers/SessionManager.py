@@ -57,8 +57,8 @@ class SessionManager:
         self.ctx.logger.debug("Sending SUBMITTWOFACTORTOKEN request")
 
         stub = pb2_grpc.MessagISTServerStub(self.ctx.channel)
-        request = pb2.SubmitTwoFactorTokenRequest(username=username, token=token)
-        response = stub.submitTwoFactorToken(request)
+        request = pb2.SubmitTwoFactorTokenLoginRequest(username=username, token=token)
+        response = stub.submitTwoFactorTokenLogin(request)
         if response.success:
             self.ctx.setUsername(username)
             self.ctx.setSessionToken(response.token)
@@ -107,8 +107,8 @@ class SessionManager:
         self.ctx.logger.debug("Sending SUBMITTWOFACTORTOKEN request")
 
         stub = pb2_grpc.MessagISTServerStub(self.ctx.channel)
-        request = pb2.SubmitTwoFactorTokenRequest(username=username, token=token)
-        response = stub.submitTwoFactorToken(request)
+        request = pb2.SubmitTwoFactorTokenSignUpRequest(username=username, token=token)
+        response = stub.submitTwoFactorTokenSignUp(request)
         if response.success:
             identityKey = MessagISTCrypto.loadKey(username, password)
             wordList = MessagISTCrypto.encodeAsWords(identityKey)

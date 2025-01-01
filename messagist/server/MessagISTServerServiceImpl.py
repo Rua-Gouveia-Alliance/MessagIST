@@ -7,6 +7,7 @@ import MessagISTServer_pb2 as pb2
 from managers.ChatManager import ChatManager
 from managers.SessionManager import SessionManager
 from managers.UserManager import UserManager
+from managers.TokenManager import TokenManager
 
 
 # TODO: Configurar logger em condicoes
@@ -16,6 +17,7 @@ class MessagISTServerServiceImpl(pb2_grpc.MessagISTServerServicer):
         self.userManager = UserManager(db)
         self.chatManager = ChatManager(db)
         self.sessionManager = SessionManager()
+        self.tokenManager = TokenManager()
 
     def signup(self, request, context):
         logging.debug("SIGNUP request received.")
@@ -25,10 +27,29 @@ class MessagISTServerServiceImpl(pb2_grpc.MessagISTServerServicer):
         password = request.password
         salt = request.salt
         identityKey = request.identityKey
-        success = self.userManager.newUser(username, password, salt, identityKey)
+        data = {"password": password, "salt": salt, "identityKey": identityKey}
+        success = self.tokenManager.sendTwoFactorToken(username, data)
         if not success:
             logging.debug("SIGNUP FAILED")
         return pb2.SignupResponse(success=success)
+
+    # TODO: Race condition nos tokens, melhor ter lista pa login e signup separadas.
+    def submitTwoFactorTokenSignUp(self, request, context):
+        logging.debug("SUBMITTWOFACTORTOKENSIGNUP received")
+        logging.debug("Username: " + request.username)
+
+        username = request.username
+        token = request.token
+        success, data = self.tokenManager.verifyTwoFactorToken(username, token)
+        if success:
+            logging.debug("Valid token")
+            success = self.userManager.newUser(
+                username, data["password"], data["salt"], data["identityKey"]
+            )
+            return pb2.SubmitTwoFactorTokenSignUpRequest(success=success)
+
+        logging.debug("SUBMITTWOFACTORTOKEN FAILED")
+        return pb2.SubmitTwoFactorTokenSignUpRequest(success=False)
 
     def getSalt(self, request, context):
         logging.debug("GETSALT request received")
@@ -51,26 +72,28 @@ class MessagISTServerServiceImpl(pb2_grpc.MessagISTServerServicer):
 
         if self.userManager.validUser(username, password):
             logging.debug("Valid user")
-            self.sessionManager.sendTwoFactorToken(username)
+            self.tokenManager.sendTwoFactorToken(username)
             return pb2.LoginResponse(success=True)
 
         logging.debug("LOGIN FAILED")
         return pb2.LoginResponse(success=False)
 
-    def submitTwoFactorToken(self, request, context):
-        logging.debug("SUBMITTWOFACTORTOKEN received")
+    def submitTwoFactorTokenLogin(self, request, context):
+        logging.debug("SUBMITTWOFACTORTOKENLOGIN received")
         logging.debug("Username: " + request.username)
 
         username = request.username
         token = request.token
-        if self.sessionManager.verifyToken(username, token):
+        success, _ = self.tokenManager.verifyTwoFactorToken(username, token)
+        if success:
             logging.debug("Valid token")
-            self.sessionManager.clearToken(username)
             token = self.sessionManager.startSession(username)
-            return pb2.SubmitTwoFactorTokenRequest(success=(token != ""), token=token)
+            return pb2.SubmitTwoFactorTokenLoginRequest(
+                success=(token != ""), token=token
+            )
 
         logging.debug("SUBMITTWOFACTORTOKEN FAILED")
-        return pb2.SubmitTwoFactorTokenRequest(success=False, token="")
+        return pb2.SubmitTwoFactorTokenLoginRequest(success=False, token="")
 
     def send(self, request, context):
         logging.debug("SEND request received")
