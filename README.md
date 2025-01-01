@@ -71,7 +71,9 @@ For each machine, there is an initialization script with the machine name, with 
 
 **Note 1:** before running the initialization scripts, please change the necessary variables in the first lines as necessary, specially the network interfaces.
 
-**Note 2:** please run the scripts from the cloned repo's root directory
+**Note 2:** please run the scripts from the cloned repo's root directory.
+
+**Note 3:** the server scripts create a daemon that automatically setup the necessary configurations and run the server applications, so you don't need to do anything else after running them.
 
 #### Machine 1 (NAT Firewall 1)
 
