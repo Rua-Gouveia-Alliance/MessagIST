@@ -6,7 +6,7 @@ class UserManager:
         if username == "" or password == "":
             return False
 
-        query = "INSERT INTO users (username, password_hash, salt) VALUES (%s, %s, %s)"
+        query = "INSERT INTO users (ist_id, password_hash, salt) VALUES (%s, %s, %s)"
         self.db.query(
             query,
             (
@@ -28,7 +28,7 @@ class UserManager:
         return True
 
     def getSalt(self, username):
-        query = "SELECT salt FROM users WHERE username = %s"
+        query = "SELECT salt FROM users WHERE ist_id = %s"
         result = self.db.fetch_one(query, (username,))
         print(result)
         if result:
@@ -37,7 +37,7 @@ class UserManager:
             return b""
 
     def validUser(self, username, password):
-        query = "SELECT password_hash FROM users WHERE username = %s"
+        query = "SELECT password_hash FROM users WHERE ist_id = %s"
         result = self.db.fetch_one(query, (username,))
         if result:
             return result[0] == password
@@ -45,7 +45,7 @@ class UserManager:
 
     def existingUser(self, username):
         # Check if the user exists in the database
-        query = "SELECT EXISTS(SELECT 1 FROM users WHERE username = %s)"
+        query = "SELECT EXISTS(SELECT 1 FROM users WHERE ist_id = %s)"
         result = self.db.fetch_one(query, (username,))
         if result:
             return result[0]

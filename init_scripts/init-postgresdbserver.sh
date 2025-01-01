@@ -4,8 +4,12 @@
 DB_IF="eth0"   # Network interface
 DB_USER="messagist"
 DB_PASSWORD="messagist"
+NON_ROOT_USER="serveradmin" # to avoid running the server as root
+MESSAGIST_PATH="/home/$NON_ROOT_USER/A61" # location of cloned repo
 
 SERVICE_FILE=/etc/systemd/system/init-postgresdbserver.service
+SSL_CERT_FILE="$MESSAGIST_PATH/messagist/database/keys/db_server.crt"
+SSL_KEY_FILE="$MESSAGIST_PATH/messagist/database/keys/db_server.key"
 
 # ensure the script is running as root
 if [ "$(id -u)" -ne 0 ]; then
@@ -52,11 +56,20 @@ iptables -A INPUT -p tcp -s 192.168.2.1 --dport 5432 -j ACCEPT
 if ! command -v psql &> /dev/null; then
     apt-get update
     apt-get install -y postgresql postgresql-client
+
+    CONFIG_FILE=$(sudo -u postgres psql -U postgres -c 'SHOW config_file' -t | tr -d ' ')
+    sudo cp "$CONFIG_FILE" "${CONFIG_FILE}.bak"
+    # setup PostgreSQL ssl
+    sed -i "s/^#\?ssl = .*/ssl = on/" "$CONFIG_FILE"
+    sed -i "s|^#\?ssl_cert_file = .*|ssl_cert_file = '$SSL_CERT_FILE'|" "$CONFIG_FILE"
+    sed -i "s|^#\?ssl_key_file = .*|ssl_key_file = '$SSL_KEY_FILE'|" "$CONFIG_FILE"
+    sed -i "s/^#\?ssl_prefer_server_ciphers = .*/ssl_prefer_server_ciphers = on/" "$CONFIG_FILE"
 fi
 
 if ! systemctl is-enabled --quiet postgresql || ! systemctl is-active --quiet postgresql; then
     systemctl enable --now postgresql
 fi
+systemctl restart postgresql
 
 # create default user if not exists
 sudo -u postgres psql <<EOF
