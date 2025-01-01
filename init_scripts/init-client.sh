@@ -14,7 +14,7 @@ if ! command -v conda &>/dev/null; then
     bash /tmp/miniconda.sh -b -p /home/$NON_ROOT_USER/miniconda
     rm /tmp/miniconda.sh
 fi
-eval "\$(/home/$NON_ROOT_USER/miniconda/bin/conda shell.bash hook)"
+eval "$(/home/$NON_ROOT_USER/miniconda/bin/conda shell.bash hook)"
 
 if ! conda env list | grep -q "$ENV_NAME"; then
     conda env create -f "$ENV_FILE"

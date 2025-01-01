@@ -64,6 +64,7 @@ if ! command -v psql &> /dev/null; then
     sed -i "s|^#\?ssl_cert_file = .*|ssl_cert_file = '$SSL_CERT_FILE'|" "$CONFIG_FILE"
     sed -i "s|^#\?ssl_key_file = .*|ssl_key_file = '$SSL_KEY_FILE'|" "$CONFIG_FILE"
     sed -i "s/^#\?ssl_prefer_server_ciphers = .*/ssl_prefer_server_ciphers = on/" "$CONFIG_FILE"
+    sed -i "s/^#\?listen_addresses = .*/listen_addresses = '*'/" "$CONFIG_FILE"
 fi
 
 if ! systemctl is-enabled --quiet postgresql || ! systemctl is-active --quiet postgresql; then

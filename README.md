@@ -30,7 +30,7 @@ The following diagram shows the networks and machines:
 
 The `NAT Firewall 1` server connects to the internet with an IP address obtained via DHCP.
 
-We also need to setup one more machine for the client, with default network configurations. It needs to be able to connect to the internet to obtain the necessary requirements and to connect to the `NAT Firewall 1`'s external interface to interact with the server. It shouldn't be able to directly connect to any other internal network interfaces of the machines, effectively simulating a connection from the internet.
+We also need to setup one more machine for the client. It needs to be able to connect to the internet to obtain the necessary requirements and to connect to the `NAT Firewall 1`'s external interface to interact with the server. It shouldn't be able to directly connect to any other internal network interfaces of the machines, effectively simulating a connection from the internet.
 
 ### Prerequisites
 
@@ -57,6 +57,20 @@ For convenience, TLS/SSL server certificates and private keys come pre-generated
 
 **TODO**
 
+**Note 1:** obviously, the certificates and private keys of the servers shouldn't be on the other servers, nor the client. This is just a testing environment, and in a real world scenario the certificates and private keys should be generated independently in each server.
+
+**Note 2:** since we didn't use a trusted CA to sign the certificates we manually trust them in each server. Here is an example on how we did this for the connection between the **DMZ Server** and the **MessagIST Server** ([DmzMainClass.py:17](https://github.com/tecnico-sec/A61/blob/main/messagist/dmz/DmzMainClass.py#L16)):
+
+``` python
+server_cert = "../server/keys/server.crt"
+with open(server_cert, "rb") as cert_file:
+    trusted_certs = cert_file.read()
+credentials = grpc.ssl_channel_credentials(root_certificates=trusted_certs)
+self.ms_channel = grpc.secure_channel(
+    main_server_ip + ":" + str(main_server_port), credentials
+)
+```
+
 ### Machine configurations
 
 Inside each machine, use Git to obtain a copy of all the scripts and code.
@@ -65,7 +79,7 @@ Inside each machine, use Git to obtain a copy of all the scripts and code.
 $ git clone https://github.com/tecnico-sec/A61
 ```
 
-Next we have custom instructions for each machine. Before continuing, turn off the VMs and setup the networks according to the diagram above.
+Next we have custom instructions for each machine. Before continuing, turn off the VMs and setup the networks according to the diagram above. Again, make sure the `Client` machine can connect to the external interface of the `NAT Firewall 1` server. As an example using VirtualBox, the simplest way to do this is to create a `NAT Network` (File -> Tools -> Network Manager -> NAT Networks -> Create), and assign the external interface of `NAT Firewall 1` and the only interface of `Client` to the option `NAT Network`, and select the created NAT Network.
 
 For each machine, there is an initialization script with the machine name, with prefix `init-` and suffix `.sh`, that installs all the necessary packages and makes all required configurations in the a clean machine.
 
