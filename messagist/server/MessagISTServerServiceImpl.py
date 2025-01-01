@@ -33,7 +33,6 @@ class MessagISTServerServiceImpl(pb2_grpc.MessagISTServerServicer):
             logging.debug("SIGNUP FAILED")
         return pb2.SignupResponse(success=success)
 
-    # TODO: Race condition nos tokens, melhor ter lista pa login e signup separadas.
     def submitTwoFactorTokenSignUp(self, request, context):
         logging.debug("SUBMITTWOFACTORTOKENSIGNUP received")
         logging.debug("Username: " + request.username)

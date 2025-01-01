@@ -1,6 +1,5 @@
 import threading
 import logging
-import secrets
 
 from managers.Session import Session
 
