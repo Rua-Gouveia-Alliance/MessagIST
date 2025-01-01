@@ -9,7 +9,7 @@
 | 102604  | Gonçalo Rua       | <https://github.com/goncrust>     | <mailto:goncalonrua@tecnico.ulisboa.pt>         |
 
 
-![João Gouveia](img/joao.png) ![Rodrigo Arêde](img/arede.png) ![Gonçalo Rua](img/goncalo.png)
+![João Gouveia](img/ist1102611.jpeg) ![Rodrigo Arêde](img/ist1102606.png) ![Gonçalo Rua](img/ist1102604.jpeg)
 
 *(add face photos with 150px height; faces should have similar size and framing)*
 
