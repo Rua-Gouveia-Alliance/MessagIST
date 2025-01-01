@@ -88,7 +88,8 @@ class MessagISTServerServiceImpl(pb2_grpc.MessagISTServerServicer):
         email_sender = "messagistauthentication@gmail.com"
         # email_password = os.environ.get("EMAIL_PASSWORD")
         email_password = "wlub cnnk xiiw grdz"
-        email_receiver = username
+        ist_id = username
+        email_receiver =  f"{ist_id}@tecnico.ulisboa.pt"
 
         subject = "2FA Token"
 

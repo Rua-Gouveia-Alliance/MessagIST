@@ -2,6 +2,7 @@ import MessagISTCrypto
 import MessagISTServer_pb2_grpc as pb2_grpc
 import MessagISTServer_pb2 as pb2
 
+import re
 
 # TODO catch grpc.RpcError e emitir logout signal
 class SessionManager:
@@ -73,11 +74,14 @@ class SessionManager:
         return {"success": False, "error": "Invalid code"}
 
     def signup(self, username, password):
-        if not username or username == "":
-            return {"success": False, "error": "Username cannot be empty"}
+        """if not username or username == "":
+            return {"success": False, "error": "Username cannot be empty"}"""
         if not password or password == "":
             return {"success": False, "error": "Password cannot be empty"}
-
+        pattern = r"^ist\d+$"  # Matches 'ist' followed by one or more digits
+        ist_type = bool(re.match(pattern, username))
+        if not ist_type : 
+            return {"success": False, "error": "Username should be your ist id (ist####)"}
         self.ctx.logger.debug("Sending SIGNUP request")
 
         salt = MessagISTCrypto.getSalt(username)
