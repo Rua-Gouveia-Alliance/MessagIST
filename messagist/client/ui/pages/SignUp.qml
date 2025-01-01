@@ -50,10 +50,10 @@ Column {
         onAccepted: stack.pop()
         onRejected: stack.pop()
     }
-      // 2FA dialog
+
     Dialog {
-        id: twoFADialog
-        title: "Two-Factor Authentication"
+        id: twoFactorAuthenticationDialog
+        title: "Two-Factor Authentication."
         anchors.centerIn: parent
 
         Column {
@@ -62,11 +62,11 @@ Column {
             Text {
                 font.pointSize: 12
                 color: "white"
-                text: "Please enter your 2FA code:"
+                text: "Please enter your two-factor authentication token:"
             }
             TextField {
-                id: twoFACode
-                placeholderText: "2FA Code"
+                id: twoFactorToken
+                placeholderText: "Token"
                 anchors.horizontalCenter: parent.horizontalCenter
             }
         }
@@ -75,20 +75,19 @@ Column {
         modal: true
         visible: false
         onAccepted: {
-            const result = messagist.submit_2fa_code(twoFACode.text);
+            const result = messagist.submitTwoFactorTokenSignUp(
+                form.username, form.password, twoFactorToken.text
+            );
             if (result.success) {
-                wordList.text += result.words;
                 wordList.text = result.words;
-                twoFADialog.visible = false;
                 wordListDialog.visible = true;
             } else {
-                errorMessage.text = "Invalid 2FA code.";
+                errorMessage.text = result.error;
                 errorMessage.visible = true;
-                twoFADialog.visible = true;
             }
         }
-        onRejected: messagist.logout("")
     }
+
     Column {
         spacing: 10
         anchors.horizontalCenter: parent.horizontalCenter
@@ -98,8 +97,7 @@ Column {
             formAction: (ist_email, password) => {
                 const result = messagist.signup(ist_email, password);
                 if (result.success) {
-                    twoFADialog.visible = true
-                    
+                    twoFactorAuthenticationDialog.visible = true
                 } else {
                     errorMessage.text = result.error;
                     errorMessage.visible = true;

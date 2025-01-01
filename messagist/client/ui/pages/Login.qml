@@ -53,7 +53,7 @@ Column {
         }
         onRejected: messagist.logout("")
     }
-    // 2FA dialog
+
     Dialog {
         id: twoFactorAuthenticationDialog
         title: "Two-Factor Authentication."
@@ -78,7 +78,9 @@ Column {
         modal: true
         visible: false
         onAccepted: {
-            const result = messagist.submitTwoFactorToken(form.username, form.password, twoFactorToken.text);
+            const result = messagist.submitTwoFactorTokenLogin(
+                form.username, form.password, twoFactorToken.text
+            );
             if (result.success) {
                 if (result.recovery) {
                     recoveryDialog.visible = true;
@@ -88,7 +90,6 @@ Column {
             } else {
                 errorMessage.text = result.error;
                 errorMessage.visible = true;
-                twoFactorAuthenticationDialog.visible = false;
             }
         }
     }

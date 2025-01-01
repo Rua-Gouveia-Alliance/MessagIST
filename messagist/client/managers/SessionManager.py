@@ -1,7 +1,6 @@
 import MessagISTCrypto
 import MessagISTServer_pb2_grpc as pb2_grpc
 import MessagISTServer_pb2 as pb2
-
 import re
 
 
@@ -54,7 +53,7 @@ class SessionManager:
             return {"success": True}
         return {"success": False, "error": "Invalid username or password"}
 
-    def submitTwoFactorToken(self, username, password, token):
+    def submitTwoFactorTokenLogin(self, username, password, token):
         self.ctx.logger.debug("Sending SUBMITTWOFACTORTOKEN request")
 
         stub = pb2_grpc.MessagISTServerStub(self.ctx.channel)
@@ -100,10 +99,22 @@ class SessionManager:
 
         if response.success:
             MessagISTCrypto.storeKey(username, password, identityKey)
+            return {"success": True}
+
+        return {"success": False, "error": "Invalid username or password"}
+
+    def submitTwoFactorTokenSignUp(self, username, password, token):
+        self.ctx.logger.debug("Sending SUBMITTWOFACTORTOKEN request")
+
+        stub = pb2_grpc.MessagISTServerStub(self.ctx.channel)
+        request = pb2.SubmitTwoFactorTokenRequest(username=username, token=token)
+        response = stub.submitTwoFactorToken(request)
+        if response.success:
+            identityKey = MessagISTCrypto.loadKey(username, password)
             wordList = MessagISTCrypto.encodeAsWords(identityKey)
             return {"success": True, "words": "\n".join(wordList)}
 
-        return {"success": False, "error": "Invalid username or password"}
+        return {"success": False, "error": "Invalid token"}
 
     def logout(self, password=""):
         # TODO: Send logout request?

@@ -23,6 +23,14 @@ class MessagIST(QObject):
         result = self.sessionManager.signup(username, password)
         return result
 
+    @Slot(str, str, str, result="QVariant")
+    def submitTwoFactorTokenSignUp(self, username, password, token):
+        self.ctx.logger.debug("Submitting 2FA code")
+        result = self.sessionManager.submitTwoFactorTokenSignUp(
+            username, password, token
+        )
+        return result
+
     @Slot(str, str, result="QVariant")
     def login(self, username, password):
         self.ctx.logger.debug("Logging in")
@@ -31,10 +39,12 @@ class MessagIST(QObject):
         return self.sessionManager.login(username, password)
 
     @Slot(str, str, str, result="QVariant")
-    def submitTwoFactorToken(self, username, password, token):
+    def submitTwoFactorTokenLogin(self, username, password, token):
         self.ctx.logger.debug("Submitting 2FA code")
 
-        result = self.sessionManager.submitTwoFactorToken(token)
+        result = self.sessionManager.submitTwoFactorTokenLogin(
+            username, password, token
+        )
         if result["success"]:
             self.ctx.logger.debug("Starting session related timers")
             self.logoutTimer = QTimer(parent=self, singleShot=True, timeout=self.logout)
