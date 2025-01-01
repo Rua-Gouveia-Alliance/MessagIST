@@ -47,11 +47,9 @@ All the virtual machines are based on: `Ubuntu Server 24.04.1 LTS`.
   - **Userame**: serveradmin
   - **Password**: (choose a password)
 
-Clone the base machine to create four other machines and set up the networks according to the diagram above.
+Clone the base machine to create four other machines.
 
 ### Machine configurations
-
-For each machine, there is an initialization script with the machine name, with prefix `init-` and suffix `.sh`, that installs all the necessary packages and makes all required configurations in the a clean machine.
 
 Inside each machine, use Git to obtain a copy of all the scripts and code.
 
@@ -59,7 +57,11 @@ Inside each machine, use Git to obtain a copy of all the scripts and code.
 $ git clone https://github.com/tecnico-sec/A61
 ```
 
-Next we have custom instructions for each machine.
+Next we have custom instructions for each machine. Before continuing, turn off the VMs and setup the networks according to the diagram above.
+
+For each machine, there is an initialization script with the machine name, with prefix `init-` and suffix `.sh`, that installs all the necessary packages and makes all required configurations in the a clean machine.
+
+**Note:** before running the initialization scripts, please change the necessary variables in the first lines as necessary, specially the network interfaces.
 
 #### Machine 1 (NAT Firewall 1)
 
