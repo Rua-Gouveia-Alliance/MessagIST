@@ -113,6 +113,7 @@ class SessionManager:
     def _sendEmail(self, username, token):
         emailSender = "messagistauthentication@gmail.com"
         emailReceiver = f"{username}@tecnico.ulisboa.pt"
+        #TODO passar a password do mail de forma mais segura
         emailPassword = "wlub cnnk xiiw grdz"
 
         subject = "2FA Token"
