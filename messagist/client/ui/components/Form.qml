@@ -15,7 +15,7 @@ Column {
         spacing: 5
 
         TextField {
-            id: ist_email
+            id: username
             placeholderText: "IST email"
         }
         TextField {
