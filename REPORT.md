@@ -54,15 +54,29 @@ possible to confirm that we sent *something*.
 #### 2.2.1. Network and Machine Setup
 The infrastructure for MessagIST consists of several components:
 
-1. Main Server
+1. Main Server:
+   The Main Server is located behind the DMZ in a private network and handles the core business logic and operations. 
+   The Main Server receives and forwards requests from the Public Server (DMZ), with the communication between these 
+   servers being secured using TLS encryption. This ensures that all data transmitted between the servers is protected 
+   from potential interception or tampering.
+   Once the Main Server receives requests from the Public Server, it processes them based on the business logic.
+   It then interacts with the Database Server for data storage and retrieval, providing that relevant data is securely 
+   stored and managed. The interaction with the Database Server is done using secure database connections.
+   The server uses gRPC for communication. 
+   Additionally, the Main Server interacts with the Public Server, receiving its requests and processing them . 
+   Once the Main Server has completed its tasks, it sends the responses back to the Public Server. T
+   he communication between the Public Server and the Main Server is fully secured with TLS, 
+   ensuring that the integrity and confidentiality of the data are maintained at all times.
+   A self-signed certificate (server.crt) is used for server authentication, safeguarding trust between entities.
 
-2. Client
+2. Client:
    It's a desktop application that communicates with the server located in the Demilitarized Zone (DMZ), the public server.
    It sends the request to the public server and waits for its response. 
    All the communications are secured using TLS, which guarantees that all communication between the server and the client 
    are encryted.
    The server's certificate is used to ensure that the client is connected to the correct server, minimizing the risks of
    man-in-the-middle attacks.
+
 3. Database Server:
    It's a PostreSQL instance hosted in a secure server.
    It includes TLS Encryption: The server certificate in /keys folder 
