@@ -164,23 +164,23 @@ The infrastructure for MessagIST consists of several components:
 (_Justify the choice of technologies for each server._)
 
 #### 2.2.2. Server Communication Security
-   To garentee security communications secure communication between servers, we used Transport Layer Security (TLS) protocol encryption. 
-   TLS guarantees confidentiality, integrity, and authenticity (CIA) for all transmitted data.
-   We implemented a Server-Side TLS:
-      Each server secures communications using a TLS certificate (server.crt) and a private key (server.key).
-      Clients establish secure connections by trusting the server's self-signed certificate (server.crt), 
-      which they use to verify the server's authenticity.
-      After the server is authenticated, all communication is encrypted to prevent eavesdropping or tampering.
-      For server-to-server communication (between Public Server and Main Server) we use the same TLS setup.
-      Each server validates the other´s identity using their respective self-signed certificates.
-      The Database Server communicates with the Main Server over a secure TLS connection. This happens by setting ssl = require in the
-      PostgresSQL configuration file. The database server´s certificate and server key are stored in the PSQL configuration file
+To guarentee communication security we used server-side TLS.
+Each server has a certificate (server.crt) and a private key (server.key).
+Clients establish secure connections by trusting the server's self-signed
+certificate (server.crt), which they use to verify the server's authenticity.
+For server-to-server communication (between the public server and the main
+server) we use the same TLS setup.
+The database server also communicates with the main server over a secure TLS
+connection. This is set up by setting `ssl = require` in the PostgresSQL
+configuration file. The database server's certificate and server key paths are
+specified in the PSQL configuration file
 
-      Key distribution: 
-      Server Private Key (server.key) - private key generated for each server and used for signing and encrypting communications
-      Server Certificate (server.crt) - A self-signed certificate is generate for each server.
-      The Public Server certificate is shared with the clients.
-      The database server's certificate and key are configured within PostgreSQL, and the Main Server is set to trust the database server's certificate.
+**Key distribution**:
+Server keys: Distributed manually, by
+Server Private Key (server.key) - private key generated for each server and used for signing and encrypting communications
+Server Certificate (server.crt) - A self-signed certificate is generate for each server.
+The Public Server certificate is shared with the clients.
+The database server's certificate and key are configured within PostgreSQL, and the Main Server is set to trust the database server's certificate.
 
       
 (_Discuss how server communications were secured, including the secure channel solutions implemented and any challenges encountered._)
@@ -292,14 +292,23 @@ chat. The passphrase is a secret password shared by the two communicating
 parties, and is used by the client to derive the session key used to encrypt the
 messages.
 
+The partner's public key and the conversation's session key can be securely
+stored locally (described below), if the user wishes to do so when logging out.
+This is done merely for convenience. If the session keys are not stored locally,
+the user will need to repeat the steps outlined above in order to be able to
+receive messages (add a new chat with the desired partner and insert the
+passphrase).
+
 We opted to use session keys derived from a passphrase as this is more flexible
 for users. It's possible to create strong passphrases that are also memorizable
 and can be exchanged verbally, if maximum secrecy is desired. If this is
 impractical, it's also possible to use alternative methods to agree on the
 shared secret (such as an alternative secure messaging service).
 
-To derive a session key from the passphrase, the PBKDF2 algorithm with HMAC and
-SHA-256 is used.
+To derive a session key from the passphrase, we used the Scrypt [\[2\]](#item2)
+key derivation function. This function has an advantage over other
+password-based KDFs, as it is developed to be more resistant to attacks that use
+custom-designed parallel circuits to brute-force the password.
 
 ##### 2.3.3.5. Receiving A Message
 
@@ -336,7 +345,25 @@ The original password of a user should never be seen by the server. To achieve
 this, we must "hide it" before sending it to the server when signing up and
 logging in.
 
-To implement this, we used the Scrypt [\[2\]](#item2) key derivation function.
+To implement this, we used the Scrypt key derivation function again.
+
+##### 2.3.3.9. Locally Storing Sensitive Data
+
+The user's private key and session keys must be stored in a way that is
+inaccessible to others with access to the same computer.
+
+To achieve this, we first derive two keys from the user's password using the
+Scrypt key derivation function. The first key is used to cipher the data being
+stored, using AES in CBC mode with 256-bit keys, as we also do when protecting
+messages. The second key is used to sign the ciphertext with an HMAC, that is
+stored together with the ciphered data.
+
+Here, we use an encrypt-then-MAC strategy, as we don't have the same constraints
+we have regarding messages. This approach has the benefit of allowing us to
+detect if the document has been tampered with before actually decrypting
+anything. This saves us time, as we can immediately discard the document instead
+of first having to decrypt it, and reduces the attack surface, as tampered data
+won't even be decrypted.
 
 (_Identify communication entities and the messages they exchange with a UML sequence or collaboration diagram._)
 
