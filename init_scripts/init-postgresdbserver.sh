@@ -75,7 +75,7 @@ if ! command -v psql &> /dev/null; then
 
     # add line to hba to allow connection from server
     HBA_FILE=$(sudo -u postgres psql -U postgres -c 'SHOW hba_file' -t | tr -d ' ')
-    echo "hostssl    all    $DB_USER    192.168.2.1/32    md5"
+    echo "hostssl    all    $DB_USER    192.168.2.1/32    md5" | tee -a $HBA_FILE
 fi
 
 if ! systemctl is-enabled --quiet postgresql || ! systemctl is-active --quiet postgresql; then
