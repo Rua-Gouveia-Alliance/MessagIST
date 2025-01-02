@@ -109,7 +109,7 @@ class MessagIST(QObject):
         )
         if not success:
             self.ctx.logger.debug("KeepAlive not successful")
-            self.logout()
+            self.logout("")
             return
         self.ctx.logger.debug("KeepAlive successful")
         self.chatManager.updateState(partners, messages)

@@ -1,7 +1,6 @@
 import argparse
 import sys
 import logging
-import os
 import grpc
 from concurrent import futures
 from MessagISTServerServiceImpl import MessagISTServerServiceImpl
