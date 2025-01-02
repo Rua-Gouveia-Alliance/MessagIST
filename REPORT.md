@@ -25,9 +25,9 @@ In practice, these requirements translate to:
 
 #### 2.1.1. Design
 
-MessagIST messages must be secured before being sent to the server. Messages are
-first signed using Ed25519 [\[4\]](#item4), then encrypted using AES in CBC
-mode with 256-byte keys.
+MessagIST messages must be secured before being sent to the server. First, we
+append a vector-clock to the message. The message is then signed using Ed25519
+[\[4\]](#item4), and encrypted using AES in CBC mode with 256-byte keys.
 
 ##### 2.1.1.1. Sign-then-encrypt
 
@@ -61,7 +61,7 @@ encoding a 32-byte number as words) is not perfect, but is tolerable. A list
 with 8 or 16 times this size (the result of encoding a 256 or 512-byte number as
 words) is not acceptable.
 
-##### 2.1.1.2. AES CBC
+##### 2.1.1.3. AES CBC
 
 We chose to use AES because it essentially is the "standard". It is one of the
 most used encryption algorithms, and, as such, it has been extensively tested.
@@ -71,6 +71,16 @@ CBC was used because, since a block depends on all blocks before it and we use
 a random and unique initializatoin vector, repeated plaintext blocks result in
 different ciphered blocks. This is not the case with ECB, where it's possible to
 detect patterns.
+
+##### 2.1.1.4. Vector-clocks
+
+The vector-clocks appended to the messages are used to detect potential message
+unordering or replay attacks from the server. If there is a missmatch between
+the ordering established by the timestamp the server assigns and the vector, the
+message is dropped. A client maliciously changing their vector-clock in order to
+trick their partners won't go very far, as there will be a missmatch between the
+ordering estalished by the server and the vector-clock and the message will just
+be dropped.
 
 #### 2.1.2. Implementation
 
