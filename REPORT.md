@@ -17,7 +17,17 @@ the security requirements are as follows:
    missing.
 4. If a user switches devices, they can recover their messages.
 
+In practice, these requirements translate to:
+1. The sender and receiver need to exchange a session key.
+2. Messages must be signed by their sender, each user needs an assymmetric
+   key-pair.
+3. Messages must be timestamped.
+4. If a user switches devices, they must be able to recover their assymmetric
+   key-pair and their session keys.
+
 (_Include a structural diagram, in UML or other standard notation._)
+
+TODO
 
 ## 2. Project Development
 
@@ -25,9 +35,11 @@ the security requirements are as follows:
 
 #### 2.1.1. Design
 
+(_Outline the design of your custom cryptographic library and the rationale behind your design choices, focusing on how it addresses the specific needs of your chosen business scenario._)
+
 MessagIST messages must be secured before being sent to the server. Messages are
 first signed using Ed25519 [\[4\]](#item4), then encrypted using AES in CBC
-mode.
+mode with 256-byte keys.
 
 ##### 2.1.1.1. Sign-then-encrypt
 
@@ -39,15 +51,55 @@ the ciphertext and sent the signature appended to it, our messages would still
 be secure, it's still impossible to know *what* we sent, but it would be
 possible to confirm that we sent *something*.
 
-(_Outline the design of your custom cryptographic library and the rationale behind your design choices, focusing on how it addresses the specific needs of your chosen business scenario._)
+##### 2.1.1.2. Ed25519
+
+We chose to use Ed25519 to sign messages because it provides several benefits
+over RSA while providing the same security. Compared to RSA, Ed2551 provides
+faster signatures and key generation. Besides this, it also provides small
+signatures (64 bytes) and keys much smaller than RSA (32 bytes vs. 256 or 512
+bytes).
+
+All of these benefits are appealing, but for our use case the most important one
+was the key size. While our strategy for recovering assymmetric key-pairs works
+for recovering keys of 32 bytes, it would not be fit to recover bigger keys,
+like the ones used in RSA.
+
+To allow the recovery of a key, we use a strategy similar to the seed phrases
+used to recover cryptocurrency wallets. The private key is transformed in a list
+of words that is provided to the user. This list should then be memorized or
+stored somewhere safe and can be used to reconstruct the key in case the user
+loses it or changes devices. For this purpose, a list of 17 words (the result of
+encoding a 32-byte number as words) is not perfect, but is tolerable. A list
+with 8 or 16 times this size (the result of encoding a 256 or 512-byte number as
+words) is not acceptable.
+
+##### 2.1.1.2. AES CBC
+
+We chose to use AES because it essentially is the "standard". It is one of the
+most used encryption algorithms, and, as such, it has been extensively tested.
+256-byte keys are used as this is the biggest size supported by AES.
+
+CBC was used because, since a block depends on all blocks before it and we use
+a random and unique initializatoin vector, repeated plaintext blocks result in
+different ciphered blocks. This is not the case with ECB, where it's possible to
+detect patterns.
 
 (_Include a complete example of your data format, with the designed protections._)
+
+TODO
 
 #### 2.1.2. Implementation
 
 (_Detail the implementation process, including the programming language and cryptographic libraries used._)
 
+Everything was implemented in Python, using the
+[cryptography](https://cryptography.io/en/latest/) library.
+
 (_Include challenges faced and how they were overcome._)
+
+We did not face any significant challenges. The library is very well documented
+and it supports all the cryptographic primitives we required, so implementing
+everything was fairly straightforward.
 
 ### 2.2. Infrastructure
 
