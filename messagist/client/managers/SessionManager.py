@@ -4,7 +4,6 @@ import MessagISTServer_pb2 as pb2
 import re
 
 
-# TODO catch grpc.RpcError e emitir logout signal
 class SessionManager:
     def __init__(self, ctx):
         self.ctx = ctx
@@ -130,8 +129,6 @@ class SessionManager:
         return {"success": False, "error": "Invalid token"}
 
     def logout(self, password=""):
-        # TODO: Send logout request?
-        self.ctx.logger.debug("Sending LOGOUT request (not really sending)")
         if not self.ctx.activeSession:
             self.ctx.logger.debug("LOGOUT request FAILED")
             return False
