@@ -45,6 +45,8 @@ Column {
         onAccepted: {
             const success = messagist.recoverIdentityKey(wordList.text, formLogin.password);
             if (success) {
+                formLogin.username = "";
+                formLogin.password = "";
                 stack.push("UserChats.qml");
             } else {
                 messagist.logout("");
@@ -104,8 +106,6 @@ Column {
             formAction: (username, password) => {
                 const result = messagist.login(username, password);
                 if (result.success) {
-                    formLogin.username = "";
-                    formLogin.password = "";
                     errorMessage.text = "";
                     twoFactorAuthenticationDialog.visible = true;
                 } else {
