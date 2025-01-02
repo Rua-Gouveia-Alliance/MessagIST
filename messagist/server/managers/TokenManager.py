@@ -22,7 +22,7 @@ class TokenManager:
             storedToken, timestamp = self.tokens[username]
             difference = (datetime.now() - timestamp).total_seconds()
             if difference <= self.TWOFACTOR_TIME:
-                logging.debug("Token still valid for user {username}.")
+                logging.debug(f"Token still valid for user {username}.")
                 return False
 
         token = secrets.token_urlsafe(16)
