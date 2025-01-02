@@ -318,13 +318,10 @@ won't even be decrypted.
 
 ## 3. Conclusion
 
-(_State the main achievements of your work._)
-
-(_Describe which requirements were satisfied, partially satisfied, or not satisfied; with a brief justification for each one._)
-
-(_Identify possible enhancements in the future._)
-
-(_Offer a concluding statement, emphasizing the value of the project experience._)
+For our group, the main achievements of this work were successfully implementing a secure messaging application while using a variety of cryptographic techniques. Additionally, we implemented creative solutions that enhanced our work.
+We believe that all the security requirements were satisfied.
+For the future, the first step would be addressing Security Challenge B, which involves implementing group chats. Additionally, our passphrase protocol for generating session keys could be changed to something similar to the Signal protocol.
+Overall, this project experience provided valuable insights into the implementation of cryptographic systems and secure communication protocols.
 
 ## 4. Bibliography
 
@@ -337,8 +334,6 @@ won't even be decrypted.
 <a name="item4">4.</a> [Daniel J. Bernstein, Niels Duif, Tanja Lange, Peter Schwabe and Bo-Yin Yang, Ed25519: high-speed high-security signatures, 2012](https://ed25519.cr.yp.to/index.html)
 
 <a name="item5">5.</a> [Mike Burrows, The Chubby lock service for loosely-coupled distributed systems, 7th USENI Symposium on Operating Systems Design and Implementation (OSDI), 2012](https://static.googleusercontent.com/media/research.google.com/en//archive/chubby-osdi06.pdf)
-
-https://docs.oracle.com/javase/8/docs/technotes/guides/security/jsse/tls.html
 
 ----
 END OF REPORT
