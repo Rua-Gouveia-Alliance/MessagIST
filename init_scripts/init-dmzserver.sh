@@ -10,7 +10,7 @@ SERVICE_FILE=/etc/systemd/system/init-dmzserver.service
 ENV_NAME="messagist"
 ENV_FILE="$MESSAGIST_PATH/messagist/environment.yml"
 PROTO_SCRIPT="$MESSAGIST_PATH/messagist/proto.sh"
-DMZ_SERVER="$MESSAGIST_PATH/messagist/dmz/DmzServer.py"
+DMZ_SERVER="$MESSAGIST_PATH/messagist/publicserver/publicserver.py"
 
 # ensure the script is running as root
 if [ "$(id -u)" -ne 0 ]; then
