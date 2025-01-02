@@ -5,25 +5,21 @@
 (_Provide a brief overview of your project, including the business scenario and the main components: secure documents, infrastructure, and security challenge._)
 
 MessagIST is a secure instant messaging service that aims to provide IST
-students with a way of securely communicating. Since we chose to tackle the
-first security challenge (Security challenge A), the security requirements for
-our messaging service go beyond the basic legal requirements (GDPR). As such,
-the security requirements are as follows:
-1. Only the sender and receiver of a message can read it (end-to-end
-   encryption).
+students with a way of securely communicating. Our starting security
+requirements were as follows:
+1. Only the sender and receiver of a message can read it.
 2. The receiver of a message can confirm if whoever claims to be the sender
    actually wrote the message.
 3. The conversation participants can detect if messages are out-of-order or
    missing.
-4. If a user switches devices, they can recover their messages.
+4. Messages are only sent to their intended receiver.
 
 In practice, these requirements translate to:
-1. The sender and receiver need to exchange a session key.
-2. Messages must be signed by their sender, each user needs an assymmetric
+1. Messages must be signed by their sender, each user needs an assymmetric
    key-pair.
-3. Messages must be timestamped.
-4. If a user switches devices, they must be able to recover their assymmetric
-   key-pair and their session keys.
+2. Messages must be timestamped.
+3. Users must authenticate themselves and establish a session with the server in
+   order to receive messages.
 
 (_Include a structural diagram, in UML or other standard notation._)
 
@@ -177,6 +173,28 @@ The infrastructure for MessagIST consists of several components:
 #### 2.3.1. Challenge Overview
 
 (_Describe the new requirements introduced in the security challenge and how they impacted your original design._)
+
+Since we chose to tackle the first security challenge (Security challenge A),
+the security requirements for our messaging service go beyond the basic legal
+requirements (GDPR). As such, the security requirements now are as follows:
+1. Only the sender and receiver of a message can read it (end-to-end
+   encryption).
+2. The receiver of a message can confirm if whoever claims to be the sender
+   actually wrote the message.
+3. The conversation participants can detect if messages are out-of-order or
+   missing.
+4. Messages are only sent to their intended receiver.
+5. If a user switches devices, they can recover their messages.
+
+In practice, these requirements translate to:
+1. The sender and receiver need to exchange a session key.
+2. Messages must be signed by their sender, each user needs an assymmetric
+   key-pair.
+3. Messages must be timestamped.
+4. Users must authenticate themselves and establish a session with the server in
+   order to receive messages.
+5. If a user switches devices, they must be able to recover their assymmetric
+   key-pair and their session keys.
 
 #### 2.3.2. Attacker Model
 
