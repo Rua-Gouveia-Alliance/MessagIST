@@ -2,8 +2,6 @@
 
 ## 1. Introduction
 
-(_Provide a brief overview of your project, including the business scenario and the main components: secure documents, infrastructure, and security challenge._)
-
 MessagIST is a secure instant messaging service that aims to provide IST
 students with a way of securely communicating. Our starting security
 requirements were as follows:
@@ -30,8 +28,6 @@ TODO
 ### 2.1. Secure Document Format
 
 #### 2.1.1. Design
-
-(_Outline the design of your custom cryptographic library and the rationale behind your design choices, focusing on how it addresses the specific needs of your chosen business scenario._)
 
 MessagIST messages must be secured before being sent to the server. Messages are
 first signed using Ed25519 [\[4\]](#item4), then encrypted using AES in CBC
@@ -86,12 +82,8 @@ TODO
 
 #### 2.1.2. Implementation
 
-(_Detail the implementation process, including the programming language and cryptographic libraries used._)
-
 Everything was implemented in Python, using the
 [cryptography](https://cryptography.io/en/latest/) library.
-
-(_Include challenges faced and how they were overcome._)
 
 We did not face any significant challenges. The library is very well documented
 and it supports all the cryptographic primitives we required, so implementing
@@ -100,64 +92,38 @@ everything was fairly straightforward.
 ### 2.2. Infrastructure
 
 #### 2.2.1. Network and Machine Setup
+For communications we used gRPC. We decided to use this framework because it
+provides efficient object serialization, and every member of the group had used
+it before.
+
 The infrastructure for MessagIST consists of several components:
-   It is a gRPC-based infracture. We decided to use this framework because it has a efficient objetct serialization and 
-   every member of the group has used it before. Additionally, gRPC facilitates high-performance communication between servers 
 1. Main Server:
-   The Main Server is located behind the DMZ in a private network and handles the core business logic and operations. 
-   The Main Server receives and forwards requests from the Public Server (DMZ), with the communication between these 
-   servers being secured using TLS encryption. This ensures that all data transmitted between the servers is protected 
-   from potential interception or tampering.
-   Once the Main Server receives requests from the Public Server, it processes them based on the business logic.
-   It then interacts with the Database Server for data storage and retrieval, providing that relevant data is securely 
-   stored and managed. The interaction with the Database Server is done using secure database connections.
-   Additionally, the Main Server interacts with the Public Server, receiving its requests and processing them . 
-   Once the Main Server has completed its tasks, it sends the responses back to the Public Server. 
-   The communication between the Public Server and the Main Server is fully secured with TLS, 
-   ensuring that the integrity and confidentiality of the data are maintained at all times.
-   A self-signed certificate (server.crt) is used for server authentication, safeguarding trust between entities.
-
+   The Main Server is located behind the DMZ in a private network and handles
+   the core business logic and operations. It receives and forwards requests
+   from the public server (DMZ). It also interacts with the database server for
+   data storage and retrieval, providing that relevant data is securely stored
+   and managed.
 2. Client:
-   It's a desktop application that communicates with the server located in the Demilitarized Zone (DMZ), the public server.
-   It sends the request to the public server and waits for its response. 
-   All the communications are secured using TLS, which guarantees that all communication between the server and the client 
-   are encryted.
-   The server's certificate is used to ensure that the client is connected to the correct server, minimizing the risks of
-   man-in-the-middle attacks.
-
+   It's a desktop application that communicates with the server located in the
+   Demilitarized Zone (DMZ), the public server. It sends the request to the
+   public server and waits for its response.
 3. Database Server:
-   It's a PostreSQL instance hosted in a secure server.
-   It includes TLS Encryption: The server certificate in /keys folder 
-   guarantee that the communications between the client and the server is encrypted 
-   and secure. The SSL Mode is require in the code. 
-   This server stores user and chat data including message history and login information.
-   For this server we decided to use PostgreSQL because it is a strong choice for
-   storing this information due to its robust security features, such as ACID
-   compliance for data integrity. 
-   It also offers advanced authentication and authorization, including TLS 
-   encryption for secure communication, access control through role-based permissions, 
-   and logging mechanisms for auditing. Also, PostgreSQL ensures reliable, 
-   scalable data storage with the
-   ability to handle complex queries. 
-   In addition, this tool had been studied previously, therefore every member
-   of the group was confortable and had experience using it.
-   We choose the psycopg library, that is a PostgreSQL adapter for Python, 
-   that allows Python applications to interact with PostgreSLQ. The reason why
-   we choose this library it's because of its performance, security (supports parameterized queries,
-   protecting against SQL injection attacks) and flexibility.
-   ADICIONAR FONTES ???
-   https://satoricyber.com/postgres-security/3-pillars-of-postgresql-security/
-
+   It's a PostreSQL instance. This server stores user and chat data including
+   message history and login information. For this server we decided to use
+   PostgreSQL because it is a strong choice for storing this information due to
+   its robust security features, such as ACID compliance for data integrity.
+   It also offers advanced authentication and authorization, including TLS
+   encryption for secure communication, access control through role-based
+   permissions, and logging mechanisms for auditing. In addition, this tool had
+   been studied previously, therefore every member of the group was confortable
+   and had experience using it.
 4. Public Server:
-   This public server was implemented to act as an intermediary between clients and the main server, operating in a Demilitarized Zone (DMZ).
-   It garantees secure data transfer using SSL  for both client-server and server-server communication.
-   It receives clients requests and fowards this request to the main server waiting for the main server´s response. 
-   When it receives this response from the main server it relays this response back to the client.
-   A self-signed certificate (server.crt) is used for server authentication, safeguarding trust between entities.
-   The use of a public server in the DMZ reduces the attack surface of the Main Server by isolating it from direct external access.    It also enables scability.
-(_Provide a brief description of the built infrastructure._)
-
-(_Justify the choice of technologies for each server._)
+   This public server was implemented to act as an intermediary between clients
+   and the main server, operating in a Demilitarized Zone (DMZ). It receives
+   clients requests and fowards these requests to the main server and relaying
+   it's response back to the client.
+   The use of a public server in the DMZ reduces the attack surface of the main
+   server by isolating it from direct external access.
 
 #### 2.2.2. Server Communication Security
 To guarentee communication security we used server-side TLS.
@@ -172,22 +138,15 @@ configuration file. The database server's certificate and server key paths are
 specified in the PSQL configuration file
 
 **Key distribution**:
-Server keys: Distributed manually, by
-Server Private Key (server.key) - private key generated for each server and used for signing and encrypting communications
-Server Certificate (server.crt) - A self-signed certificate is generate for each server.
-The Public Server certificate is shared with the clients.
-The database server's certificate and key are configured within PostgreSQL, and the Main Server is set to trust the database server's certificate.
-The client public keys are destribuited throught the server
-
-(_Discuss how server communications were secured, including the secure channel solutions implemented and any challenges encountered._)
-
-(_Explain what keys exist at the start and how are they distributed?_)
+Between the various servers: Manual, the necessary keys were copied to the
+machines requiring them.
+Between the public server and clients: In practice, the distribution was also
+manual. In a real world scenario, the public server's certificate would be
+distributed together with the client application.
 
 ### 2.3. Security Challenge
 
 #### 2.3.1. Challenge Overview
-
-(_Describe the new requirements introduced in the security challenge and how they impacted your original design._)
 
 Since we chose to tackle the first security challenge (Security challenge A),
 the security requirements for our messaging service go beyond the basic legal
@@ -218,8 +177,6 @@ In practice, these requirements translate to:
 (_Define how powerful the attacker is, with capabilities and limitations, i.e., what can he do and what he cannot do_)
 
 #### 2.3.3. Solution Design and Implementation
-
-(_Explain how your team redesigned and extended the solution to meet the security challenge, including key distribution and other security measures._)
 
 Our solution was designed from the start with the security challenge in mind, as
 we had already selected it at the time we started working on the project.
@@ -376,8 +333,6 @@ TODO
 (_Offer a concluding statement, emphasizing the value of the project experience._)
 
 ## 4. Bibliography
-
-(_Present bibliographic references, with clickable links. Always include at least the authors, title, "where published", and year._)
 
 <a name="item1">1.</a> [Colin Percival, Encrypt-then-MAC, Daemonic Dispatches Blog, 2009](https://www.daemonology.net/blog/2009-06-24-encrypt-then-mac.html)
 
