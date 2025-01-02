@@ -343,8 +343,6 @@ We can recover the key by logging back in and entering the recovery words provid
 
 ![Key Recovery](img/demo/22-recover_key.png)
 
-*(IMPORTANT: show evidence of the security mechanisms in action; show message payloads, print relevant messages, perform simulated attacks to show the defenses in action, etc.)*
-
 This concludes the demonstration.
 
 ## Additional Information
