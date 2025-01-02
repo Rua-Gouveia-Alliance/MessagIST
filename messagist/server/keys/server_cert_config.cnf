@@ -4,7 +4,7 @@ x509_extensions = v3_req
 prompt = no
 
 [req_distinguished_name]
-CN = localhost
+CN = messagistserver.local
 
 [v3_req]
 keyUsage = keyEncipherment, digitalSignature
@@ -13,4 +13,6 @@ subjectAltName = @alt_names
 
 [alt_names]
 DNS.1 = localhost
-IP.1 = 127.0.0.1
+DNS.2 = messagistserver.local
+IP.1 = 192.168.2.1
+IP.2 = 192.168.1.1
