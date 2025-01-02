@@ -47,5 +47,5 @@ if __name__ == "__main__":
 
     ex = app.exec()
     del engine
-    messagist.logout()
+    messagist.logout("")
     sys.exit(ex)
