@@ -57,7 +57,7 @@ For convenience, TLS/SSL server certificates and private keys come pre-generated
 
 **Go to `messagist/publicserver/keys/` and type:**
 
-Before generating the certificate, make sure to change the IP in the **SAN** section of `publicserver_cert_config.cnf` to the external IP you are going to use for the `NAT Firewall 1`.
+Before generating the certificate, make sure to change the IP.2 in the **SAN** section of `publicserver_cert_config.cnf` to the external IP you are going to use for the `NAT Firewall 1`.
 
 ``` sh
 $ openssl genpkey -algorithm RSA -out server.key -pkeyopt rsa_keygen_bits:2048
