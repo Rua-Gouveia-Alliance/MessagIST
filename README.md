@@ -182,7 +182,7 @@ $ sudo systemctl enable init-messagistserver
 $ sudo systemctl start init-messagistserver
 ```
 
-#### Machine 5 (DMZ Server)
+#### Machine 5 (DMZ Server, aka Public Server)
 
 This machine runs the gRPC service to handle external requests to the MessagIST server.
 
