@@ -40,7 +40,7 @@ def getIV():
 
 def protect(privateIdentityKey, sessionKey, message):
     """
-    Encrypt message and genrate a digital signature (Encrypt-then-MAC).
+    Encrypt message and generate a digital signature (MAC-then-encrypt).
 
     This function protects a plaintext message by first encrypting it with AES in CBC mode
     using a randomly generated Initialization Vector (IV) and a provided session key.
@@ -55,7 +55,10 @@ def protect(privateIdentityKey, sessionKey, message):
     Returns:
     str: Base64-encoded encrypted message, signature, and IV, separated by newlines.
     """
+    # Generate signature
     message = message.encode("ascii")
+    signature = base64.b64encode(privateIdentityKey.sign(message))
+    message = base64.b64encode(message) + b"\n" + signature
 
     # Apply padding to ensure message size is multiple of the AES block size
     padder = padding.PKCS7(128).padder()
@@ -67,12 +70,8 @@ def protect(privateIdentityKey, sessionKey, message):
     encryptor = cipher.encryptor()
     message = encryptor.update(message) + encryptor.finalize()
 
-    # Generate signature
-    signature = privateIdentityKey.sign(message)
-
     # Concatenate all
     message = base64.b64encode(message).decode("ascii") + "\n"
-    message += base64.b64encode(signature).decode("ascii") + "\n"
     message += base64.b64encode(iv).decode("ascii")
 
     return message
@@ -80,7 +79,7 @@ def protect(privateIdentityKey, sessionKey, message):
 
 def unprotect(publicIdentityKey, sessionKey, message):
     """
-    Decrypt protected message and verify its integrity (Encrypt-then-MAC).
+    Decrypt protected message and verify its integrity (MAC-then-encrypt).
 
     Parameters:
     publicIdentityKey (Ed25519PublicKey): Public key used to verify the message.
@@ -91,16 +90,8 @@ def unprotect(publicIdentityKey, sessionKey, message):
     str or None: Decrypted plaintext message, or None if verification fails.
     """
     message = message.splitlines()
-    iv = base64.b64decode(message[2].encode("ascii"))
-    signature = base64.b64decode(message[1].encode("ascii"))
+    iv = base64.b64decode(message[1].encode("ascii"))
     message = base64.b64decode(message[0].encode("ascii"))
-
-    # Verify the digital signature using the public key
-    try:
-        publicIdentityKey.verify(signature, message)
-    except InvalidSignature:
-        # If signature not valid, return None (verification failed)
-        return None
 
     # Decrypt the message
     try:
@@ -112,6 +103,16 @@ def unprotect(publicIdentityKey, sessionKey, message):
         message = unpadder.update(message) + unpadder.finalize()
     except ValueError:
         # If decryption or unpadding fails, return None
+        return None
+
+    # Verify the digital signature using the public key
+    message = message.splitlines()
+    signature = base64.b64decode(message[1])
+    message = base64.b64decode(message[0])
+    try:
+        publicIdentityKey.verify(signature, message)
+    except InvalidSignature:
+        # If signature not valid, return None (verification failed)
         return None
 
     return message.decode("ascii")
