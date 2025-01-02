@@ -72,11 +72,12 @@ Column {
             text: "New chat"
             font.pointSize: 12
             onClicked: {
-                messagist.startChat(newPartner.text)
-                stack.push("Chat.qml", { partner: newPartner.text })
-                newPartner.text = ""  // Clears the text field after the button is clicked
+                if (messagist.startChat(newPartner.text)) {
+                    stack.push("Chat.qml", { partner: newPartner.text })
+                    newPartner.text = ""  // Clears the text field after the button is clicked
                 }
             }
+        }
     }
 
     Repeater {
