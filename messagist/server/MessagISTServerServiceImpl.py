@@ -10,7 +10,6 @@ from managers.UserManager import UserManager
 from managers.TokenManager import TokenManager
 
 
-# TODO: Configurar logger em condicoes
 class MessagISTServerServiceImpl(pb2_grpc.MessagISTServerServicer):
     def __init__(self, db, *args, **kwargs):
         self.db = db
@@ -24,13 +23,9 @@ class MessagISTServerServiceImpl(pb2_grpc.MessagISTServerServicer):
         logging.debug("Username: " + request.username)
 
         username = request.username
-        password = request.password
-        salt = request.salt
-        identityKey = request.identityKey
-        data = {"password": password, "salt": salt, "identityKey": identityKey}
         if self.userManager.existingUser(username):
             return pb2.SignupResponse(success=False)
-        success = self.tokenManager.sendTwoFactorToken(username, data)
+        success = self.tokenManager.sendTwoFactorToken(username)
         if not success:
             logging.debug("SIGNUP FAILED")
         return pb2.SignupResponse(success=success)
@@ -40,13 +35,14 @@ class MessagISTServerServiceImpl(pb2_grpc.MessagISTServerServicer):
         logging.debug("Username: " + request.username)
 
         username = request.username
+        password = request.password
+        salt = request.salt
+        identity_key = request.identityKey
         token = request.token
-        success, data = self.tokenManager.verifyTwoFactorToken(username, token)
+        success = self.tokenManager.verifyTwoFactorToken(username, token)
         if success:
             logging.debug("Valid token")
-            success = self.userManager.newUser(
-                username, data["password"], data["salt"], data["identityKey"]
-            )
+            success = self.userManager.newUser(username, password, salt, identity_key)
             return pb2.SubmitTwoFactorTokenSignUpResponse(success=success)
 
         logging.debug("SUBMITTWOFACTORTOKEN FAILED")

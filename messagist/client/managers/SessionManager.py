@@ -60,13 +60,27 @@ class SessionManager:
 
         username = username.split("@")[0]
 
+        salt = MessagISTCrypto.getSalt(username)
+        hiddenPassword = MessagISTCrypto.prepareForStorage(password, salt)
+
+        identityKey = MessagISTCrypto.generateIdentityKey()
+        publicKeyBytes = identityKey.public_key().public_bytes_raw()
+
         stub = pb2_grpc.MessagISTServerStub(self.ctx.channel)
-        request = pb2.SubmitTwoFactorTokenLoginRequest(username=username, token=token)
+        request = pb2.SubmitTwoFactorTokenLoginRequest(
+            username=username,
+            password=hiddenPassword,
+            identityKey=publicKeyBytes,
+            salt=salt,
+            token=token,
+        )
         response = stub.submitTwoFactorTokenLogin(request)
         if response.success:
+            MessagISTCrypto.storeKey(username, password, identityKey)
+
             self.ctx.setUsername(username)
             self.ctx.setSessionToken(response.token)
-            self.ctx.setIdentityKey(MessagISTCrypto.loadKey(username, password))
+            self.ctx.setIdentityKey(identityKey)
             self.ctx.setContacts(MessagISTCrypto.loadContacts(username, password))
             self.ctx.setActiveSession(True)
             return {"success": True}
@@ -82,32 +96,26 @@ class SessionManager:
         ist_type = bool(re.match(pattern, username))
         if not ist_type:
             return {"success": False, "error": "Username should be your ist email"}
-        # TODO descomentar
-        if not self.verify_password(password,username):
-            return {"success": False, "error": "Password is invalid. It must be at least 8 characters long, include at least 1 Upper case letter,digit, and a special character."}
+
+        if not self.verify_password(password, username):
+            return {
+                "success": False,
+                "error": "Password is invalid. It must be at least 8 characters long, include at least 1 Upper case letter,digit, and a special character.",
+            }
+
         self.ctx.logger.debug("Sending SIGNUP request")
 
         username = username.split("@")[0]
-        salt = MessagISTCrypto.getSalt(username)
-        hiddenPassword = MessagISTCrypto.prepareForStorage(password, salt)
-
-        identityKey = MessagISTCrypto.generateIdentityKey()
-        publicKeyBytes = identityKey.public_key().public_bytes_raw()
 
         stub = pb2_grpc.MessagISTServerStub(self.ctx.channel)
         request = pb2.SignupRequest(
             username=username,
-            password=hiddenPassword,
-            identityKey=publicKeyBytes,
-            salt=salt,
         )
         response = stub.signup(request)
 
         if response.success:
-            MessagISTCrypto.storeKey(username, password, identityKey)
             return {"success": True}
-
-        return {"success": False, "error": "Invalid username or password"}
+        return {"success": False, "error": "Invalid username"}
 
     def submitTwoFactorTokenSignUp(self, username, password, token):
         self.ctx.logger.debug("Sending SUBMITTWOFACTORTOKEN request")

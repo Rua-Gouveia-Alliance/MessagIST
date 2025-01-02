@@ -91,11 +91,6 @@ def main():
     DB.connect()
 
     try:
-        # TODO: Aumentar thread pool para 10.
-        # Preciso trocar a maneira como a base de dados funciona.
-        # Cada thread tem que ter a sua propria db e a classe da base de dados
-        # talvez tenha que ser trocada para ser seguro fazer operacoes concorrentes.
-
         # initialize DB
         DB.execute_script("../database/serverschema.sql")
 
