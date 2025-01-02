@@ -328,10 +328,15 @@ won't even be decrypted.
 
 ## 3. Conclusion
 
-For our group, the main achievements of this work were successfully implementing a secure messaging application while using a variety of cryptographic techniques. Additionally, we implemented creative solutions that enhanced our work.
+For our group, the main achievements of this work were successfully implementing 
+a secure messaging application while using a variety of cryptographic techniques. 
+Additionally, we implemented creative solutions that enhanced our work.
 We believe that all the security requirements were satisfied.
-For the future, the first step would be addressing Security Challenge B, which involves implementing group chats. Additionally, our passphrase protocol for generating session keys could be changed to something similar to the Signal protocol.
-Overall, this project experience provided valuable insights into the implementation of cryptographic systems and secure communication protocols.
+For the future, the first step would be addressing Security Challenge B, 
+which involves implementing group chats. Additionally, our passphrase protocol for 
+generating session keys could be changed to something similar to the Signal protocol.
+Overall, this project experience provided valuable insights into the implementation 
+of cryptographic systems and secure communication protocols.
 
 ## 4. Bibliography
 
