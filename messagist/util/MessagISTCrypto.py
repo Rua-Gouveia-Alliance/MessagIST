@@ -3,7 +3,6 @@ import base64
 import argparse
 import pickle
 from cryptography.exceptions import InvalidSignature
-from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
 from cryptography.hazmat.primitives.kdf.scrypt import Scrypt
 from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
 from cryptography.hazmat.primitives import padding, hashes, hmac
@@ -122,10 +121,6 @@ def computeSessionKey(passphrase, salt):
     """
     Derive cryptographic session key from a passphrase and salt.
 
-    This function uses PBKDF2 (Password-Based Key Derivation Function 2) algorithm
-    with HMAC (Hash-based Message Authentication Code) and SHA-256 to derive a secure
-    cryptographic session key from a user-povided passphrase and a salt.
-
     Parameters:
     passphrase (str): Passphrase used for key derivation.
     salt (bytes): Unique salt to ensure secure and unique key derivation.
@@ -134,11 +129,12 @@ def computeSessionKey(passphrase, salt):
     bytes: 32-byte derived session key.
     """
     data = passphrase.encode("ascii")
-    kdf = PBKDF2HMAC(
-        algorithm=hashes.SHA256(),
+    kdf = Scrypt(
+        salt=salt,  # Ensures uniqueness even if same password is chosen
         length=32,
-        salt=salt,  # Ensures uniqueness even if same passphrase is chosen
-        iterations=480000,
+        n=2**14,
+        r=8,
+        p=1,
     )
     return kdf.derive(data)
 
@@ -180,11 +176,12 @@ def deriveKeysFromPassword(password, salt):
         - encryptionKey (bytes): 32 bytes for encryption operations.
     """
     data = password.encode("ascii")
-    kdf = PBKDF2HMAC(
-        algorithm=hashes.SHA256(),
-        length=64,
+    kdf = Scrypt(
         salt=salt,  # Ensures uniqueness even if same password is chosen
-        iterations=480000,
+        length=64,
+        n=2**14,
+        r=8,
+        p=1,
     )
     key = kdf.derive(data)
     hmacKey = key[:32]
