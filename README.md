@@ -286,9 +286,10 @@ After confirming our email, we receive a word list for identity recovery.
 
 ![Email Confirmation](img/demo/6-2FA_mail.png)
 ![2FA SIGN UP OK](img/demo/7-2FA_OK.png)
-### 4. **Word List**
 
+### 4. **Word List**
 We recieve a word list that can recover our identity key  
+
 ![Word list](img/demo/8-word_list_recovery.png)
 
 ### 5. **Database Security**
@@ -323,7 +324,6 @@ Switching to the `rodrigo.arede` account, I create a chat with `anaritarosa`. Th
 ![Chat](img/demo/14-conversation_with_rita.png)
 ![Message received](img/demo/15-receiving_messages.png)
 
-
 ### 9. **Messaging Back**
 I send messages from `rodrigo.arede` to `anaritarosa`, and switching back to `anaritarosa`, we can see that the messages are successfully received.
 
@@ -348,14 +348,6 @@ To simulate a key loss scenario, I remove the client key.
 We can recover the key by logging back in and entering the recovery words provided earlier.
 
 ![Key Recovery](img/demo/22-recover_key.png)
-
-
-
-```sh
-$ demo command
-```
-
-*(replace with actual commands)*
 
 *(IMPORTANT: show evidence of the security mechanisms in action; show message payloads, print relevant messages, perform simulated attacks to show the defenses in action, etc.)*
 
