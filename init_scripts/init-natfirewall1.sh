@@ -3,6 +3,7 @@
 # interfaces (replace if needed)
 WAN_IF="eth0"   # WAN interface
 LAN_IF="eth1"   # LAN interface
+EXTERNAL_IP=10.0.2.254 # make sure this is in accordance with the IPv4 Prefix of the NAT Network
 
 SERVICE_FILE=/etc/systemd/system/init-natfirewall1.service
 
@@ -14,7 +15,7 @@ fi
 
 # configure IPv4
 ip link set dev $WAN_IF up
-dhcpcd $WAN_IF
+ip addr add $EXTERNAL_IP/24 dev $LAN_IF
 ip addr add 192.168.1.254/24 dev $LAN_IF
 ip link set dev $LAN_IF up
 

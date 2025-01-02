@@ -55,11 +55,32 @@ Clone the `Ubuntu Server` machine to create four other machines.
 
 For convenience, TLS/SSL server certificates and private keys come pre-generated in this repo and are ready to use. If you want to generate new ones:
 
-**TODO**
+**Go to `messagist/publicserver/keys/` and type:**
 
-**Note 1:** obviously, the certificates and private keys of the servers shouldn't be on the other servers, nor the client. This is just a testing environment, and in a real world scenario the certificates and private keys should be generated independently in each server.
+Before generating the certificate, make sure to change the IP in the **SAN** section of `publicserver_cert_config.cnf` to the external IP you are going to use for the `NAT Firewall 1`.
 
-**Note 2:** since we didn't use a trusted CA to sign the certificates we manually trust them in each server. Here is an example on how we did this for the connection between the **DMZ Server** and the **MessagIST Server** ([DmzMainClass.py:17](https://github.com/tecnico-sec/A61/blob/main/messagist/dmz/DmzMainClass.py#L16)):
+``` sh
+$ openssl genpkey -algorithm RSA -out server.key -pkeyopt rsa_keygen_bits:2048
+$ openssl req -new -x509 -key server.key -out server.crt -days 365 -config publicserver_cert_config.cnf
+```
+
+**Go to `messagist/database/keys/` and type:**
+
+``` sh
+$ openssl genpkey -algorithm RSA -out db_server.key -pkeyopt rsa_keygen_bits:2048
+$ openssl req -new -x509 -key db_server.key -out db_server.crt -days 365 -config db_cert_config.cnf
+```
+
+**Go to `messagist/server/keys/` and type:**
+
+``` sh
+$ openssl genpkey -algorithm RSA -out server.key -pkeyopt rsa_keygen_bits:2048
+$ openssl req -new -x509 -key server.key -out server.crt -days 365 -config server_cert_config.cnf
+```
+
+**Note 1:** obviously, the private keys of the servers shouldn't be on the other servers, nor the client. This is just a testing environment, and in a real world scenario the certificates and private keys should be generated independently in each server.
+
+**Note 2:** since we didn't use a trusted CA to sign the certificates (self-signed certificates) we manually trust them in each server. Here is an example on how we did this for the connection between the **DMZ Server** and the **MessagIST Server** ([DmzMainClass.py:17](https://github.com/tecnico-sec/A61/blob/main/messagist/dmz/DmzMainClass.py#L16)):
 
 ``` python
 server_cert = "../server/keys/server.crt"
@@ -224,8 +245,6 @@ $ python client.py -h [NAT Firewall 1 external IP]
 ```
 
 If the application window doesn't start maximized, maximize it.
-
-**Note:** To obtain the `NAT Firewall 1 external IP`, go to the `NAT Firewall 1` server and type `ip addr`. It should be the one that belongs to the external interface.
 
 ## Demonstration
 

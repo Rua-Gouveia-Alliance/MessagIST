@@ -83,7 +83,7 @@ def main():
         server_key = open(server_key_path, "rb").read()
         server_credentials = grpc.ssl_server_credentials([(server_key, server_cert)])
 
-        server.add_secure_port("localhost:" + str(args.port), server_credentials)
+        server.add_secure_port("0.0.0.0:" + str(args.port), server_credentials)
 
         logging.debug("Listening on port " + str(args.port))
 

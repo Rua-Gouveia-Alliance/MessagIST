@@ -103,5 +103,5 @@ fi
 if pgrep -f "$DMZ_SERVER" > /dev/null; then
     pkill -f "$DMZ_SERVER"
 fi
-cd "$MESSAGIST_PATH/messagist/dmz"
+cd "$MESSAGIST_PATH/messagist/publicserver"
 sudo -u "$NON_ROOT_USER" /home/$NON_ROOT_USER/miniconda/bin/conda run -n "$ENV_NAME" python "$DMZ_SERVER"
