@@ -248,12 +248,6 @@ If the application window doesn't start maximized, maximize it.
 
 ## Demonstration
 
-Now that all the networks and machines are up and running, ...
-
-*(give a tour of the best features of the application; add screenshots when relevant)*
-
-# Application Walkthrough
-
 Now that all networks and machines are up and running, let's take a tour of the best features of the application.
 
 ### 1. **Login Page**
