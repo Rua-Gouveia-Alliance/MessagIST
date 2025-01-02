@@ -25,6 +25,20 @@ the security requirements are as follows:
 
 #### 2.1.1. Design
 
+MessagIST messages must be secured before being sent to the server. Messages are
+first signed using Ed25519 [\[4\]](#item4), then encrypted using AES in CBC
+mode.
+
+##### 2.1.1.1. Sign-then-encrypt
+
+It has been argued that encrypt-then-MAC as a few benefits over the
+MAC-then-encrypt strategy that we used [\[1\]](#item1). Despite these benefits,
+we chose to sign first and encrypt the signature together with the message, to
+minimize the information exposed to possible eavesdroppers. If instead we signed
+the ciphertext and sent the signature appended to it, our messages would still
+be secure, it's still impossible to know *what* we sent, but it would be
+possible to confirm that we sent *something*.
+
 (_Outline the design of your custom cryptographic library and the rationale behind your design choices, focusing on how it addresses the specific needs of your chosen business scenario._)
 
 (_Include a complete example of your data format, with the designed protections._)
@@ -104,13 +118,13 @@ The infrastructure for MessagIST consists of several components:
 
 (_Present bibliographic references, with clickable links. Always include at least the authors, title, "where published", and year._)
 
-[Colin Percival, Encrypt-then-MAC, Daemonic Dispatches Blog, 2009](https://www.daemonology.net/blog/2009-06-24-encrypt-then-mac.html)
+<a name="item1">1.</a> [Colin Percival, Encrypt-then-MAC, Daemonic Dispatches Blog, 2009](https://www.daemonology.net/blog/2009-06-24-encrypt-then-mac.html)
 
-[Colin Percival and Simon Josefsson, The scrypt Password-Based Key Derivation Function, IETF RFC 7914, 2016](https://datatracker.ietf.org/doc/html/rfc7914.html)
+<a name="item2">2.</a> [Colin Percival and Simon Josefsson, The scrypt Password-Based Key Derivation Function, IETF RFC 7914, 2016](https://datatracker.ietf.org/doc/html/rfc7914.html)
 
-[Daniel J. Bernstein and Tanja Lange, SafeCurves: choosing safe curves for elliptic-curve cryptography, 2024](https://safecurves.cr.yp.to)
+<a name="item3">3.</a> [Daniel J. Bernstein and Tanja Lange, SafeCurves: choosing safe curves for elliptic-curve cryptography, 2024](https://safecurves.cr.yp.to)
 
-[Daniel J. Bernstein, Niels Duif, Tanja Lange, Peter Schwabe and Bo-Yin Yang, Ed25519: high-speed high-security signatures, 2012](https://ed25519.cr.yp.to/index.html)
+<a name="item4">4.</a> [Daniel J. Bernstein, Niels Duif, Tanja Lange, Peter Schwabe and Bo-Yin Yang, Ed25519: high-speed high-security signatures, 2012](https://ed25519.cr.yp.to/index.html)
 
 ----
 END OF REPORT
