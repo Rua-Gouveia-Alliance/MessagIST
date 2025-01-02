@@ -68,10 +68,15 @@ The infrastructure for MessagIST consists of several components:
    https://satoricyber.com/postgres-security/3-pillars-of-postgresql-security/
 
 4. Public Server:
-   The Dmz server employs gRPC with SSL/TLS between the client and the main
-   server. It receives the requests from the client, establishes a secure
-   connection to the main server, and forwards the requests.
-   A self-signed certificate (server.crt) is used to authenticate the servers.
+   This public server was implemented to act as an intermediary between clients and the main server, operating in a Demilitarized Zone (DMZ).
+   It helps to isolate the main server to direct exposere TODO , providing an extra layer of security.
+   It is a gRPC-based secure messaging design to facilitate the communciation between clients and a 
+   main server. It garantees secure data transfer using TLS/SSL  for both client-server and server-server communication.
+   It receives clients requests and fowards this request to the main server waiting for the main server´s response. 
+   When it receives this response from the main server it relays this response back to the client.
+   A self-signed certificate (server.crt) is used for server authentication, safeguarding trust between entities.
+   We decided to implement this because the setup reduces the attack surface, as the main server is shielded behind the public Server.
+   It also enables scability 
 (_Provide a brief description of the built infrastructure._)
 
 (_Justify the choice of technologies for each server._)
