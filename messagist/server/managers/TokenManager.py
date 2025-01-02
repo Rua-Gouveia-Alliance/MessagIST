@@ -20,11 +20,12 @@ class TokenManager:
         logging.debug(f"Token stored for user {username}.")
         self.lock.acquire()
 
-        storedToken, timestamp = self.tokens[username]
-        difference = (datetime.now() - timestamp).total_seconds()
-        if username in self.tokens and difference <= self.TWOFACTOR_TIME:
-            logging.debug("Token still valid for user {username}.")
-            return False
+        if username in self.tokens:
+            storedToken, timestamp = self.tokens[username]
+            difference = (datetime.now() - timestamp).total_seconds()
+            if difference <= self.TWOFACTOR_TIME:
+                logging.debug("Token still valid for user {username}.")
+                return False
 
         token = secrets.token_urlsafe(16)
         self.tokens[username] = (token, datetime.now())
