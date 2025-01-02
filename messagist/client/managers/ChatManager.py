@@ -1,4 +1,7 @@
 from managers.Chat import Chat
+import MessagISTCrypto
+import MessagISTServer_pb2_grpc as pb2_grpc
+import MessagISTServer_pb2 as pb2
 
 
 class ChatManager:
@@ -9,30 +12,42 @@ class ChatManager:
     def startChat(self, partner):
         self.ctx.logger.debug("Starting a new chat with " + partner)
 
-        # TODO: Verificar se este partner efetivamente existe no server (i.e.
-        # estamos a tentar contactar uma conta que existe mm)
         if partner in self.chats:
             self.ctx.logger.debug("Failed")
             return False
 
-        self.chats[partner] = Chat(self.ctx, partner)
+        stub = pb2_grpc.MessagISTServerStub(self.ctx.channel)
+        request = pb2.GetIdentityKeyRequest(username=partner)
+        response = stub.getIdentityKey(request)
+
+        if response.identityKey == "":
+            self.ctx.logger.debug("Failed to get partner identityKey (doesnt exist)")
+            return False
+
+        self.chats[partner] = Chat(self.ctx, partner, response.identityKey)
         self.ctx.chatsChanged.emit()
         self.ctx.logger.debug("Success")
         return True
 
     def sendMessage(self, message, partner):
         if partner not in self.chats:
-            self.startChat(partner)
+            return False
 
         self.chats[partner].send(message)
         self.ctx.chatsChanged.emit()
 
+        return True
+
     def setChatPassphrase(self, partner, passphrase):
         if partner not in self.chats:
-            self.startChat(partner)
+            return False
 
-        self.chats[partner].setPassphrase(passphrase)
+        if not self.chats[partner].setPassphrase(passphrase):
+            del self.chats[partner]
+            return False
+
         self.ctx.chatsChanged.emit()
+        return True
 
     def logout(self):
         self.ctx.logger.debug("Logging out chat manager")

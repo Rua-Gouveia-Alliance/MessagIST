@@ -248,15 +248,100 @@ If the application window doesn't start maximized, maximize it.
 
 ## Demonstration
 
-Now that all the networks and machines are up and running, ...
+Now that all networks and machines are up and running, let's take a tour of the best features of the application.
 
-*(give a tour of the best features of the application; add screenshots when relevant)*
+### 1. **Login Page**
+When the application starts, it shows the login page to the user.
 
-```sh
-$ demo command
-```
+![Login Page](img/demo/1-LoginPage.png)
 
-*(replace with actual commands)*
+### 2. **Sign-Up Process**
+As we don't have an account yet, we proceed to create a new one.
+
+![Sign-Up Page](img/demo/2-SignUpPage.png)
+
+#### Attempt 1: Invalid Email Domain
+We try to register with an email that doesn’t match the required domain (`tecnico`), and the registration fails.
+
+![Sign-Up Invalid Email](img/demo/3-SignUpInvalidPassword.png)
+
+#### Attempt 2: Invalid Password
+Next, we attempt to register with an invalid password format, which also fails.
+
+![Sign-Up Invalid Password](img/demo/4-SignUpWrongUser.png)
+
+#### Successful Registration
+Finally, we successfully create an account with a valid email and password. The application asks us to confirm our email to complete the sign-up process.
+
+![Confirm Email](img/demo/5-SignUPOK2FA.png)
+
+### 3. **Email Confirmation**
+After confirming our email, we receive a word list for identity recovery.
+
+![Email Confirmation](img/demo/6-2FA_mail.png)
+![2FA SIGN UP OK](img/demo/7-2FA_OK.png)
+
+### 4. **Word List**
+We recieve a word list that can recover our identity key  
+
+![Word list](img/demo/8-word_list_recovery.png)
+
+### 5. **Database Security**
+As seen in the database, user information is stored with hashed passwords. If the database is compromised, attackers cannot access sensitive data like plaintext passwords.
+
+![User table Database](img/demo/9-users_db.png)
+
+### 6. **Login Process**
+We then proceed to log in.
+The application prompts for two-factor authentication (2FA) to enhance security.
+
+![Login](img/demo/10-Login_2FA.png)
+
+### 7. **Chat Creation and Messaging**
+Now, I had created a new account named `anaritarosa` and logged in. The chat menu appears empty.
+
+![Empty Chat Menu](img/demo/11-chat_menu.png)
+
+#### Creating a Chat
+After creating a chat with the previously registered user `rodrigo.arede`, the application prompts for a chat password.
+
+![Chat Password](img/demo/12-start_conversation.png)
+
+#### Sending Messages
+I send two messages from `anaritarosa` to `rodrigo.arede`.
+
+![Message Sent](img/demo/13-send_messages.png)
+
+### 8. **Receiving Messages**
+Switching to the `rodrigo.arede` account, I create a chat with `anaritarosa`. The chat password is required, and the messages from `anaritarosa` are received.
+
+![Chat](img/demo/14-conversation_with_rita.png)
+![Message received](img/demo/15-receiving_messages.png)
+
+### 9. **Messaging Back**
+I send messages from `rodrigo.arede` to `anaritarosa`, and switching back to `anaritarosa`, we can see that the messages are successfully received.
+
+![Send back messages](img/demo/16-send_other_messages.png)
+![Chat menu](img/demo/17-chat_menu_rita.png)
+
+### 10. **Database Security**
+As seen in the database, message information is safely stored. If the database is compromised, attackers cannot access sensitive data like plaintext messages.
+
+![Message Table Database](img/demo/18-messages_db.png)
+### 11. **Logging Out**
+We attempt to log out of the application.
+![Logout](img/demo/18-messages_db.png)
+
+### 12. **Simulating Key Loss**
+To simulate a key loss scenario, I remove the client key.
+
+![identity key](img/demo/20-rodrigo_key.png)
+![Remove key](img/demo/21-rm_key.png)
+
+### 13. **Key Recovery**
+We can recover the key by logging back in and entering the recovery words provided earlier.
+
+![Key Recovery](img/demo/22-recover_key.png)
 
 *(IMPORTANT: show evidence of the security mechanisms in action; show message payloads, print relevant messages, perform simulated attacks to show the defenses in action, etc.)*
 

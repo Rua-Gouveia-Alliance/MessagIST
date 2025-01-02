@@ -14,8 +14,6 @@ class TokenManager:
         self.tokens = {}
         self.lock = threading.Lock()
 
-    # TODO: return false se ja houver entrada?
-    # TODO: Race condition nos tokens, melhor ter lista pa login e signup separadas.
     def sendTwoFactorToken(self, username):
         logging.debug(f"Token stored for user {username}.")
         self.lock.acquire()
@@ -64,11 +62,12 @@ class TokenManager:
         return status
 
     def _sendEmail(self, username, token):
+        # we have created a temporary email address to send 2FA emails
+        # this configuration would need to be updated to use a secure and production-ready email system
         emailSender = "messagistauthentication@gmail.com"
-        emailReceiver = f"{username}@tecnico.ulisboa.pt"
-        # TODO passar a password do mail de forma mais segura
         emailPassword = "wlub cnnk xiiw grdz"
 
+        emailReceiver = f"{username}@tecnico.ulisboa.pt"
         subject = "2FA Token"
         body = (
             f"Hello,\n\nYour Two-Factor Authentication (2FA) code is: {token}"

@@ -4,14 +4,13 @@ from managers.SessionManager import SessionManager
 from messagist.MessagISTContext import MessagISTContext
 
 
-# TODO: Forçar logout quando há erros.
 class MessagIST(QObject):
     chatsChanged = Signal()
     loggedOut = Signal()
 
     def __init__(self, debug, host, port):
         QObject.__init__(self)
-        self.LEASE_TIME = 5000  # 5000ms, 5s
+        self.LEASE_TIME = 250  # 250ms, 0.25s
         self.ctx = MessagISTContext(debug, host, port)
         self.ctx.setChatsChanged(self.chatsChanged)
         self.sessionManager = SessionManager(self.ctx)
@@ -66,7 +65,6 @@ class MessagIST(QObject):
 
         success = self.chatManager.logout() and self.sessionManager.logout(password)
         self.ctx.logger.debug("Logout " + ("successful" if success else "FAILED"))
-        # TODO: Close app if logout not successful?
         self.ctx.logger.debug("Deleting session related timers")
         self.keepAliveTimer.deleteLater()
         self.logoutTimer.deleteLater()

@@ -21,7 +21,7 @@ class ChatManager:
         )
 
         if result and result[0] > 0:
-            return False  # chat already exists
+            return True  # chat already exists
 
         insert_query = """
         INSERT INTO chat (user_1, user_2)
@@ -36,7 +36,7 @@ class ChatManager:
         )
         if not self.db.commit():
             self.db.rollback()
-            return False  # TODO: this is not being treated as a failure
+            return False
         return True
 
     def sendMessage(self, user_id_1, user_id_2, msg):
@@ -120,7 +120,7 @@ class ChatManager:
         WHERE u1.ist_username = %s OR u2.ist_username = %s;
         """
 
-        result = self.db.fetch_one(query, (username,username))
+        result = self.db.fetch_one(query, (username, username))
         if not result:
             return []
         chat_partners = [row[0] for row in result]
