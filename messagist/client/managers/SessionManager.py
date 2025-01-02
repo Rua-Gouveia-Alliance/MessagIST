@@ -83,9 +83,8 @@ class SessionManager:
         if not ist_type:
             return {"success": False, "error": "Username should be your ist email"}
         # TODO descomentar
-        """verify_password_mistakes =  self.verify_password(password,username)
-        if verify_password_mistakes != []:
-            return {"success": False, "error": "Password verification failed:\n" + "\n".join(verify_password_mistakes)}"""
+        if not self.verify_password(password,username):
+            return {"success": False, "error": "Password is invalid. It must be at least 8 characters long, include at least 1 Upper case letter,digit, and a special character."}
         self.ctx.logger.debug("Sending SIGNUP request")
 
         username = username.split("@")[0]
@@ -153,25 +152,17 @@ class SessionManager:
         return True
 
     def verify_password(self, password, username):
-        errors = []
         if len(password) < 8:
-            errors.append("Password must be at least 8 characters long.")
+            return False
 
         if not any(char.isupper() for char in password):
-            errors.append("Password must contain at least one uppercase letter.")
+            return False
         if not any(char.islower() for char in password):
-            errors.append("Password must contain at least one lowercase letter.")
+            return False
         if not any(char.isdigit() for char in password):
-            errors.append("Password must contain at least one digit.")
+            return False
         if not re.search(r"[!@#$%^&*(),.?\":{}|<>]", password):
-            errors.append(
-                "Password must contain at least one special character (e.g., !, @, #)."
-            )
-        common_patterns = ["123", "abc", "password", "qwerty"]
-        if any(pattern in password.lower() for pattern in common_patterns):
-            errors.append(
-                "Password must not contain common patterns like '123', 'abc', or 'password'."
-            )
+            return False
         if password == username:
-            errors.append("Password must not be the same as the name of the user.")
-        return errors
+            return False
+        return True
