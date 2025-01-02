@@ -6,7 +6,7 @@ from datetime import datetime, timezone
 
 
 class Chat:
-    def __init__(self, ctx, partner):
+    def __init__(self, ctx, partner, identityKey):
         self.ctx = ctx
         self.partner = partner
         self.messages = []
@@ -27,17 +27,9 @@ class Chat:
         self.clock = [0, 0]
 
         if partner not in self.ctx.contacts:
-            stub = pb2_grpc.MessagISTServerStub(self.ctx.channel)
-            request = pb2.GetIdentityKeyRequest(username=partner)
-            response = stub.getIdentityKey(request)
-
-            # TODO: what if identity key doesnt exist (response.identity_key == "")
-            if response.identityKey == "":
-                print("teste")
-            else:
-                self.ctx.contacts[partner] = MessagISTCrypto.createContactsEntry(
-                    response.identityKey
-                )
+            self.ctx.contacts[partner] = MessagISTCrypto.createContactsEntry(
+                identityKey
+            )
 
         self.pending = False
         self.partnerIdentityKey = self.ctx.contacts[partner]["key"]
@@ -59,11 +51,13 @@ class Chat:
         salt = response.salt
 
         if salt == "":
-            pass  # TODO: handle trysetsalt error
+            return False
 
         self.sessionKey = MessagISTCrypto.computeSessionKey(passphrase, salt)
         self.ctx.contacts[self.partner]["sessionKey"] = self.sessionKey
         self.pending = False
+
+        return True
 
     def getMessages(self):
         messages = [self.pending]
