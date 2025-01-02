@@ -330,7 +330,7 @@ I send messages from `rodrigo.arede` to `anaritarosa`, and switching back to `an
 ![Send back messages](img/demo/16-send_other_messages.png)
 ![Chat menu](img/demo/17-chat_menu_rita.png)
 
-### 10. **Database Security **
+### 10. **Database Security**
 As seen in the database, message information is safely stored. If the database is compromised, attackers cannot access sensitive data like plaintext messages.
 
 ![Message Table Database](img/demo/18-messages_db.png)
