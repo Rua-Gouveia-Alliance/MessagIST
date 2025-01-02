@@ -45,15 +45,23 @@ The infrastructure for MessagIST consists of several components:
 2. Client
 
 3. Database Server: 
-      Store user and chat data (e.g message history, user login information)
-      For this server we decided to use PostgreSQL it is a strong choice for storing user and chat data due to its robust security features, such as ACID compliance for data integrity. It offers advanced authentication and authorization, including SSL/TLS encryption for secure communication, access control through role-based permissions, and logging mechanisms for auditing. Additionally, PostgreSQL ensures reliable, scalable data storage with the ability to handle complex queries, making it ideal for applications that need to store and manage sensitive information securely.
-      
-      ADICIONAR FONTES ???
-      https://satoricyber.com/postgres-security/3-pillars-of-postgresql-security/
+   Stores user and chat data (e.g message history, user login information).
+   For this server we decided to use PostgreSQL it is a strong choice for
+   storing user and chat data due to its robust security features, such as ACID
+   compliance for data integrity. It offers advanced authentication and
+   authorization, including SSL/TLS encryption for secure communication, access
+   control through role-based permissions, and logging mechanisms for auditing.
+   Additionally, PostgreSQL ensures reliable, scalable data storage with the
+   ability to handle complex queries, making it ideal for applications that need
+   to store and manage sensitive information securely.
+
+   ADICIONAR FONTES ???
+   https://satoricyber.com/postgres-security/3-pillars-of-postgresql-security/
 
 4. Dmz Server:
-   The Dmz server employs gRPC with SSL/TLS between the client and the main server.
-   A server certificate is utilized to validate server´s identity  and ensure that the communication occurs only with a trusted source
+   The Dmz server employs gRPC with SSL/TLS between the client and the main
+   server. A server certificate is utilized to validate server´s identity and
+   ensure that the communication occurs only with a trusted source
 (_Provide a brief description of the built infrastructure._)
 
 (_Justify the choice of technologies for each server._)
