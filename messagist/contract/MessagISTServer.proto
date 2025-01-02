@@ -36,7 +36,7 @@ message SubmitTwoFactorTokenLoginRequest {
     bytes password    = 2;
     bytes salt        = 3;
     bytes identityKey = 4;
-    string token    = 4;
+    string token      = 5;
 }
 
 message SubmitTwoFactorTokenLoginResponse {
