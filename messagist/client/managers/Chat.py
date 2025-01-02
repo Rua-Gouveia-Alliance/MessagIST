@@ -77,6 +77,11 @@ class Chat:
             return False
 
         # Advancing our clock entry before sending the message
+        # TODO: shouldn't we wait the receiving of all messages (len(pedding buffer) == 0), before sending our message?
+        #       if we are replaying all the messages in a new instance of the client, and we try to send a message before all
+        #       other messages are already local, we could be using a clock in the past (between previously sent messages).
+        #       maybe create a chat loading screen where you cannot send messages while you receive messages from the server
+        #       (server should send with the last message a flag making you know it's the last one it has from that convo).
         self._advanceClock()
 
         message = self._createMessage(message)
@@ -121,46 +126,41 @@ class Chat:
         message = json.loads(unprotectedMessage)
         message["sender"] = sentMessage
 
-        # Checking the message clock
-        if not self._verifyMessageClock(message):
-            self.ctx.logger.debug("Invalid clock")
-            self.ctx.logger.debug("Dropped message")
-            return  # Drop message
+        self.ctx.logger.debug("Appending to the buffered messages")
+        if (ts, message) not in self.bufferedMessages:
+            self.bufferedMessages.append((ts, message))
+            self.bufferedMessages.sort()
 
-        if ts == self.timestamp:
-            self.ctx.logger.debug("Appending to the chat")
-            self.messages.append(message)
+        while (
+            len(self.bufferedMessages) != 0
+            and self.bufferedMessages[0][0] <= self.timestamp
+        ):
+            # check for repeated timestamp
+            if self.bufferedMessages[0][0] < self.timestamp:
+                self.bufferedMessages.pop(0)
+                continue
+
             self.timestamp += 1
-            self._advanceClock(message["clock"])
-            while (
-                len(self.bufferedMessages) != 0
-                and self.bufferedMessages[0][0] == self.timestamp
-            ):
-                message = self.bufferedMessages.pop(0)[1]
-                if self._verifyMessageClock(message):
-                    self.messages.append(message)
-                    self.timestamp += 1
-                    self._advanceClock(message["clock"])
-        elif ts > self.timestamp:
-            self.ctx.logger.debug("Appending to the buffered messages")
-            if (ts, message) not in self.bufferedMessages:
-                self.bufferedMessages.append((ts, message))
-                self.bufferedMessages.sort()
+            message = self.bufferedMessages.pop(0)[1]
+            if self._verifyMessageClock(message):
+                self.ctx.logger.debug("Appending to the chat")
+                self.messages.append(message)
+                self._advanceClock(message["clock"])
 
     def _advanceClock(self, clock=None):
-        self.clock[self.index] += 1
-        if clock is not None:
+        if clock is None:
+            # increment local clock when sending a message
+            self.clock[self.index] += 1
+        else:
+            self.clock[self.index] = max(self.clock[self.index], clock[self.index])
             self.clock[self.partnerIndex] = max(
                 self.clock[self.partnerIndex], clock[self.partnerIndex]
             )
 
     def _verifyMessageClock(self, message):
         clock = message["clock"]
-        if len(self.messages) > 0:
-            previousClock = self.messages[-1]["clock"]
-            if clock[0] < previousClock[0] and clock[1] < previousClock[1]:
-                return False
 
+        # check for repeated colock
         for msg in self.messages:
             if (
                 msg["clock"][0] == clock[0]
@@ -168,6 +168,21 @@ class Chat:
                 and msg["sender"] == message["sender"]
             ):
                 return False
+
+        if len(self.messages) > 0:
+            # traditional vector clocks dont make sense for this use case. this condition
+            # that they guarantee is already guaranteed by the conditions uncommented below,
+            # which are the same thing as having a counter for each client
+            # if clock[0] < self.clock[0] and clock[1] < self.clock[1]:
+            #    return False
+
+            if message["sender"]:
+                if clock[self.index] != self.clock[self.index] + 1:
+                    return False
+            else:
+                if clock[self.partnerIndex] != self.clock[self.partnerIndex] + 1:
+                    return False
+
         return True
 
     def _createMessage(self, message):
