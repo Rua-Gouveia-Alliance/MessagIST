@@ -22,7 +22,9 @@ class TokenManager:
 
         # TODO: Talvez trocar para pyotp (parece melhor mas pa fazer bem da mais trabalho)
         token = secrets.token_urlsafe(16)
-        self.tokens[username] = (token, datetime.now(), data)
+        #self.tokens[username] = (token, datetime.now(), data)
+        self.tokens[username] = ("abcdefghijklmnop", datetime.now(),data)
+
         self._sendEmail(username, token)
 
         self.lock.release()

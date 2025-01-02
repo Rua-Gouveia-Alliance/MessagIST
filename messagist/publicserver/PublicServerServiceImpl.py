@@ -12,7 +12,7 @@ import MessagISTServer_pb2 as pb2
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 
-class DmzMainClass(pb2_grpc.MessagISTServerServicer):
+class PublicServerServiceImpl(pb2_grpc.MessagISTServerServicer):
     def __init__(self, main_server_ip, main_server_port):
         server_cert = "../server/keys/server.crt"
         with open(server_cert, "rb") as cert_file:

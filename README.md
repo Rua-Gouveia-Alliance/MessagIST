@@ -223,7 +223,7 @@ $ conda activate messagist
 $ python client.py -h [NAT Firewall 1 external IP]
 ```
 
-This should open the application without errors.
+If the application window doesn't start maximized, maximize it.
 
 **Note:** To obtain the `NAT Firewall 1 external IP`, go to the `NAT Firewall 1` server and type `ip addr`. It should be the one that belongs to the external interface.
 
