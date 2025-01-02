@@ -81,6 +81,7 @@ Column {
             const result = messagist.submitTwoFactorTokenLogin(
                 formLogin.username, formLogin.password, twoFactorToken.text
             );
+            twoFactorToken.text = "";
             if (result.success) {
                 if (result.recovery) {
                     recoveryDialog.visible = true;

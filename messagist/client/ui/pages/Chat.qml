@@ -12,6 +12,7 @@ Column {
         id: button
         text: "Go Back"
         onClicked: stack.pop()
+        
     }
 
     Title {
@@ -41,7 +42,10 @@ Column {
             id: send
             text: "Send"
             font.pointSize: 12
-            onClicked: messagist.sendMessage(message.text, partner);
+            onClicked: {
+                messagist.sendMessage(message.text, partner);
+                message.text = "";
+            }
         }
     }
 

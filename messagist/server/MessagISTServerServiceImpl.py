@@ -28,6 +28,8 @@ class MessagISTServerServiceImpl(pb2_grpc.MessagISTServerServicer):
         salt = request.salt
         identityKey = request.identityKey
         data = {"password": password, "salt": salt, "identityKey": identityKey}
+        if self.userManager.existingUser(username):
+            return pb2.SignupResponse(success=False)
         success = self.tokenManager.sendTwoFactorToken(username, data)
         if not success:
             logging.debug("SIGNUP FAILED")

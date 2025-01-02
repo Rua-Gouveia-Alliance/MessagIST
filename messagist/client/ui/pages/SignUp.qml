@@ -78,6 +78,7 @@ Column {
             const result = messagist.submitTwoFactorTokenSignUp(
                 formSignUp.username, formSignUp.password, twoFactorToken.text
             );
+            twoFactorToken.text = "";
             if (result.success) {
                 twoFactorAuthenticationDialog.visible = false;
                 wordList.text = result.words;
