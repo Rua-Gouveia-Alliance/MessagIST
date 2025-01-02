@@ -44,24 +44,34 @@ The infrastructure for MessagIST consists of several components:
 
 2. Client
 
-3. Database Server: 
-   Stores user and chat data (e.g message history, user login information).
-   For this server we decided to use PostgreSQL it is a strong choice for
-   storing user and chat data due to its robust security features, such as ACID
-   compliance for data integrity. It offers advanced authentication and
-   authorization, including SSL/TLS encryption for secure communication, access
-   control through role-based permissions, and logging mechanisms for auditing.
-   Additionally, PostgreSQL ensures reliable, scalable data storage with the
-   ability to handle complex queries, making it ideal for applications that need
-   to store and manage sensitive information securely.
-
+3. Database Server:
+   It is a PostreSQL instance hosted in a secure server.
+   It includes SSL/TLS Encryption: The server certificate in /keys folder 
+   guarantee that the communications between the client and the server is encrypted 
+   and secure. The SSL Mode is require in the code. 
+   This server stores user and chat data including message history and login information.
+   For this server we decided to use PostgreSQL because it is a strong choice for
+   storing this information due to its robust security features, such as ACID
+   compliance for data integrity. 
+   It also offers advanced authentication and authorization, including SSL/TLS 
+   encryption for secure communication, access control through role-based permissions, 
+   and logging mechanisms for auditing. Also, PostgreSQL ensures reliable, 
+   scalable data storage with the
+   ability to handle complex queries. 
+   In addition, this tool had been studied previously, therefore every member
+   of the group was confortable and had experience using it.
+   We choose the psycopg library, that is a PostgreSQL adapter for Python, 
+   that allows Python applications to interact with PostgreSLQ. The reason why
+   we choose this library it is because of its performance, security: Supports parameterized queries, 
+   protecting against SQL injection attacks and flexibility.
    ADICIONAR FONTES ???
    https://satoricyber.com/postgres-security/3-pillars-of-postgresql-security/
 
-4. Dmz Server:
+4. Public Server:
    The Dmz server employs gRPC with SSL/TLS between the client and the main
-   server. A server certificate is utilized to validate server´s identity and
-   ensure that the communication occurs only with a trusted source
+   server. It receives the requests from the client, establishes a secure
+   connection to the main server, and forwards the requests.
+   A self-signed certificate (server.crt) is used to authenticate the servers.
 (_Provide a brief description of the built infrastructure._)
 
 (_Justify the choice of technologies for each server._)

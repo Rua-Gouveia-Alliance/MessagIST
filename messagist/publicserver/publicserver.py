@@ -7,7 +7,7 @@ from concurrent import futures
 
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from DmzMainClass import DmzMainClass
+from PublicServerServiceImpl import PublicServerServiceImpl
 
 sys.path.insert(1, "../contract/target/")
 import grpc
@@ -74,7 +74,7 @@ def main():
 
         server = grpc.server(futures.ThreadPoolExecutor(max_workers=1))
         pb2_grpc.add_MessagISTServerServicer_to_server(
-            DmzMainClass(args.serverip, args.serverport), server
+            PublicServerServiceImpl(args.serverip, args.serverport), server
         )
 
         # GRPS WITH TLS
