@@ -42,8 +42,11 @@ Column {
             text: "Send"
             font.pointSize: 12
             onClicked: {
-                messagist.sendMessage(message.text, partner);
-                message.text = "";
+                if (messagist.sendMessage(message.text, partner)) {
+                    message.text = "";
+                } else {
+                    stack.pop()
+                }
             }
         }
     }
