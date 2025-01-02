@@ -101,7 +101,7 @@ everything was fairly straightforward.
 
 #### 2.2.1. Network and Machine Setup
 The infrastructure for MessagIST consists of several components:
-
+   It is a gRPC-based 
 1. Main Server:
    The Main Server is located behind the DMZ in a private network and handles the core business logic and operations. 
    The Main Server receives and forwards requests from the Public Server (DMZ), with the communication between these 
@@ -163,7 +163,25 @@ The infrastructure for MessagIST consists of several components:
 (_Justify the choice of technologies for each server._)
 
 #### 2.2.2. Server Communication Security
+   To garentee security communications secure communication between servers, we used Transport Layer Security (TLS) protocol encryption. 
+   TLS guarantees confidentiality, integrity, and authenticity (CIA) for all transmitted data.
+   We implemented a Server-Side TLS:
+      Each server secures communications using a TLS certificate (server.crt) and a private key (server.key).
+      Clients establish secure connections by trusting the server's self-signed certificate (server.crt), 
+      which they use to verify the server's authenticity.
+      After the server is authenticated, all communication is encrypted to prevent eavesdropping or tampering.
+      For server-to-server communication (between Public Server and Main Server) we use the same TLS setup.
+      Each server validates the other´s identity using their respective self-signed certificates.
+      The Database Server communicates with the Main Server over a secure TLS connection. This happens by setting ssl = require in the
+      PostgresSQL configuration file. The database server´s certificate and server key are stored in the PSQL configuration file
 
+      Key distribution: 
+      Server Private Key (server.key) - private key generated for each server and used for signing and encrypting communications
+      Server Certificate (server.crt) - A self-signed certificate is generate for each server.
+      The Public Server certificate is shared with the clients.
+      The database server's certificate and key are configured within PostgreSQL, and the Main Server is set to trust the database server's certificate.
+
+      
 (_Discuss how server communications were secured, including the secure channel solutions implemented and any challenges encountered._)
 
 (_Explain what keys exist at the start and how are they distributed?_)
@@ -229,6 +247,6 @@ In practice, these requirements translate to:
 <a name="item3">3.</a> [Daniel J. Bernstein and Tanja Lange, SafeCurves: choosing safe curves for elliptic-curve cryptography, 2024](https://safecurves.cr.yp.to)
 
 <a name="item4">4.</a> [Daniel J. Bernstein, Niels Duif, Tanja Lange, Peter Schwabe and Bo-Yin Yang, Ed25519: high-speed high-security signatures, 2012](https://ed25519.cr.yp.to/index.html)
-
+https://docs.oracle.com/javase/8/docs/technotes/guides/security/jsse/tls.html
 ----
 END OF REPORT
