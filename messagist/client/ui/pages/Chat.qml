@@ -12,7 +12,6 @@ Column {
         id: button
         text: "Go Back"
         onClicked: stack.pop()
-        
     }
 
     Title {
