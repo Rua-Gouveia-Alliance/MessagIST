@@ -82,7 +82,7 @@ class Chat:
         #       other messages are already local, we could be using a clock in the past (between previously sent messages).
         #       maybe create a chat loading screen where you cannot send messages while you receive messages from the server
         #       (server should send with the last message a flag making you know it's the last one it has from that convo).
-        clock = self.clock
+        clock = self.clock[:]
         clock[self.index] += 1
 
         message = self._createMessage(message, clock)
@@ -148,11 +148,8 @@ class Chat:
                 self.messages.append(message)
                 self._advanceClock(message["clock"])
 
-    def _advanceClock(self, clock=None):
-        if clock is None:
-            # increment local clock when sending a message
-            self.clock[self.index] += 1
-        else:
+    def _advanceClock(self, clock):
+        if clock:
             self.clock[self.index] = max(self.clock[self.index], clock[self.index])
             self.clock[self.partnerIndex] = max(
                 self.clock[self.partnerIndex], clock[self.partnerIndex]

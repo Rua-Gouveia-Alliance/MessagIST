@@ -24,8 +24,7 @@ def parse_args():
     parser.add_argument(
         "-i",
         "--dbip",
-        #default="192.168.2.2",
-        default = "localhost",
+        default="192.168.2.2",
         help="ip of the PostgreSQL DB Server",
     )
     parser.add_argument(
