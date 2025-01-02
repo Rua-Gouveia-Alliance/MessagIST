@@ -328,7 +328,7 @@ won't even be decrypted.
 
 ## 3. Conclusion
 
-For our group, the main achievements of this work were successfully implementing 
+For our group, the main achievement of this work was successfully implementing
 a secure messaging application while using a variety of cryptographic techniques. 
 Additionally, we implemented creative solutions that enhanced our work.
 We believe that all the security requirements were satisfied.
