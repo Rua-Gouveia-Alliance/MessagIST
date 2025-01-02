@@ -100,6 +100,7 @@ Column {
             formAction: (ist_email, password) => {
                 const result = messagist.signup(ist_email, password);
                 if (result.success) {
+                    errorMessage.text = "";
                     twoFactorAuthenticationDialog.visible = true
                 } else {
                     errorMessage.text = result.error;

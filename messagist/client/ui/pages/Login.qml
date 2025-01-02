@@ -43,8 +43,7 @@ Column {
         modal: true
         visible: false
         onAccepted: {
-            console.log(form.password)
-            const success = messagist.recoverIdentityKey(wordList.text, form.password);
+            const success = messagist.recoverIdentityKey(wordList.text, formLogin.password);
             if (success) {
                 stack.push("UserChats.qml");
             } else {
@@ -105,6 +104,9 @@ Column {
             formAction: (username, password) => {
                 const result = messagist.login(username, password);
                 if (result.success) {
+                    formLogin.username = "";
+                    formLogin.password = "";
+                    errorMessage.text = "";
                     twoFactorAuthenticationDialog.visible = true;
                 } else {
                     errorMessage.text = result.error;
