@@ -10,31 +10,36 @@ from email.message import EmailMessage
 
 class TokenManager:
     def __init__(self):
-        self.TWOFACTOR_TIME = 180  #3min
+        self.TWOFACTOR_TIME = 180  # 3min
         self.tokens = {}
         self.lock = threading.Lock()
 
     # TODO: return false se ja houver entrada?
     # TODO: Race condition nos tokens, melhor ter lista pa login e signup separadas.
-    def sendTwoFactorToken(self, username, data=None):
+    def sendTwoFactorToken(self, username):
         logging.debug(f"Token stored for user {username}.")
         self.lock.acquire()
 
-        # TODO: Talvez trocar para pyotp (parece melhor mas pa fazer bem da mais trabalho)
+        if username in self.tokens:
+            storedToken, timestamp = self.tokens[username]
+            difference = (datetime.now() - timestamp).total_seconds()
+            if difference <= self.TWOFACTOR_TIME:
+                logging.debug("Token still valid for user {username}.")
+                return False
+
         token = secrets.token_urlsafe(16)
-        self.tokens[username] = (token, datetime.now(), data)
+        self.tokens[username] = (token, datetime.now())
 
         self._sendEmail(username, token)
 
         self.lock.release()
 
         return True
-    def clearTwoFactorToken(self, username):
 
+    def clearTwoFactorToken(self, username):
         if username in self.tokens:
             del self.tokens[username]
             logging.debug(f"Token cleared for user {username}.")
-
 
     def verifyTwoFactorToken(self, username, token):
         self.lock.acquire()
@@ -43,7 +48,7 @@ class TokenManager:
             logging.debug("No token found for user")
             return False, None
 
-        storedToken, timestamp, data = self.tokens[username]
+        storedToken, timestamp = self.tokens[username]
         difference = (datetime.now() - timestamp).total_seconds()
         if difference > self.TWOFACTOR_TIME:
             logging.debug("Token expired")
@@ -56,7 +61,7 @@ class TokenManager:
             self.clearTwoFactorToken(username)
 
         self.lock.release()
-        return status, data
+        return status
 
     def _sendEmail(self, username, token):
         emailSender = "messagistauthentication@gmail.com"

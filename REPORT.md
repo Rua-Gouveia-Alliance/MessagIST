@@ -101,7 +101,8 @@ everything was fairly straightforward.
 
 #### 2.2.1. Network and Machine Setup
 The infrastructure for MessagIST consists of several components:
-   It is a gRPC-based 
+   It is a gRPC-based infracture. We decided to use this framework because it has a efficient objetct serialization and 
+   every member of the group has used it before.
 1. Main Server:
    The Main Server is located behind the DMZ in a private network and handles the core business logic and operations. 
    The Main Server receives and forwards requests from the Public Server (DMZ), with the communication between these 

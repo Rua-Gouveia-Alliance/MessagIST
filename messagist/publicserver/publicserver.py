@@ -65,11 +65,6 @@ def main():
     config_log(args.debug)
 
     try:
-        # TODO: Aumentar thread pool para 10.
-        # Preciso trocar a maneira como a base de dados funciona.
-        # Cada thread tem que ter a sua propria db e a classe da base de dados
-        # talvez tenha que ser trocada para ser seguro fazer operacoes concorrentes.
-
         server = grpc.server(futures.ThreadPoolExecutor(max_workers=1))
         pb2_grpc.add_MessagISTServerServicer_to_server(
             PublicServerServiceImpl(args.serverip, args.serverport), server
