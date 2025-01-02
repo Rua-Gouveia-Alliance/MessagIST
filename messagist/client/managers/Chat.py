@@ -76,15 +76,16 @@ class Chat:
         if self.pending:
             return False
 
-        # Advancing our clock entry before sending the message
+        # Calculating message clock
         # TODO: shouldn't we wait the receiving of all messages (len(pedding buffer) == 0), before sending our message?
         #       if we are replaying all the messages in a new instance of the client, and we try to send a message before all
         #       other messages are already local, we could be using a clock in the past (between previously sent messages).
         #       maybe create a chat loading screen where you cannot send messages while you receive messages from the server
         #       (server should send with the last message a flag making you know it's the last one it has from that convo).
-        self._advanceClock()
+        clock = self.clock
+        clock[self.index] += 1
 
-        message = self._createMessage(message)
+        message = self._createMessage(message, clock)
         stub = pb2_grpc.MessagISTServerStub(self.ctx.channel)
         request = pb2.SendRequest(
             token=self.ctx.sessionToken, message=message, partner=self.partner
@@ -185,9 +186,9 @@ class Chat:
 
         return True
 
-    def _createMessage(self, message):
+    def _createMessage(self, message, clock):
         message = {
-            "clock": self.clock,
+            "clock": clock,
             "sender_istid": self.ctx.username,
             "receiver_istid": self.partner,
             "timestamp": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
