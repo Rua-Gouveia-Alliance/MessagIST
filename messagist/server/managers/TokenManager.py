@@ -10,7 +10,7 @@ from email.message import EmailMessage
 
 class TokenManager:
     def __init__(self):
-        self.TWOFACTOR_TIME = 120  # 2min
+        self.TWOFACTOR_TIME = 180  #3min
         self.tokens = {}
         self.lock = threading.Lock()
 
@@ -27,28 +27,27 @@ class TokenManager:
 
         self.lock.release()
 
+        return True
     def clearTwoFactorToken(self, username):
-        self.lock.acquire()
 
         if username in self.tokens:
             del self.tokens[username]
             logging.debug(f"Token cleared for user {username}.")
 
-        self.lock.release()
 
     def verifyTwoFactorToken(self, username, token):
         self.lock.acquire()
 
         if username not in self.tokens:
             logging.debug("No token found for user")
-            return False
+            return False, None
 
         storedToken, timestamp, data = self.tokens[username]
         difference = (datetime.now() - timestamp).total_seconds()
         if difference > self.TWOFACTOR_TIME:
             logging.debug("Token expired")
             self.clearTwoFactorToken(username)
-            return False
+            return False, None
 
         status = token == storedToken
         if status:

@@ -79,7 +79,7 @@ Column {
         visible: false
         onAccepted: {
             const result = messagist.submitTwoFactorTokenLogin(
-                form.username, form.password, twoFactorToken.text
+                formLogin.username, formLogin.password, twoFactorToken.text
             );
             if (result.success) {
                 if (result.recovery) {

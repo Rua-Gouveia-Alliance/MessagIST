@@ -45,10 +45,10 @@ class MessagISTServerServiceImpl(pb2_grpc.MessagISTServerServicer):
             success = self.userManager.newUser(
                 username, data["password"], data["salt"], data["identityKey"]
             )
-            return pb2.SubmitTwoFactorTokenSignUpRequest(success=success)
+            return pb2.SubmitTwoFactorTokenSignUpResponse(success=success)
 
         logging.debug("SUBMITTWOFACTORTOKEN FAILED")
-        return pb2.SubmitTwoFactorTokenSignUpRequest(success=False)
+        return pb2.SubmitTwoFactorTokenSignUpResponse(success=False)
 
     def getSalt(self, request, context):
         logging.debug("GETSALT request received")
@@ -87,12 +87,12 @@ class MessagISTServerServiceImpl(pb2_grpc.MessagISTServerServicer):
         if success:
             logging.debug("Valid token")
             token = self.sessionManager.startSession(username)
-            return pb2.SubmitTwoFactorTokenLoginRequest(
+            return pb2.SubmitTwoFactorTokenLoginResponse(
                 success=(token != ""), token=token
             )
 
         logging.debug("SUBMITTWOFACTORTOKEN FAILED")
-        return pb2.SubmitTwoFactorTokenLoginRequest(success=False, token="")
+        return pb2.SubmitTwoFactorTokenLoginResponse(success=False, token="")
 
     def send(self, request, context):
         logging.debug("SEND request received")
@@ -174,7 +174,7 @@ class MessagISTServerServiceImpl(pb2_grpc.MessagISTServerServicer):
         if username == partner:
             # cant chat with yourself
             logging.debug("TRYSETSALT FAILED")
-            return pb2.TrySetSaltResponse(slat="")
+            return pb2.TrySetSaltResponse(salt="")
 
         user_id = self.userManager.getUserId(username)
         partner_id = self.userManager.getUserId(partner)

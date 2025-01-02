@@ -35,10 +35,12 @@ class SessionManager:
         return response.salt
 
     def login(self, username, password):
+        
         if not username or username == "":
             return {"success": False, "error": "Username cannot be empty"}
         if not password or password == "":
             return {"success": False, "error": "Password cannot be empty"}
+        username = username.split("@")[0]
 
         salt = self.getSalt(username)
         if salt == "":
@@ -55,6 +57,8 @@ class SessionManager:
 
     def submitTwoFactorTokenLogin(self, username, password, token):
         self.ctx.logger.debug("Sending SUBMITTWOFACTORTOKEN request")
+        
+        username = username.split("@")[0]
 
         stub = pb2_grpc.MessagISTServerStub(self.ctx.channel)
         request = pb2.SubmitTwoFactorTokenLoginRequest(username=username, token=token)
@@ -105,6 +109,7 @@ class SessionManager:
 
     def submitTwoFactorTokenSignUp(self, username, password, token):
         self.ctx.logger.debug("Sending SUBMITTWOFACTORTOKEN request")
+        username = username.split("@")[0]
 
         stub = pb2_grpc.MessagISTServerStub(self.ctx.channel)
         request = pb2.SubmitTwoFactorTokenSignUpRequest(username=username, token=token)

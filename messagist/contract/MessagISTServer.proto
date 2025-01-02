@@ -34,15 +34,25 @@ message LoginResponse {
     string token = 2;
 }
 
-message SubmitTwoFactorTokenRequest {
+message SubmitTwoFactorTokenLoginRequest {
     string username = 1;
     string token    = 2;
 }
 
-message SubmitTwoFactorTokenResponse {
+message SubmitTwoFactorTokenLoginResponse {
     bool success = 1;
     string token = 2;
 }
+
+message SubmitTwoFactorTokenSignUpRequest {
+    string username = 1;
+    string token    = 2;
+}
+
+message SubmitTwoFactorTokenSignUpResponse {
+    bool success = 1;
+}
+
 
 message SendRequest {
     string token    = 1;
@@ -89,7 +99,8 @@ service MessagISTServer {
     rpc signup (SignupRequest) returns (SignupResponse);
     rpc getSalt (GetSaltRequest) returns (GetSaltResponse);
     rpc login (LoginRequest) returns (LoginResponse);
-    rpc submitTwoFactorToken(SubmitTwoFactorTokenRequest) returns (SubmitTwoFactorTokenResponse);
+    rpc submitTwoFactorTokenLogin(SubmitTwoFactorTokenLoginRequest) returns (SubmitTwoFactorTokenLoginResponse);
+    rpc submitTwoFactorTokenSignUp(SubmitTwoFactorTokenSignUpRequest) returns (SubmitTwoFactorTokenSignUpResponse);
     rpc send (SendRequest) returns (SendResponse);
     rpc keepAlive (KeepAliveRequest) returns (KeepAliveResponse);
     rpc getIdentityKey (GetIdentityKeyRequest) returns (GetIdentityKeyResponse);

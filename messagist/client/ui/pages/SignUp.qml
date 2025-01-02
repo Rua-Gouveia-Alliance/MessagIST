@@ -76,9 +76,10 @@ Column {
         visible: false
         onAccepted: {
             const result = messagist.submitTwoFactorTokenSignUp(
-                form.username, form.password, twoFactorToken.text
+                formSignUp.username, formSignUp.password, twoFactorToken.text
             );
             if (result.success) {
+                twoFactorAuthenticationDialog.visible = false;
                 wordList.text = result.words;
                 wordListDialog.visible = true;
             } else {
@@ -93,6 +94,7 @@ Column {
         anchors.horizontalCenter: parent.horizontalCenter
 
         Form {
+            id: formSignUp
             text: "Sign Up"
             formAction: (ist_email, password) => {
                 const result = messagist.signup(ist_email, password);

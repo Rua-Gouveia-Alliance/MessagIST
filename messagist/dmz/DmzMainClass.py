@@ -84,3 +84,20 @@ class DmzMainClass(pb2_grpc.MessagISTServerServicer):
         except grpc.RpcError as e:
             logging.error(f"Error: {e}")
             return pb2.TrySetSaltResponse(salt="")
+    def submitTwoFactorTokenSignUp(self, request, context):
+        try:
+            stub = pb2_grpc.MessagISTServerStub(self.ms_channel)
+            response = stub.submitTwoFactorTokenSignUp(request)
+            return response
+        except grpc.RpcError as e:
+            logging.error(f"Error: {e}")
+            return pb2.TrySetSaltResponse(salt="")
+
+    def submitTwoFactorTokenLogin(self, request, context):
+        try:
+            stub = pb2_grpc.MessagISTServerStub(self.ms_channel)
+            response = stub.submitTwoFactorTokenLogin(request)
+            return response
+        except grpc.RpcError as e:
+            logging.error(f"Error: {e}")
+            return pb2.TrySetSaltResponse(salt="")
