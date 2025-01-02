@@ -60,27 +60,13 @@ class SessionManager:
 
         username = username.split("@")[0]
 
-        salt = MessagISTCrypto.getSalt(username)
-        hiddenPassword = MessagISTCrypto.prepareForStorage(password, salt)
-
-        identityKey = MessagISTCrypto.generateIdentityKey()
-        publicKeyBytes = identityKey.public_key().public_bytes_raw()
-
         stub = pb2_grpc.MessagISTServerStub(self.ctx.channel)
-        request = pb2.SubmitTwoFactorTokenLoginRequest(
-            username=username,
-            password=hiddenPassword,
-            identityKey=publicKeyBytes,
-            salt=salt,
-            token=token,
-        )
+        request = pb2.SubmitTwoFactorTokenLoginRequest(username=username, token=token)
         response = stub.submitTwoFactorTokenLogin(request)
         if response.success:
-            MessagISTCrypto.storeKey(username, password, identityKey)
-
             self.ctx.setUsername(username)
             self.ctx.setSessionToken(response.token)
-            self.ctx.setIdentityKey(identityKey)
+            self.ctx.setIdentityKey(MessagISTCrypto.loadKey(username, password))
             self.ctx.setContacts(MessagISTCrypto.loadContacts(username, password))
             self.ctx.setActiveSession(True)
             return {"success": True}
@@ -121,11 +107,23 @@ class SessionManager:
         self.ctx.logger.debug("Sending SUBMITTWOFACTORTOKEN request")
         username = username.split("@")[0]
 
+        salt = MessagISTCrypto.getSalt(username)
+        hiddenPassword = MessagISTCrypto.prepareForStorage(password, salt)
+
+        identityKey = MessagISTCrypto.generateIdentityKey()
+        publicKeyBytes = identityKey.public_key().public_bytes_raw()
+
         stub = pb2_grpc.MessagISTServerStub(self.ctx.channel)
-        request = pb2.SubmitTwoFactorTokenSignUpRequest(username=username, token=token)
+        request = pb2.SubmitTwoFactorTokenSignUpRequest(
+            username=username,
+            password=hiddenPassword,
+            identityKey=publicKeyBytes,
+            salt=salt,
+            token=token,
+        )
         response = stub.submitTwoFactorTokenSignUp(request)
         if response.success:
-            identityKey = MessagISTCrypto.loadKey(username, password)
+            MessagISTCrypto.storeKey(username, password, identityKey)
             wordList = MessagISTCrypto.encodeAsWords(identityKey)
             return {"success": True, "words": "\n".join(wordList)}
 

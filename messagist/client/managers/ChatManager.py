@@ -9,8 +9,6 @@ class ChatManager:
     def startChat(self, partner):
         self.ctx.logger.debug("Starting a new chat with " + partner)
 
-        # TODO: Verificar se este partner efetivamente existe no server (i.e.
-        # estamos a tentar contactar uma conta que existe mm)
         if partner in self.chats:
             self.ctx.logger.debug("Failed")
             return False

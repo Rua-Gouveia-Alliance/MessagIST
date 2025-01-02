@@ -14,8 +14,6 @@ class TokenManager:
         self.tokens = {}
         self.lock = threading.Lock()
 
-    # TODO: return false se ja houver entrada?
-    # TODO: Race condition nos tokens, melhor ter lista pa login e signup separadas.
     def sendTwoFactorToken(self, username):
         logging.debug(f"Token stored for user {username}.")
         self.lock.acquire()
