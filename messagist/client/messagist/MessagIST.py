@@ -10,7 +10,7 @@ class MessagIST(QObject):
 
     def __init__(self, debug, host, port):
         QObject.__init__(self)
-        self.LEASE_TIME = 250  # 250ms, 0.25s
+        self.LEASE_TIME = 2000  # 2000ms, 2s
         self.ctx = MessagISTContext(debug, host, port)
         self.ctx.setChatsChanged(self.chatsChanged)
         self.sessionManager = SessionManager(self.ctx)

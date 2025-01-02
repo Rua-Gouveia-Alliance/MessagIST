@@ -6,7 +6,7 @@ from managers.Session import Session
 
 class SessionManager:
     def __init__(self):
-        self.LEASE_TIME = 0.5  # 0.5s
+        self.LEASE_TIME = 2  # 2s
         self.sessions = {}
         self.lock = threading.Lock()
 
