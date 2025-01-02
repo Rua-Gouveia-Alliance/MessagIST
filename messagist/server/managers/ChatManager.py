@@ -120,11 +120,11 @@ class ChatManager:
         WHERE u1.ist_username = %s OR u2.ist_username = %s;
         """
 
-        result = self.db.fetch_one(query, (username))
+        result = self.db.fetch_one(query, (username,username))
         if not result:
             return []
-
         chat_partners = [row[0] for row in result]
+
         return chat_partners
 
     def getChatSalt(self, user_id, partner_id):
