@@ -102,7 +102,7 @@ everything was fairly straightforward.
 #### 2.2.1. Network and Machine Setup
 The infrastructure for MessagIST consists of several components:
    It is a gRPC-based infracture. We decided to use this framework because it has a efficient objetct serialization and 
-   every member of the group has used it before.
+   every member of the group has used it before. Additionally, gRPC facilitates high-performance communication between servers 
 1. Main Server:
    The Main Server is located behind the DMZ in a private network and handles the core business logic and operations. 
    The Main Server receives and forwards requests from the Public Server (DMZ), with the communication between these 
@@ -111,10 +111,9 @@ The infrastructure for MessagIST consists of several components:
    Once the Main Server receives requests from the Public Server, it processes them based on the business logic.
    It then interacts with the Database Server for data storage and retrieval, providing that relevant data is securely 
    stored and managed. The interaction with the Database Server is done using secure database connections.
-   The server uses gRPC for communication. 
    Additionally, the Main Server interacts with the Public Server, receiving its requests and processing them . 
-   Once the Main Server has completed its tasks, it sends the responses back to the Public Server. T
-   he communication between the Public Server and the Main Server is fully secured with TLS, 
+   Once the Main Server has completed its tasks, it sends the responses back to the Public Server. 
+   The communication between the Public Server and the Main Server is fully secured with TLS, 
    ensuring that the integrity and confidentiality of the data are maintained at all times.
    A self-signed certificate (server.crt) is used for server authentication, safeguarding trust between entities.
 
@@ -144,21 +143,18 @@ The infrastructure for MessagIST consists of several components:
    of the group was confortable and had experience using it.
    We choose the psycopg library, that is a PostgreSQL adapter for Python, 
    that allows Python applications to interact with PostgreSLQ. The reason why
-   we choose this library it is because of its performance, security: Supports parameterized queries, 
-   protecting against SQL injection attacks and flexibility.
+   we choose this library it's because of its performance, security (supports parameterized queries,
+   protecting against SQL injection attacks) and flexibility.
    ADICIONAR FONTES ???
    https://satoricyber.com/postgres-security/3-pillars-of-postgresql-security/
 
 4. Public Server:
    This public server was implemented to act as an intermediary between clients and the main server, operating in a Demilitarized Zone (DMZ).
-   It helps to isolate the main server to direct exposere TODO , providing an extra layer of security.
-   It is a gRPC-based secure messaging design to facilitate the communciation between clients and a 
-   main server. It garantees secure data transfer using SSL  for both client-server and server-server communication.
+   It garantees secure data transfer using SSL  for both client-server and server-server communication.
    It receives clients requests and fowards this request to the main server waiting for the main server´s response. 
    When it receives this response from the main server it relays this response back to the client.
    A self-signed certificate (server.crt) is used for server authentication, safeguarding trust between entities.
-   We decided to implement this because the setup reduces the attack surface, as the main server is shielded behind the public Server.
-   It also enables scability 
+   The use of a public server in the DMZ reduces the attack surface of the Main Server by isolating it from direct external access.    It also enables scability.
 (_Provide a brief description of the built infrastructure._)
 
 (_Justify the choice of technologies for each server._)
@@ -176,13 +172,14 @@ The infrastructure for MessagIST consists of several components:
       The Database Server communicates with the Main Server over a secure TLS connection. This happens by setting ssl = require in the
       PostgresSQL configuration file. The database server´s certificate and server key are stored in the PSQL configuration file
 
-      Key distribution: 
+   Key distribution: 
       Server Private Key (server.key) - private key generated for each server and used for signing and encrypting communications
       Server Certificate (server.crt) - A self-signed certificate is generate for each server.
-      The Public Server certificate is shared with the clients.
+      The Public Server certificate is shared with the clients. In a real life scenario this would be installed with the application.
       The database server's certificate and key are configured within PostgreSQL, and the Main Server is set to trust the database server's certificate.
 
-      
+      The client public keys are destribuited throught the server
+
 (_Discuss how server communications were secured, including the secure channel solutions implemented and any challenges encountered._)
 
 (_Explain what keys exist at the start and how are they distributed?_)
