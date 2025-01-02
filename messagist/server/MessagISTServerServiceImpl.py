@@ -113,7 +113,10 @@ class MessagISTServerServiceImpl(pb2_grpc.MessagISTServerServicer):
 
         user_id = self.userManager.getUserId(username)
         partner_id = self.userManager.getUserId(partner)
-        self.chatManager.startChat(user_id, partner_id)
+
+        if not self.chatManager.startChat(user_id, partner_id):
+            return pb2.SendResponse(success=False, timestamp=-1)
+
         ts = self.chatManager.sendMessage(user_id, partner_id, request.message)
         logging.debug("Timestamp: " + str(ts))
         logging.debug("SEND " + ("success" if ts != -1 else "FAILED"))

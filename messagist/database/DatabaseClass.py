@@ -4,7 +4,6 @@ from psycopg import sql
 from psycopg import OperationalError
 
 
-# TODO: É preciso rever o codigo dos managers e dar rolback se operacoes nao forem bem sucedidas
 class DatabaseClass:
     def __init__(self, dbname, user, password, host="localhost", port="5432"):
         self.dbname = dbname
