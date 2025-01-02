@@ -33,10 +33,7 @@ message LoginResponse {
 
 message SubmitTwoFactorTokenLoginRequest {
     string username   = 1;
-    bytes password    = 2;
-    bytes salt        = 3;
-    bytes identityKey = 4;
-    string token      = 5;
+    string token      = 2;
 }
 
 message SubmitTwoFactorTokenLoginResponse {
@@ -45,8 +42,11 @@ message SubmitTwoFactorTokenLoginResponse {
 }
 
 message SubmitTwoFactorTokenSignUpRequest {
-    string username = 1;
-    string token    = 2;
+    string username   = 1;
+    bytes password    = 2;
+    bytes salt        = 3;
+    bytes identityKey = 4;
+    string token      = 5;
 }
 
 message SubmitTwoFactorTokenSignUpResponse {
