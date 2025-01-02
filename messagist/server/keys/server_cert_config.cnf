@@ -12,6 +12,7 @@ extendedKeyUsage = serverAuth
 subjectAltName = @alt_names
 
 [alt_names]
-DNS.1 = messagistserver.local
+DNS.1 = localhost
+DNS.2 = messagistserver.local
 IP.1 = 192.168.2.1
 IP.2 = 192.168.1.1

@@ -12,5 +12,6 @@ extendedKeyUsage = serverAuth
 subjectAltName = @alt_names
 
 [alt_names]
-DNS.1 = postgresdb.local
+DNS.1 = localhost
+DNS.2 = postgresdb.local
 IP.1 = 192.168.2.2
