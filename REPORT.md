@@ -1,4 +1,4 @@
-# A51 MessagIST Project Report
+# A61 MessagIST Project Report
 
 ## 1. Introduction
 
@@ -18,10 +18,6 @@ In practice, these requirements translate to:
 2. Messages must be timestamped.
 3. Users must authenticate themselves and establish a session with the server in
    order to receive messages.
-
-(_Include a structural diagram, in UML or other standard notation._)
-
-TODO
 
 ## 2. Project Development
 
@@ -76,10 +72,6 @@ a random and unique initializatoin vector, repeated plaintext blocks result in
 different ciphered blocks. This is not the case with ECB, where it's possible to
 detect patterns.
 
-(_Include a complete example of your data format, with the designed protections._)
-
-TODO
-
 #### 2.1.2. Implementation
 
 Everything was implemented in Python, using the
@@ -126,6 +118,7 @@ The infrastructure for MessagIST consists of several components:
    server by isolating it from direct external access.
 
 #### 2.2.2. Server Communication Security
+
 To guarentee communication security we used server-side TLS.
 Each server has a certificate (server.crt) and a private key (server.key).
 Clients establish secure connections by trusting the server's self-signed
@@ -172,9 +165,10 @@ In practice, these requirements translate to:
 
 #### 2.3.2. Attacker Model
 
-(_Define who is fully trusted, partially trusted, or untrusted._)
-
-(_Define how powerful the attacker is, with capabilities and limitations, i.e., what can he do and what he cannot do_)
+We worked under the assumption that the database is fully trusted, it will
+always return the correct result of a query. The main server is also fully
+trusted. The public server is partially trusted, it might be compromised and
+send repeated or out-of-order messages to clients. Clients are not trusted.
 
 #### 2.3.3. Solution Design and Implementation
 
@@ -244,6 +238,10 @@ If this is successful, the user is prompted to insert the passphrase for that
 chat. The passphrase is a secret password shared by the two communicating
 parties, and is used by the client to derive the session key used to encrypt the
 messages.
+
+After this, messages can be sent. Messages are sent to the server, that assigns
+a timestamp to the message. The message is appended to the local chat according
+to this timestamp.
 
 The partner's public key and the conversation's session key can be securely
 stored locally (described below), if the user wishes to do so when logging out.
@@ -317,10 +315,6 @@ detect if the document has been tampered with before actually decrypting
 anything. This saves us time, as we can immediately discard the document instead
 of first having to decrypt it, and reduces the attack surface, as tampered data
 won't even be decrypted.
-
-(_Identify communication entities and the messages they exchange with a UML sequence or collaboration diagram._)
-
-TODO
 
 ## 3. Conclusion
 
