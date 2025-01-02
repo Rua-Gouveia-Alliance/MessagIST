@@ -57,17 +57,22 @@ The infrastructure for MessagIST consists of several components:
 1. Main Server
 
 2. Client
-
+   It's a desktop application that communicates with the server located in the Demilitarized Zone (DMZ), the public server.
+   It sends the request to the public server and waits for its response. 
+   All the communications are secured using TLS, which guarantees that all communication between the server and the client 
+   are encryted.
+   The server's certificate is used to ensure that the client is connected to the correct server, minimizing the risks of
+   man-in-the-middle attacks.
 3. Database Server:
-   It is a PostreSQL instance hosted in a secure server.
-   It includes SSL/TLS Encryption: The server certificate in /keys folder 
+   It's a PostreSQL instance hosted in a secure server.
+   It includes TLS Encryption: The server certificate in /keys folder 
    guarantee that the communications between the client and the server is encrypted 
    and secure. The SSL Mode is require in the code. 
    This server stores user and chat data including message history and login information.
    For this server we decided to use PostgreSQL because it is a strong choice for
    storing this information due to its robust security features, such as ACID
    compliance for data integrity. 
-   It also offers advanced authentication and authorization, including SSL/TLS 
+   It also offers advanced authentication and authorization, including TLS 
    encryption for secure communication, access control through role-based permissions, 
    and logging mechanisms for auditing. Also, PostgreSQL ensures reliable, 
    scalable data storage with the
@@ -85,7 +90,7 @@ The infrastructure for MessagIST consists of several components:
    This public server was implemented to act as an intermediary between clients and the main server, operating in a Demilitarized Zone (DMZ).
    It helps to isolate the main server to direct exposere TODO , providing an extra layer of security.
    It is a gRPC-based secure messaging design to facilitate the communciation between clients and a 
-   main server. It garantees secure data transfer using TLS/SSL  for both client-server and server-server communication.
+   main server. It garantees secure data transfer using SSL  for both client-server and server-server communication.
    It receives clients requests and fowards this request to the main server waiting for the main server´s response. 
    When it receives this response from the main server it relays this response back to the client.
    A self-signed certificate (server.crt) is used for server authentication, safeguarding trust between entities.
