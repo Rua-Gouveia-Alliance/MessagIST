@@ -81,7 +81,7 @@ class MessagISTServerServiceImpl(pb2_grpc.MessagISTServerServicer):
 
         username = request.username
         token = request.token
-        success, _ = self.tokenManager.verifyTwoFactorToken(username, token)
+        success = self.tokenManager.verifyTwoFactorToken(username, token)
         if success:
             logging.debug("Valid token")
             token = self.sessionManager.startSession(username)
@@ -175,7 +175,7 @@ class MessagISTServerServiceImpl(pb2_grpc.MessagISTServerServicer):
         if username == partner:
             # cant chat with yourself
             logging.debug("TRYSETSALT FAILED")
-            return pb2.TrySetSaltResponse(salt="")
+            return pb2.TrySetSaltResponse(salt=b"")
 
         user_id = self.userManager.getUserId(username)
         partner_id = self.userManager.getUserId(partner)

@@ -83,7 +83,7 @@ class PublicServerServiceImpl(pb2_grpc.MessagISTServerServicer):
             return response
         except grpc.RpcError as e:
             logging.error(f"Error: {e}")
-            return pb2.TrySetSaltResponse(salt="")
+            return pb2.TrySetSaltResponse(salt=b"")
     def submitTwoFactorTokenSignUp(self, request, context):
         try:
             stub = pb2_grpc.MessagISTServerStub(self.ms_channel)
@@ -91,7 +91,7 @@ class PublicServerServiceImpl(pb2_grpc.MessagISTServerServicer):
             return response
         except grpc.RpcError as e:
             logging.error(f"Error: {e}")
-            return pb2.TrySetSaltResponse(salt="")
+            return pb2.TrySetSaltResponse(salt=b"")
 
     def submitTwoFactorTokenLogin(self, request, context):
         try:
@@ -100,4 +100,4 @@ class PublicServerServiceImpl(pb2_grpc.MessagISTServerServicer):
             return response
         except grpc.RpcError as e:
             logging.error(f"Error: {e}")
-            return pb2.TrySetSaltResponse(salt="")
+            return pb2.TrySetSaltResponse(salt=b"")
