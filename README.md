@@ -1,15 +1,12 @@
-# A61 MessagIST Project Read Me
+# MessagIST
 
 ## Team
 
-| Number  | Name              | User                              | E-mail                                          |
-| --------|-------------------|-----------------------------------| ------------------------------------------------|
-| 102611  | João Gouveia      | <https://github.com/joaotgouveia> | <mailto:joao.talone.gouveia@tecnico.ulisboa.pt> |
-| 102606  | Rodrigo Arêde     | <https://github.com/rodasarede>   | <mailto:rodrigo.arede@tecnico.ulisboa.pt>       |
-| 102604  | Gonçalo Rua       | <https://github.com/goncrust>     | <mailto:goncalonrua@tecnico.ulisboa.pt>         |
-
-
-![João Gouveia](img/ist1102611.jpeg) ![Rodrigo Arêde](img/ist1102606.png) ![Gonçalo Rua](img/ist1102604.jpeg)
+| Number  | Name              | User                              |
+| --------|-------------------|-----------------------------------|
+| 102611  | João Gouveia      | <https://github.com/joaotgouveia> |
+| 102606  | Rodrigo Arêde     | <https://github.com/rodasarede>   |
+| 102604  | Gonçalo Rua       | <https://github.com/goncrust>     |
 
 ## Contents
 
